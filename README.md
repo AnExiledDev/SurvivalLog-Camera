@@ -11,8 +11,8 @@ Survival Log's camera looks at your character from one fixed angle, and it snaps
 - **Height**: `PageUp` lifts the camera, `PageDown` lowers it.
 - **Reset**: `Home` puts the angle, height and zoom back to the game's.
 - **Wider zoom**: the scroll wheel zooms 10 degrees further in and 15 further out than the game allows, and you can make each scroll step bigger or smaller.
-- **Zoom stays put**: the plain game puts your zoom back to an older setting whenever your character takes stairs or a ladder while the camera follows them. Camera keeps the zoom you chose.
-- **No more snapping**: while you are looking at another floor, the camera stays there when your character takes stairs or a ladder (also when they come out on their new floor), when an object menu closes, and when build mode ends. Each has its own setting. When your character arrives on the floor you are looking at, the camera follows them again. The game's center camera key still snaps to your character.
+- **Zoom stays put**: the plain game puts your zoom back to an older setting whenever the game re-centres the camera while it follows your character, for example when they take stairs or a ladder. Camera keeps the zoom you chose.
+- **No more snapping**: while you are looking at another floor, the camera stays there when your character takes stairs or a ladder (also when they come out on their new floor), when an object menu closes, and when build mode ends. Each has its own setting. The game's center camera key still snaps to your character.
 - **Steps aside when the game needs the camera**: expeditions, photo mode, cutscenes and the death camera get the game's own view, and your view comes back afterwards. In build mode the view eases back to the game's angle (turn on `AllowInBuildMode` to keep yours).
 - **A log file**: what the mod set up, and every snap it held back, is written to `BepInEx\camera.log`.
 
@@ -40,6 +40,7 @@ Cameras are fiddly, and this one changes how the game's camera moves in almost e
 - Zoom changes the field of view, as the game's own zoom does, not the distance to your character. Zoomed far out, the edges of the screen stretch.
 - The keys hold back for the whole time a page that takes typing is open (the crafting table and the codex), not only while you type in its search box. The game draws its menus as web pages and only says whether a page takes typing, not whether a text box in it has focus.
 - `ScrollSpeed` can only go so far: the game caps one scroll step at five notches' worth, so on a wheel that sends several notches at once, high values zoom no further than lower ones.
+- Right after your character comes out on another floor, the floor buttons ignore a click for a moment.
 - The mod's own text, in the log, is in English.
 
 ## Requirements

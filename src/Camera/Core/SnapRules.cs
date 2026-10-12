@@ -71,8 +71,8 @@ public static class SnapRules
     /// <list type="bullet">
     /// <item>Setting off for stairs is held back even on the floor on screen, since following would only drag the
     /// camera across to the stairs the character is about to leave by.</item>
-    /// <item>Arriving on another floor is held back even though the game forces it, since that is the jump to the
-    /// character's new floor; arriving on the floor on screen is followed, as the character came to the player.</item>
+    /// <item>Arriving on another floor is held back even though the game forces it, and even on the floor on screen,
+    /// since that is the jump to the character's new floor.</item>
     /// <item>After a menu or build mode a forced request goes through, and so does one for the floor on screen.</item>
     /// </list>
     /// </summary>
@@ -83,7 +83,7 @@ public static class SnapRules
         return request.Source switch
         {
             SnapSource.Stairs => toggles.StayOnStairs && !request.IsForced,
-            SnapSource.StairsArrival => toggles.StayOnStairs && !request.IsViewedFloor,
+            SnapSource.StairsArrival => toggles.StayOnStairs,
             SnapSource.MenuClose => toggles.StayAfterMenuClose && IsElsewhere(request),
             SnapSource.BuildExit => toggles.StayAfterBuildMode && IsElsewhere(request),
             _ => false,

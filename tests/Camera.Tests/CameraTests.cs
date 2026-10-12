@@ -497,9 +497,9 @@ public class SnapTests
     }
 
     [Fact]
-    public void A_character_arriving_on_the_floor_being_viewed_is_followed_again()
+    public void A_character_arriving_on_the_floor_being_viewed_is_not_snapped_to()
     {
-        Assert.False(SnapRules.ShouldKeepView(Elsewhere with { Source = SnapSource.StairsArrival, IsForced = true, IsViewedFloor = true }, AllOn));
+        Assert.True(SnapRules.ShouldKeepView(Elsewhere with { Source = SnapSource.StairsArrival, IsForced = true, IsViewedFloor = true }, AllOn));
     }
 
     [Fact]

@@ -43,21 +43,21 @@ internal static class SnapPatches
 
         if (toggles.StayOnStairs)
         {
-            PatchKit.Patch(harmony, typeof(SnapPatches), typeof(AE_FloorMove), nameof(AE_FloorMove.Run), prefix: nameof(EnterStairs), postfix: nameof(LeaveStairs),
+            PatchKit.Patch(harmony, typeof(SnapPatches), typeof(AE_FloorMove), nameof(AE_FloorMove.Run), prefix: nameof(EnterStairs), finalizer: nameof(LeaveStairs),
                 done: "the camera stays put when your character takes stairs or a ladder", consequence: "the camera still snaps to your character on stairs and ladders");
-            PatchKit.Patch(harmony, typeof(SnapPatches), typeof(AE_FloorTeleport), nameof(AE_FloorTeleport.Run), prefix: nameof(EnterArrival), postfix: nameof(LeaveArrival),
+            PatchKit.Patch(harmony, typeof(SnapPatches), typeof(AE_FloorTeleport), nameof(AE_FloorTeleport.Run), prefix: nameof(EnterArrival), finalizer: nameof(LeaveArrival),
                 done: "the camera stays put when your character comes out on another floor", consequence: "the camera still jumps to your character's new floor after stairs and ladders");
         }
 
         if (toggles.StayAfterMenuClose)
         {
-            PatchKit.Patch(harmony, typeof(SnapPatches), typeof(Reducer_Web_SelectMenu), nameof(Reducer_Web_SelectMenu.TryReturnToPlayerFloor), prefix: nameof(EnterMenuClose), postfix: nameof(LeaveMenuClose),
+            PatchKit.Patch(harmony, typeof(SnapPatches), typeof(Reducer_Web_SelectMenu), nameof(Reducer_Web_SelectMenu.TryReturnToPlayerFloor), prefix: nameof(EnterMenuClose), finalizer: nameof(LeaveMenuClose),
                 done: "the camera stays on the floor you were viewing when an object menu closes", consequence: "the camera still snaps to your character's floor when an object menu closes");
         }
 
         if (toggles.StayAfterBuildMode)
         {
-            PatchKit.Patch(harmony, typeof(SnapPatches), typeof(CameraManager), nameof(CameraManager.OnExitInstallPlanMode), prefix: nameof(EnterBuildExit), postfix: nameof(LeaveBuildExit),
+            PatchKit.Patch(harmony, typeof(SnapPatches), typeof(CameraManager), nameof(CameraManager.OnExitInstallPlanMode), prefix: nameof(EnterBuildExit), finalizer: nameof(LeaveBuildExit),
                 done: "the camera stays where it was when build mode ends", consequence: "the camera still snaps to your character when build mode ends");
         }
     }
@@ -78,7 +78,10 @@ internal static class SnapPatches
 
     private static void LeaveBuildExit() => Leave(SnapSource.BuildExit);
 
-    /// <summary>These run inside the game's own stairs, menu and build code, so a failure here must never reach it.</summary>
+    /// <summary>
+    /// These run inside the game's own stairs, menu and build code, so a failure here must never reach it. Leave runs
+    /// as a finalizer, so the mark is cleared even when the game's method throws.
+    /// </summary>
     private static void Enter(SnapSource source)
     {
         try

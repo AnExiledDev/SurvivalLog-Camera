@@ -14,14 +14,15 @@ internal static class PatchKit
     public static Action<string> Log { get; set; } = _ => { };
 
     /// <returns>Whether the hook was placed.</returns>
-    public static bool Patch(Harmony harmony, Type hooks, Type type, string method, string? prefix = null, string? postfix = null, string done = "", string consequence = "")
+    public static bool Patch(Harmony harmony, Type hooks, Type type, string method, string? prefix = null, string? postfix = null, string? finalizer = null, string done = "", string consequence = "")
     {
         try
         {
             harmony.Patch(
                 AccessTools.Method(type, method),
                 prefix: prefix == null ? null : new HarmonyMethod(hooks, prefix),
-                postfix: postfix == null ? null : new HarmonyMethod(hooks, postfix));
+                postfix: postfix == null ? null : new HarmonyMethod(hooks, postfix),
+                finalizer: finalizer == null ? null : new HarmonyMethod(hooks, finalizer));
             Log(done);
 
             return true;

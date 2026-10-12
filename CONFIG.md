@@ -10,7 +10,7 @@ Settings live in `BepInEx\config\com.dev.survivallog.camera.cfg`, created the fi
 | `StayAfterMenuClose` | `true` | Keep the camera on the floor you are looking at when an object's menu closes, instead of snapping back to your character's floor. |
 | `StayAfterBuildMode` | `true` | Keep the camera where it is when build mode ends, instead of snapping back to your character. |
 
-These only hold the camera while you have picked a floor to look at, rather than the camera following your character. After a menu or build mode the camera still goes back to your character if you were looking at their own floor. On stairs and ladders it stays put until your character arrives on the floor you are looking at, and then follows them again. The game's center camera key always snaps to your character.
+These only hold the camera while you have picked a floor to look at, rather than the camera following your character. After a menu or build mode the camera still goes back to your character if you were looking at their own floor. On stairs and ladders it stays put, even when your character comes out on the floor you are looking at. The game's center camera key always snaps to your character.
 
 ## Rotate
 
