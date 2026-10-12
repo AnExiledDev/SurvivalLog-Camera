@@ -319,11 +319,19 @@ internal static class ViewPatches
     private static Vector3 FollowOffset(CameraManager camera, View view) =>
         camera._yawRotation * (Turn(view) * (camera._baseFollowOffset + camera._gmRaiseOffset)) + Vector3.up * view.Height;
 
-    /// <summary>With rotation on, the game's rotate keys are read by this mod instead; the game's own turn is held still.</summary>
+    /// <summary>
+    /// With rotation on, the game's rotate keys are read by this mod instead and the game's own turn is held still.
+    /// When the mod ended up with no rotate key at all (both off, both taken, or the keys could not be set up), the
+    /// game keeps its own turn so the keys still do something.
+    /// </summary>
     private static bool SkipGameYawInput(CameraManager __instance)
     {
         try
         {
+            CameraKeys.SetUpOnce();
+
+            if (!CameraKeys.HasRotateKey) return true;
+
             __instance._yawTargetDir = 0f;
 
             return false;
@@ -338,7 +346,8 @@ internal static class ViewPatches
 
     /// <summary>
     /// The game's drag handler pans the camera with any button and selects on release, so a turning drag is taken
-    /// over whole. isOnDrag is set so the click that ends it selects nothing.
+    /// over whole. isOnDrag is set so the click that ends it selects nothing: Unity's input module sends the click
+    /// before the end of the drag, and the game's click handler reads and clears the flag (CameraTouch.c:325-327).
     /// </summary>
     private static bool BeginMouseRotate(CameraTouch __instance, PointerEventData __0)
     {
@@ -385,13 +394,18 @@ internal static class ViewPatches
         }
     }
 
-    private static bool EndMouseRotate(PointerEventData __0)
+    /// <summary>
+    /// When the button comes up off the game world no click is sent, so the flag set for the drag would swallow the
+    /// player's next click. It is cleared here, after the click (if any) has already been ignored.
+    /// </summary>
+    private static bool EndMouseRotate(CameraTouch __instance, PointerEventData __0)
     {
         try
         {
             if (!_isMouseRotating || !IsRotateButton(__0)) return true;
 
             _isMouseRotating = false;
+            __instance.isOnDrag = false;
 
             return false;
         }

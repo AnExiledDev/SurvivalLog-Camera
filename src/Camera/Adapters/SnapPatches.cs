@@ -58,20 +58,45 @@ internal static class SnapPatches
         }
     }
 
-    private static void EnterStairs() => Scope.Enter(SnapSource.Stairs, Time.frameCount);
+    private static void EnterStairs() => Enter(SnapSource.Stairs);
 
-    private static void LeaveStairs() => Scope.Leave(SnapSource.Stairs);
+    private static void LeaveStairs() => Leave(SnapSource.Stairs);
 
-    private static void EnterMenuClose() => Scope.Enter(SnapSource.MenuClose, Time.frameCount);
+    private static void EnterMenuClose() => Enter(SnapSource.MenuClose);
 
-    private static void LeaveMenuClose() => Scope.Leave(SnapSource.MenuClose);
+    private static void LeaveMenuClose() => Leave(SnapSource.MenuClose);
 
-    private static void EnterBuildExit() => Scope.Enter(SnapSource.BuildExit, Time.frameCount);
+    private static void EnterBuildExit() => Enter(SnapSource.BuildExit);
 
-    private static void LeaveBuildExit() => Scope.Leave(SnapSource.BuildExit);
+    private static void LeaveBuildExit() => Leave(SnapSource.BuildExit);
+
+    /// <summary>These run inside the game's own stairs, menu and build code, so a failure here must never reach it.</summary>
+    private static void Enter(SnapSource source)
+    {
+        try
+        {
+            Scope.Enter(source, Time.frameCount);
+        }
+        catch (Exception ex)
+        {
+            PatchKit.Fail($"marking a camera snap ({source})", ex);
+        }
+    }
+
+    private static void Leave(SnapSource source)
+    {
+        try
+        {
+            Scope.Leave(source);
+        }
+        catch (Exception ex)
+        {
+            PatchKit.Fail($"ending a camera snap ({source})", ex);
+        }
+    }
 
     /// <returns>False drops the game's request, so the camera stays where the player put it.</returns>
-    private static bool KeepViewIfSnap(CameraManager __instance, CameraMode __0, bool __2)
+    private static bool KeepViewIfSnap(CameraManager __instance, CameraMode __0, int __1, bool __2)
     {
         try
         {
@@ -79,7 +104,8 @@ internal static class SnapPatches
 
             if (source == SnapSource.None) return true;
 
-            var isKept = SnapRules.ShouldKeepView(source, __0 == CameraMode.Follow, __2, __instance.cameraMode == CameraMode.Free, _toggles);
+            var request = new SnapRequest(source, __0 == CameraMode.Follow, __2, __instance.cameraMode == CameraMode.Free, __1 == __instance._mapConfigId_k__BackingField);
+            var isKept = SnapRules.ShouldKeepView(request, _toggles);
 
             if (isKept) _logFileOnly($"kept the view instead of snapping to your character ({source})");
 

@@ -58,7 +58,7 @@ public sealed class Plugin : BasePlugin
         var zoomExtraOut = Config.Bind("Zoom", "ExtraOut", 15f,
             "Degrees of field of view the scroll wheel may zoom out past the game's limit (0 to 60; never wider than 110 degrees).").Value;
         var scrollSpeed = Config.Bind("Zoom", "ScrollSpeed", 1f,
-            "Multiplies how far each scroll wheel step zooms, from 0.1 to 5. 1 is the game's speed.").Value;
+            "Multiplies how far each scroll wheel step zooms, from 0.1 to 5. 1 is the game's speed. The game caps one step at five notches' worth, so on a wheel that sends several notches at once, high values zoom no further than lower ones.").Value;
 
         var smoothingRate = Config.Bind("Smoothing", "Rate", 12f,
             "How quickly the camera eases to where you turned it, from 0 to 60. Higher is snappier; 0 moves it instantly.").Value;

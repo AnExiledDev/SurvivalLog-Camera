@@ -53,18 +53,25 @@ public sealed class SnapScope
     public SnapSource Active(int frame) => frame == _frame && _open.Count > 0 ? _open[^1] : SnapSource.None;
 }
 
+/// <summary>
+/// One request the game makes to change the camera mode, as the snap guard sees it. IsViewedFloor says the floor it
+/// asks for is the one the camera already shows.
+/// </summary>
+public readonly record struct SnapRequest(SnapSource Source, bool IsFollow, bool IsForced, bool IsCameraFree, bool IsViewedFloor);
+
 public static class SnapRules
 {
     /// <summary>
     /// Whether to drop the game's request to follow the character. Only a follow request made inside one of the
     /// snapping code paths is dropped, only while the player has the camera looking elsewhere (the game's free mode),
-    /// and only when that snap's setting is on. A forced request always goes through.
+    /// only when it would take the camera to another floor, and only when that snap's setting is on. A forced request
+    /// always goes through, and so does one for the floor already on screen: the character came to the player's floor.
     /// </summary>
-    public static bool ShouldKeepView(SnapSource source, bool isFollowRequest, bool isForced, bool isCameraFree, SnapToggles toggles)
+    public static bool ShouldKeepView(SnapRequest request, SnapToggles toggles)
     {
-        if (!isFollowRequest || isForced || !isCameraFree) return false;
+        if (!request.IsFollow || request.IsForced || !request.IsCameraFree || request.IsViewedFloor) return false;
 
-        return source switch
+        return request.Source switch
         {
             SnapSource.Stairs => toggles.StayOnStairs,
             SnapSource.MenuClose => toggles.StayAfterMenuClose,

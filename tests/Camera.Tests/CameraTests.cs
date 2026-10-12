@@ -439,39 +439,92 @@ public class SnapTests
         Assert.Equal(SnapSource.None, scope.Active(6));
     }
 
+    /// <summary>A follow request from the stairs, to another floor, while the player looks around in free mode.</summary>
+    private static readonly SnapRequest Elsewhere = new(SnapSource.Stairs, IsFollow: true, IsForced: false, IsCameraFree: true, IsViewedFloor: false);
+
     [Fact]
     public void Each_snap_is_held_back_while_the_player_is_looking_elsewhere()
     {
-        Assert.True(SnapRules.ShouldKeepView(SnapSource.Stairs, true, false, true, AllOn));
-        Assert.True(SnapRules.ShouldKeepView(SnapSource.MenuClose, true, false, true, AllOn));
-        Assert.True(SnapRules.ShouldKeepView(SnapSource.BuildExit, true, false, true, AllOn));
+        Assert.True(SnapRules.ShouldKeepView(Elsewhere, AllOn));
+        Assert.True(SnapRules.ShouldKeepView(Elsewhere with { Source = SnapSource.MenuClose }, AllOn));
+        Assert.True(SnapRules.ShouldKeepView(Elsewhere with { Source = SnapSource.BuildExit }, AllOn));
     }
 
     [Fact]
     public void A_snap_whose_setting_is_off_goes_through()
     {
-        Assert.False(SnapRules.ShouldKeepView(SnapSource.Stairs, true, false, true, new SnapToggles(false, true, true)));
-        Assert.False(SnapRules.ShouldKeepView(SnapSource.MenuClose, true, false, true, new SnapToggles(true, false, true)));
-        Assert.False(SnapRules.ShouldKeepView(SnapSource.BuildExit, true, false, true, new SnapToggles(true, true, false)));
+        Assert.False(SnapRules.ShouldKeepView(Elsewhere, new SnapToggles(false, true, true)));
+        Assert.False(SnapRules.ShouldKeepView(Elsewhere with { Source = SnapSource.MenuClose }, new SnapToggles(true, false, true)));
+        Assert.False(SnapRules.ShouldKeepView(Elsewhere with { Source = SnapSource.BuildExit }, new SnapToggles(true, true, false)));
     }
 
     [Fact]
     public void A_forced_request_always_goes_through()
     {
-        Assert.False(SnapRules.ShouldKeepView(SnapSource.Stairs, true, true, true, AllOn));
+        Assert.False(SnapRules.ShouldKeepView(Elsewhere with { IsForced = true }, AllOn));
     }
 
     [Fact]
     public void Nothing_is_held_back_while_the_camera_already_follows_the_character()
     {
-        Assert.False(SnapRules.ShouldKeepView(SnapSource.Stairs, true, false, false, AllOn));
+        Assert.False(SnapRules.ShouldKeepView(Elsewhere with { IsCameraFree = false }, AllOn));
     }
 
     [Fact]
     public void Requests_from_anywhere_else_such_as_the_center_key_always_go_through()
     {
-        Assert.False(SnapRules.ShouldKeepView(SnapSource.None, true, false, true, AllOn));
-        Assert.False(SnapRules.ShouldKeepView(SnapSource.Stairs, false, false, true, AllOn));
+        Assert.False(SnapRules.ShouldKeepView(Elsewhere with { Source = SnapSource.None }, AllOn));
+        Assert.False(SnapRules.ShouldKeepView(Elsewhere with { IsFollow = false }, AllOn));
+    }
+
+    [Fact]
+    public void A_character_arriving_on_the_floor_being_viewed_is_followed_again()
+    {
+        Assert.False(SnapRules.ShouldKeepView(Elsewhere with { IsViewedFloor = true }, AllOn));
+        Assert.False(SnapRules.ShouldKeepView(Elsewhere with { Source = SnapSource.MenuClose, IsViewedFloor = true }, AllOn));
+    }
+}
+
+public class TimeControlKeysTests
+{
+    [Fact]
+    public void Time_Controls_chosen_keys_are_read_from_its_keys_section()
+    {
+        var names = TimeControlKeys.Read(new[]
+        {
+            "[Keys]",
+            "",
+            "## A key that pauses",
+            "# Setting type: String",
+            "# Default value: Space",
+            "PauseToggleKey = F",
+            "",
+            "CenterCameraKey = Tab",
+        });
+
+        Assert.Equal(new TimeControlKeyNames("F", "Tab"), names);
+    }
+
+    [Fact]
+    public void Same_names_in_other_sections_and_comments_are_not_taken_for_its_keys()
+    {
+        var names = TimeControlKeys.Read(new[]
+        {
+            "[Alerts]",
+            "PauseToggleKey = F",
+            "[Keys]",
+            "# PauseToggleKey = Tab",
+        });
+
+        Assert.Equal(TimeControlKeyNames.Defaults, names);
+    }
+
+    [Fact]
+    public void A_setting_missing_from_the_file_keeps_Time_Controls_default()
+    {
+        var names = TimeControlKeys.Read(new[] { "[Keys]", "PauseToggleKey = None" });
+
+        Assert.Equal(new TimeControlKeyNames("None", "G"), names);
     }
 }
 

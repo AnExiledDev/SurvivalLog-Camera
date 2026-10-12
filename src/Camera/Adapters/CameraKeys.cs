@@ -1,9 +1,12 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using BepInEx;
 using Camera.Core;
 using GameCore.HotUpdate;
 using GameCore.HotUpdate.Battle.Show;
+using GameCore.HotUpdate.ReduxUI;
 using HarmonyLib;
 using Il2CppInterop.Runtime;
 using UnityEngine;
@@ -24,9 +27,12 @@ internal static class CameraKeys
         public string Describe() => GameAction is { } action ? $"{Current} (the game's {action} key)" : Fixed.ToString();
     }
 
+    private const string TimeControlConfigFile = "com.dev.survivallog.timecontrol.cfg";
+
     /// <summary>
     /// Keys something answers without going through the game's key settings: the game's hardcoded camera pan and
-    /// photo keys, menu keys, mouse clicks, and the keys the other Survival Log mods use.
+    /// photo keys, menu keys, mouse clicks, and the keys the other Survival Log mods use. Time Control's two keys are
+    /// read from its config file on top of these (<see cref="TimeControlTaken"/>).
     /// </summary>
     private static readonly (KeyCode Key, string By)[] AlwaysTaken =
     {
@@ -35,8 +41,6 @@ internal static class CameraKeys
         (KeyCode.S, "the game's camera pan keys"),
         (KeyCode.D, "the game's camera pan keys"),
         (KeyCode.P, "the game's photo mode key"),
-        (KeyCode.Space, "Time Control's pause key"),
-        (KeyCode.G, "Time Control's center camera key"),
         (KeyCode.Escape, "closing menus"),
         (KeyCode.Return, "confirming menus"),
         (KeyCode.KeypadEnter, "confirming menus"),
@@ -123,6 +127,9 @@ internal static class CameraKeys
     public static HeldKeys Held() =>
         new(IsHeld(_rotateLeft), IsHeld(_rotateRight), IsHeld(_tiltUp), IsHeld(_tiltDown), IsHeld(_raise), IsHeld(_lower));
 
+    /// <summary>Whether either rotate key survived setup. With none, the game's own rotate handling is left running.</summary>
+    public static bool HasRotateKey => _rotateLeft != null || _rotateRight != null;
+
     public static bool IsResetDown() => _reset != null && IsDown(_reset.Current);
 
     public static bool IsCenterDown() => IsDown(HotKeyManager.Bind(HotKeyAction.CameraLock));
@@ -136,7 +143,31 @@ internal static class CameraKeys
         !camera.isKeyboardMoveBlocked &&
         !camera.isRebindListening &&
         !HotKeyManager.IsUGUIInputFocused() &&
+        !IsWebPageTakingKeys() &&
         !ContainerTabHotKey.IsAnyPanelOpen();
+
+    /// <summary>
+    /// The game's menus are web pages, and keys only reach one while the game has the web view's keyboard switched
+    /// on: it does so while a page with a text field is open (the crafting table and the codex) and other mods do so
+    /// while their own fields have focus. The game holds its own screenshot key back on the same flag
+    /// (HotKeyManager.c:1366-1367). It is on for the whole time such a page is open, not only while a field has focus.
+    /// </summary>
+    private static bool IsWebPageTakingKeys()
+    {
+        try
+        {
+            var ui = BaseSingleton<ReduxUISystem>.IsInstanceCreated ? BaseSingleton<ReduxUISystem>.Instance : null;
+            var layer = ui?.GetWebUILayer();
+
+            return layer != null && layer.IsKeyboardEnabled;
+        }
+        catch (Exception ex)
+        {
+            PatchKit.Fail("reading whether a menu takes keys", ex);
+
+            return false;
+        }
+    }
 
     /// <summary>A drag can only start on the game world, so typing does not matter; an open panel or a rebind still does.</summary>
     public static bool IsMouseFree(CameraManager camera) =>
@@ -214,6 +245,8 @@ internal static class CameraKeys
     {
         var taken = AlwaysTaken.Select(entry => new TakenKey((int)entry.Key, entry.By)).ToList();
 
+        taken.AddRange(TimeControlTaken());
+
         if (settings.IsRotateOn && settings.MouseButton == DragButton.Middle) taken.Add(new TakenKey((int)KeyCode.Mouse2, "the Rotate.MouseButton drag"));
 
         foreach (HotKeyAction action in Enum.GetValues(typeof(HotKeyAction)))
@@ -232,6 +265,40 @@ internal static class CameraKeys
 
         return taken;
     }
+
+    /// <summary>
+    /// Time Control's pause and center keys, as set in its config file. Without the file (Time Control not installed
+    /// or not started yet) or when it cannot be read, its default keys are kept out of the way.
+    /// </summary>
+    private static IEnumerable<TakenKey> TimeControlTaken()
+    {
+        var names = TimeControlKeyNames.Defaults;
+
+        try
+        {
+            var path = Path.Combine(Paths.ConfigPath, TimeControlConfigFile);
+
+            if (File.Exists(path)) names = TimeControlKeys.Read(File.ReadAllLines(path));
+        }
+        catch (Exception ex)
+        {
+            _log($"could not read Time Control's keys, so Space and G are kept free for it: {ex.Message}");
+        }
+
+        // Time Control turns an unreadable pause key off and puts an unreadable center key back to G.
+        var pause = ParseKeyName(names.PauseToggleKey, KeyCode.None);
+        var center = ParseKeyName(names.CenterCameraKey, KeyCode.G);
+        var taken = new List<TakenKey>();
+
+        if (pause != KeyCode.None) taken.Add(new TakenKey((int)pause, "Time Control's pause key"));
+
+        if (center != KeyCode.None) taken.Add(new TakenKey((int)center, "Time Control's center camera key"));
+
+        return taken;
+    }
+
+    private static KeyCode ParseKeyName(string name, KeyCode fallback) =>
+        Enum.TryParse<KeyCode>(name, ignoreCase: true, out var key) ? key : fallback;
 
     private static bool IsHeld(ModKey? key)
     {

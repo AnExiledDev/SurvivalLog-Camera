@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using HarmonyLib;
 
 namespace Camera.Adapters;
@@ -8,7 +9,7 @@ internal static class PatchKit
 {
     private const int MaxLoggedFailures = 3;
 
-    private static int _failures;
+    private static readonly Dictionary<string, int> FailuresByDoing = new();
 
     public static Action<string> Log { get; set; } = _ => { };
 
@@ -33,11 +34,16 @@ internal static class PatchKit
         }
     }
 
-    /// <summary>Runs from per-frame hooks, so only the first few failures are written.</summary>
+    /// <summary>
+    /// Runs from per-frame hooks, so only the first few failures of each kind are written; one hook failing every
+    /// frame cannot hide a different one failing later.
+    /// </summary>
     public static void Fail(string doing, Exception ex)
     {
-        _failures++;
+        var failures = FailuresByDoing.GetValueOrDefault(doing) + 1;
 
-        if (_failures <= MaxLoggedFailures) Log($"failed {doing} (logged {_failures} of {MaxLoggedFailures}): {ex}");
+        FailuresByDoing[doing] = failures;
+
+        if (failures <= MaxLoggedFailures) Log($"failed {doing} (logged {failures} of {MaxLoggedFailures}): {ex}");
     }
 }
