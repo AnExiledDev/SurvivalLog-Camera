@@ -10,9 +10,11 @@ using UnityEngine;
 namespace Camera.Adapters;
 
 /// <summary>
-/// Holds back three of the game's automatic snaps to the character while the player is looking at another floor.
+/// Holds back the game's automatic snaps to the character while the player is looking at another floor.
 /// Each snap is the game asking SetCameraMode for Follow from inside one known method, on the same call stack, so
-/// that method is marked while it runs and only a request made inside it is dropped. The center key, map moves,
+/// that method is marked while it runs and only a request made inside it is dropped. Stairs and ladders make two:
+/// one as the character sets off (AE_FloorMove) and a forced one as they come out on the new floor
+/// (AE_FloorTeleport, through the FloorChanged event to CameraManager.JumpMap). The center key, map moves,
 /// cutscenes and photo mode make their requests from elsewhere and always go through.
 /// </summary>
 internal static class SnapPatches
@@ -43,6 +45,8 @@ internal static class SnapPatches
         {
             PatchKit.Patch(harmony, typeof(SnapPatches), typeof(AE_FloorMove), nameof(AE_FloorMove.Run), prefix: nameof(EnterStairs), postfix: nameof(LeaveStairs),
                 done: "the camera stays put when your character takes stairs or a ladder", consequence: "the camera still snaps to your character on stairs and ladders");
+            PatchKit.Patch(harmony, typeof(SnapPatches), typeof(AE_FloorTeleport), nameof(AE_FloorTeleport.Run), prefix: nameof(EnterArrival), postfix: nameof(LeaveArrival),
+                done: "the camera stays put when your character comes out on another floor", consequence: "the camera still jumps to your character's new floor after stairs and ladders");
         }
 
         if (toggles.StayAfterMenuClose)
@@ -61,6 +65,10 @@ internal static class SnapPatches
     private static void EnterStairs() => Enter(SnapSource.Stairs);
 
     private static void LeaveStairs() => Leave(SnapSource.Stairs);
+
+    private static void EnterArrival() => Enter(SnapSource.StairsArrival);
+
+    private static void LeaveArrival() => Leave(SnapSource.StairsArrival);
 
     private static void EnterMenuClose() => Enter(SnapSource.MenuClose);
 

@@ -11,7 +11,8 @@ Survival Log's camera looks at your character from one fixed angle and snaps bac
 [*][b]Height[/b]: PageUp lifts the camera, PageDown lowers it.[/*]
 [*][b]Reset[/b]: Home puts the angle, height and zoom back to the game's.[/*]
 [*][b]Wider zoom[/b]: the scroll wheel zooms further in and out than the game allows, with an adjustable scroll speed.[/*]
-[*][b]No more snapping[/b]: while you look at another floor, the camera stays there when your character takes stairs or a ladder, when an object menu closes and when build mode ends. When your character arrives on the floor you are looking at, the camera follows them again. The center camera key still snaps to your character.[/*]
+[*][b]Zoom stays put[/b]: the plain game puts your zoom back to an older setting whenever your character takes stairs or a ladder while the camera follows them. Camera keeps the zoom you chose.[/*]
+[*][b]No more snapping[/b]: while you look at another floor, the camera stays there when your character takes stairs or a ladder (also when they come out on their new floor), when an object menu closes and when build mode ends. When your character arrives on the floor you are looking at, the camera follows them again. The center camera key still snaps to your character.[/*]
 [*][b]Steps aside when needed[/b]: expeditions, photo mode, cutscenes and the death camera use the game's own view, and yours comes back afterwards.[/*]
 [/list]
 Every key can be changed or turned off in the config. Keys do nothing while you type, while a menu is open or while you rebind a key, and a key the game or another Survival Log mod already uses is turned off rather than doubled up. Works alongside Time Control.

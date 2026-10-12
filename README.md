@@ -11,7 +11,8 @@ Survival Log's camera looks at your character from one fixed angle, and it snaps
 - **Height**: `PageUp` lifts the camera, `PageDown` lowers it.
 - **Reset**: `Home` puts the angle, height and zoom back to the game's.
 - **Wider zoom**: the scroll wheel zooms 10 degrees further in and 15 further out than the game allows, and you can make each scroll step bigger or smaller.
-- **No more snapping**: while you are looking at another floor, the camera stays there when your character takes stairs or a ladder, when an object menu closes, and when build mode ends. Each has its own setting. When your character arrives on the floor you are looking at, the camera follows them again. The game's center camera key still snaps to your character.
+- **Zoom stays put**: the plain game puts your zoom back to an older setting whenever your character takes stairs or a ladder while the camera follows them. Camera keeps the zoom you chose.
+- **No more snapping**: while you are looking at another floor, the camera stays there when your character takes stairs or a ladder (also when they come out on their new floor), when an object menu closes, and when build mode ends. Each has its own setting. When your character arrives on the floor you are looking at, the camera follows them again. The game's center camera key still snaps to your character.
 - **Steps aside when the game needs the camera**: expeditions, photo mode, cutscenes and the death camera get the game's own view, and your view comes back afterwards. In build mode the view eases back to the game's angle (turn on `AllowInBuildMode` to keep yours).
 - **A log file**: what the mod set up, and every snap it held back, is written to `BepInEx\camera.log`.
 
@@ -63,7 +64,7 @@ Settings live in `BepInEx\config\com.dev.survivallog.camera.cfg`, created the fi
 
 Built against BepInEx `6.0.0-be.788`.
 
-Check `BepInEx\LogOutput.log` for a line starting `===== Camera 0.1.0 started`. It lists which pieces are on. The lines after it say whether each hook went in, which keys the camera uses (and which were turned off because something else uses them), and the game's camera angle once a world loads.
+Check `BepInEx\LogOutput.log` for a line starting `===== Camera 0.1.1 started`. It lists which pieces are on. The lines after it say whether each hook went in, which keys the camera uses (and which were turned off because something else uses them), and the game's camera angle once a world loads.
 
 The same lines are in `BepInEx\camera.log`, which survives restarts. It also gets a line for every snap the mod held back.
 

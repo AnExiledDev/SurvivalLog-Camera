@@ -84,6 +84,9 @@ internal static class ViewPatches
                 done: $"zoom range widened by {settings.ZoomExtraIn:0.#} degrees in and {settings.ZoomExtraOut:0.#} out, scroll speed x{settings.ScrollSpeed:0.##}",
                 consequence: "zoom keeps the game's range and speed");
         }
+
+        PatchKit.Patch(harmony, typeof(ViewPatches), typeof(CameraManager), nameof(CameraManager.SetCameraMode), prefix: nameof(CarryFollowZoom),
+            done: "the zoom stays put when the game tells the camera to keep following", consequence: "the zoom may jump back when your character takes stairs or a ladder");
     }
 
     /// <summary>Puts the follow camera back the way the game left it, so the next world captures the game's angle and not a turned one.</summary>
@@ -257,6 +260,26 @@ internal static class ViewPatches
         catch (Exception ex)
         {
             PatchKit.Fail("noting a camera mode change", ex);
+        }
+    }
+
+    /// <summary>
+    /// Gives the free camera the follow camera's zoom just before the game hands the free zoom to the follow camera,
+    /// so a camera that was already following keeps the zoom on screen. The free zoom is never seen while following:
+    /// entering free mode overwrites it with the follow zoom.
+    /// </summary>
+    private static void CarryFollowZoom(CameraManager __instance, CameraMode __0)
+    {
+        try
+        {
+            if (!FollowZoom.ShouldCarry(__0 == CameraMode.Follow, __instance.cameraMode == CameraMode.Follow)) return;
+
+            __instance._currentFreeFOV_k__BackingField = __instance._currentFollowFOV_k__BackingField;
+            __instance._targetFreeFOV_k__BackingField = __instance._targetFollowFOV_k__BackingField;
+        }
+        catch (Exception ex)
+        {
+            PatchKit.Fail("keeping the zoom", ex);
         }
     }
 

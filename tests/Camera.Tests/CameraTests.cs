@@ -446,6 +446,7 @@ public class SnapTests
     public void Each_snap_is_held_back_while_the_player_is_looking_elsewhere()
     {
         Assert.True(SnapRules.ShouldKeepView(Elsewhere, AllOn));
+        Assert.True(SnapRules.ShouldKeepView(Elsewhere with { Source = SnapSource.StairsArrival }, AllOn));
         Assert.True(SnapRules.ShouldKeepView(Elsewhere with { Source = SnapSource.MenuClose }, AllOn));
         Assert.True(SnapRules.ShouldKeepView(Elsewhere with { Source = SnapSource.BuildExit }, AllOn));
     }
@@ -454,20 +455,38 @@ public class SnapTests
     public void A_snap_whose_setting_is_off_goes_through()
     {
         Assert.False(SnapRules.ShouldKeepView(Elsewhere, new SnapToggles(false, true, true)));
+        Assert.False(SnapRules.ShouldKeepView(Elsewhere with { Source = SnapSource.StairsArrival, IsForced = true }, new SnapToggles(false, true, true)));
         Assert.False(SnapRules.ShouldKeepView(Elsewhere with { Source = SnapSource.MenuClose }, new SnapToggles(true, false, true)));
         Assert.False(SnapRules.ShouldKeepView(Elsewhere with { Source = SnapSource.BuildExit }, new SnapToggles(true, true, false)));
     }
 
     [Fact]
-    public void A_forced_request_always_goes_through()
+    public void A_forced_request_on_setting_off_after_a_menu_or_after_build_mode_goes_through()
     {
         Assert.False(SnapRules.ShouldKeepView(Elsewhere with { IsForced = true }, AllOn));
+        Assert.False(SnapRules.ShouldKeepView(Elsewhere with { Source = SnapSource.MenuClose, IsForced = true }, AllOn));
+        Assert.False(SnapRules.ShouldKeepView(Elsewhere with { Source = SnapSource.BuildExit, IsForced = true }, AllOn));
+    }
+
+    /// <summary>The game forces the camera after the character on every floor change; that forced request is the floor-change jump.</summary>
+    [Fact]
+    public void The_forced_jump_to_the_characters_new_floor_is_held_back()
+    {
+        Assert.True(SnapRules.ShouldKeepView(Elsewhere with { Source = SnapSource.StairsArrival, IsForced = true }, AllOn));
+    }
+
+    /// <summary>Setting off, the game asks for the floor the character is leaving, which may be the one on screen.</summary>
+    [Fact]
+    public void A_character_setting_off_for_stairs_is_not_followed_even_on_the_floor_on_screen()
+    {
+        Assert.True(SnapRules.ShouldKeepView(Elsewhere with { IsViewedFloor = true }, AllOn));
     }
 
     [Fact]
     public void Nothing_is_held_back_while_the_camera_already_follows_the_character()
     {
         Assert.False(SnapRules.ShouldKeepView(Elsewhere with { IsCameraFree = false }, AllOn));
+        Assert.False(SnapRules.ShouldKeepView(Elsewhere with { Source = SnapSource.StairsArrival, IsForced = true, IsCameraFree = false }, AllOn));
     }
 
     [Fact]
@@ -480,8 +499,35 @@ public class SnapTests
     [Fact]
     public void A_character_arriving_on_the_floor_being_viewed_is_followed_again()
     {
-        Assert.False(SnapRules.ShouldKeepView(Elsewhere with { IsViewedFloor = true }, AllOn));
+        Assert.False(SnapRules.ShouldKeepView(Elsewhere with { Source = SnapSource.StairsArrival, IsForced = true, IsViewedFloor = true }, AllOn));
+    }
+
+    [Fact]
+    public void A_menu_or_build_mode_ending_on_the_floor_being_viewed_goes_back_to_the_character()
+    {
         Assert.False(SnapRules.ShouldKeepView(Elsewhere with { Source = SnapSource.MenuClose, IsViewedFloor = true }, AllOn));
+        Assert.False(SnapRules.ShouldKeepView(Elsewhere with { Source = SnapSource.BuildExit, IsViewedFloor = true }, AllOn));
+    }
+}
+
+public class FollowZoomTests
+{
+    [Fact]
+    public void A_camera_told_to_follow_while_already_following_keeps_its_zoom()
+    {
+        Assert.True(FollowZoom.ShouldCarry(isFollowRequest: true, isFollowing: true));
+    }
+
+    [Fact]
+    public void A_camera_coming_back_from_another_floor_takes_the_zoom_it_had_there()
+    {
+        Assert.False(FollowZoom.ShouldCarry(isFollowRequest: true, isFollowing: false));
+    }
+
+    [Fact]
+    public void Leaving_for_another_floor_carries_nothing()
+    {
+        Assert.False(FollowZoom.ShouldCarry(isFollowRequest: false, isFollowing: true));
     }
 }
 

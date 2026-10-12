@@ -7,8 +7,11 @@ public enum SnapSource
 {
     None,
 
-    /// <summary>The player's character took stairs or a ladder to another floor.</summary>
+    /// <summary>The player's character set off for stairs or a ladder to another floor.</summary>
     Stairs,
+
+    /// <summary>The player's character came out on another floor, and the game insists the camera follows them there.</summary>
+    StairsArrival,
 
     /// <summary>An object menu closed while the camera showed another floor.</summary>
     MenuClose,
@@ -64,19 +67,28 @@ public static class SnapRules
     /// <summary>
     /// Whether to drop the game's request to follow the character. Only a follow request made inside one of the
     /// snapping code paths is dropped, only while the player has the camera looking elsewhere (the game's free mode),
-    /// only when it would take the camera to another floor, and only when that snap's setting is on. A forced request
-    /// always goes through, and so does one for the floor already on screen: the character came to the player's floor.
+    /// and only when that snap's setting is on. Each snap then has its own exceptions:
+    /// <list type="bullet">
+    /// <item>Setting off for stairs is held back even on the floor on screen, since following would only drag the
+    /// camera across to the stairs the character is about to leave by.</item>
+    /// <item>Arriving on another floor is held back even though the game forces it, since that is the jump to the
+    /// character's new floor; arriving on the floor on screen is followed, as the character came to the player.</item>
+    /// <item>After a menu or build mode a forced request goes through, and so does one for the floor on screen.</item>
+    /// </list>
     /// </summary>
     public static bool ShouldKeepView(SnapRequest request, SnapToggles toggles)
     {
-        if (!request.IsFollow || request.IsForced || !request.IsCameraFree || request.IsViewedFloor) return false;
+        if (!request.IsFollow || !request.IsCameraFree) return false;
 
         return request.Source switch
         {
-            SnapSource.Stairs => toggles.StayOnStairs,
-            SnapSource.MenuClose => toggles.StayAfterMenuClose,
-            SnapSource.BuildExit => toggles.StayAfterBuildMode,
+            SnapSource.Stairs => toggles.StayOnStairs && !request.IsForced,
+            SnapSource.StairsArrival => toggles.StayOnStairs && !request.IsViewedFloor,
+            SnapSource.MenuClose => toggles.StayAfterMenuClose && IsElsewhere(request),
+            SnapSource.BuildExit => toggles.StayAfterBuildMode && IsElsewhere(request),
             _ => false,
         };
     }
+
+    private static bool IsElsewhere(SnapRequest request) => !request.IsForced && !request.IsViewedFloor;
 }
