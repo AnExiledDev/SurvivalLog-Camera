@@ -424,6 +424,29 @@ public class SnapTests
         Assert.Equal(SnapSource.Stairs, scope.Active(5));
     }
 
+    /// <summary>
+    /// The game's camera key path sends the toggle action, whose handler then asks for the new mode. The button check
+    /// runs as the action is sent and must see the key path; the camera request runs in the handler and must see the
+    /// toggle.
+    /// </summary>
+    [Fact]
+    public void The_camera_toggle_inside_the_camera_key_path_is_the_innermost_scope()
+    {
+        var scope = new SnapScope();
+
+        scope.Enter(SnapSource.GameCameraKey, 5);
+
+        Assert.Equal(SnapSource.GameCameraKey, scope.Active(5));
+
+        scope.Enter(SnapSource.CameraToggle, 5);
+
+        Assert.Equal(SnapSource.CameraToggle, scope.Active(5));
+
+        scope.Leave(SnapSource.CameraToggle);
+
+        Assert.Equal(SnapSource.GameCameraKey, scope.Active(5));
+    }
+
     [Fact]
     public void Leaving_a_scope_that_is_not_the_innermost_changes_nothing()
     {
@@ -579,6 +602,51 @@ public class SnapTests
     {
         Assert.Equal(SnapVerdict.PlayerAsked, SnapRules.Judge(OwnFloor with { Source = SnapSource.CameraToggle, IsPlayerAsking = true }, OnlyCenterKey));
         Assert.Equal(SnapVerdict.PlayerAsked, SnapRules.Judge(Elsewhere with { Source = SnapSource.CameraToggle, IsPlayerAsking = true }, OnlyCenterKey));
+    }
+
+    [Fact]
+    public void The_toggle_action_sent_from_outside_the_camera_keys_is_the_camera_button()
+    {
+        Assert.True(SnapRules.IsCameraButtonFollowAsk(SnapSource.None, isCameraFree: true));
+    }
+
+    /// <summary>A rotate key or keyboard pan sends the same toggle action; counting it as the button would let its snap through.</summary>
+    [Fact]
+    public void The_toggle_action_sent_by_the_game_camera_keys_is_not_the_camera_button()
+    {
+        Assert.False(SnapRules.IsCameraButtonFollowAsk(SnapSource.GameCameraKey, isCameraFree: true));
+    }
+
+    /// <summary>From Follow the button lets the camera go; noting it would let a stairs or menu snap through right after.</summary>
+    [Fact]
+    public void The_camera_button_pressed_while_following_asks_for_nothing()
+    {
+        Assert.False(SnapRules.IsCameraButtonFollowAsk(SnapSource.None, isCameraFree: false));
+    }
+
+    [Fact]
+    public void The_center_key_asks_to_follow_when_the_game_acts_on_it()
+    {
+        Assert.True(SnapRules.IsCenterKeyFollowAsk(isKeyDown: true, areKeysFree: true, isCameraFree: true));
+    }
+
+    [Fact]
+    public void The_center_key_typed_into_a_text_box_or_pressed_behind_a_panel_asks_for_nothing()
+    {
+        Assert.False(SnapRules.IsCenterKeyFollowAsk(isKeyDown: true, areKeysFree: false, isCameraFree: true));
+    }
+
+    /// <summary>From Follow the game only ends a peek on the center key, so a snap right after it is not the player's.</summary>
+    [Fact]
+    public void The_center_key_pressed_while_following_asks_for_nothing()
+    {
+        Assert.False(SnapRules.IsCenterKeyFollowAsk(isKeyDown: true, areKeysFree: true, isCameraFree: false));
+    }
+
+    [Fact]
+    public void Without_a_center_key_press_nothing_is_asked()
+    {
+        Assert.False(SnapRules.IsCenterKeyFollowAsk(isKeyDown: false, areKeysFree: true, isCameraFree: true));
     }
 
     [Fact]

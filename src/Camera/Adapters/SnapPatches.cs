@@ -194,12 +194,14 @@ internal static class SnapPatches
         }
     }
 
-    /// <summary>The toggle action sent from anywhere but the game's camera keys is the camera button.</summary>
+    /// <summary>Notes the camera button only when it asks for Follow (<see cref="SnapRules.IsCameraButtonFollowAsk"/>).</summary>
     private static void NoteCameraButton()
     {
         try
         {
-            if (Scope.Active(Time.frameCount) != SnapSource.GameCameraKey) _buttonPressedAt = Time.unscaledTime;
+            var isCameraFree = WorldCamera.Existing()?.cameraMode == CameraMode.Free;
+
+            if (SnapRules.IsCameraButtonFollowAsk(Scope.Active(Time.frameCount), isCameraFree)) _buttonPressedAt = Time.unscaledTime;
         }
         catch (Exception ex)
         {
@@ -218,7 +220,7 @@ internal static class SnapPatches
 
             var isFollow = __0 == CameraMode.Follow;
             var isCameraFree = __instance.cameraMode == CameraMode.Free;
-            var asker = _toggles.OnlyCenterKeyFollows && isFollow && isCameraFree ? PlayerAsker() : null;
+            var asker = _toggles.OnlyCenterKeyFollows && isFollow && isCameraFree ? PlayerAsker(__instance) : null;
             var request = new SnapRequest(source, isFollow, __2, isCameraFree, __1 == __instance._mapConfigId_k__BackingField, asker != null);
             var verdict = SnapRules.Judge(request, _toggles);
 
@@ -238,11 +240,11 @@ internal static class SnapPatches
     /// Who asked for the camera moments ago, or null. The center key is also read directly, since the game may act on
     /// it before this frame's key reading is noted.
     /// </summary>
-    private static string? PlayerAsker()
+    private static string? PlayerAsker(CameraManager camera)
     {
         var now = Time.unscaledTime;
 
-        if (CameraKeys.IsCenterDown() || SnapRules.IsWithinAskWindow(CameraKeys.CenterPressedAt, now)) return "you pressed the center key";
+        if (CameraKeys.IsCenterFollowAsk(camera) || SnapRules.IsWithinAskWindow(CameraKeys.CenterPressedAt, now)) return "you pressed the center key";
 
         return SnapRules.IsWithinAskWindow(_buttonPressedAt, now) ? "you pressed the camera button" : null;
     }

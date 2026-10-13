@@ -134,8 +134,18 @@ internal static class CameraKeys
 
     public static bool IsCenterDown() => IsDown(HotKeyManager.Bind(HotKeyAction.CameraLock));
 
-    /// <summary>When the game's center key last went down, in unscaled seconds; negative infinity until it does.</summary>
+    /// <summary>
+    /// When the game's center key last went down as a request for Follow, in unscaled seconds; negative infinity until
+    /// it does. A press the game ignores (typing, a panel open, the camera already following) is not noted.
+    /// </summary>
     public static float CenterPressedAt { get; private set; } = float.NegativeInfinity;
+
+    /// <summary>
+    /// Whether the center key went down this frame in a way the game turns into a request for Follow: the keyboard
+    /// conditions here, the game's own photo mode check on its camera keys, and a free camera.
+    /// </summary>
+    public static bool IsCenterFollowAsk(CameraManager camera) =>
+        SnapRules.IsCenterKeyFollowAsk(IsCenterDown(), IsKeyboardFree(camera) && !camera._isPhotoMode, camera.cameraMode == CameraMode.Free);
 
     /// <summary>
     /// The game's own conditions for its camera rotate keys (ReadCameraYawInput: keyboard camera moves allowed, no key
@@ -212,7 +222,7 @@ internal static class CameraKeys
 
         try
         {
-            if (IsCenterDown()) CenterPressedAt = Time.unscaledTime;
+            if (WorldCamera.Existing() is { } camera && IsCenterFollowAsk(camera)) CenterPressedAt = Time.unscaledTime;
         }
         catch (Exception ex)
         {

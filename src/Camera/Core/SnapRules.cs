@@ -125,6 +125,22 @@ public static class SnapRules
         return elapsed >= 0f && elapsed <= AskWindowSeconds;
     }
 
+    /// <summary>
+    /// Whether the game's camera toggle action, as it is sent, is the player asking for Follow with the camera button.
+    /// The game's camera keys send the same action from inside their own path (active is GameCameraKey), so only a
+    /// send from outside it is the button. From Follow the button lets the camera go, which asks for nothing.
+    /// </summary>
+    public static bool IsCameraButtonFollowAsk(SnapSource active, bool isCameraFree) =>
+        isCameraFree && active != SnapSource.GameCameraKey;
+
+    /// <summary>
+    /// Whether a center key press is the player asking for Follow. The game only acts on it while keys reach the
+    /// camera (nothing being typed, no panel open, no key being rebound, not in photo mode) and the camera is free;
+    /// from Follow the key only ends a peek.
+    /// </summary>
+    public static bool IsCenterKeyFollowAsk(bool isKeyDown, bool areKeysFree, bool isCameraFree) =>
+        isKeyDown && areKeysFree && isCameraFree;
+
     public static bool ShouldKeepView(SnapRequest request, SnapToggles toggles) => Judge(request, toggles) == SnapVerdict.Kept;
 
     /// <summary>
