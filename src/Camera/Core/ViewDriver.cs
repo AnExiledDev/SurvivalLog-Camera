@@ -18,6 +18,9 @@ public readonly record struct CameraFlags(bool IsExploring, bool IsPhotoMode, bo
 
 public static class Suspensions
 {
+    /// <summary>The turned view stays in build mode unless the player turns that off.</summary>
+    public const bool AllowInBuildModeByDefault = true;
+
     public static Suspension Of(CameraFlags flags, bool allowInBuildMode)
     {
         if (flags.IsExploring || flags.IsPhotoMode || flags.IsSubCameraActive || flags.IsDeadZooming) return Suspension.Hard;

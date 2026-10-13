@@ -6,23 +6,27 @@ Survival Log's camera looks at your character from one fixed angle, and it snaps
 
 ## Features
 
-- **Orbit**: drag with the middle mouse button to turn the camera around your character and tilt it. The game's own rotate keys turn it too, smoothly and all the way round.
+- **Orbit**: hold the middle mouse button and drag to turn the camera around your character and tilt it. The game's own rotate keys, `Period` (.) and `Comma` (,), turn it too, smoothly and all the way round.
 - **Tilt**: `Insert` tilts the view steeper (toward looking straight down), `Delete` flatter. By default the angle stays between 25 and 85 degrees below the horizon. The game's own angle is always allowed.
 - **Height**: `PageUp` lifts the camera, `PageDown` lowers it.
 - **Reset**: `Home` puts the angle, height and zoom back to the game's.
 - **Wider zoom**: the scroll wheel zooms 10 degrees further in and 15 further out than the game allows, and you can make each scroll step bigger or smaller.
 - **Zoom stays put**: the plain game puts your zoom back to an older setting whenever the game re-centres the camera while it follows your character, for example when they take stairs or a ladder. Camera keeps the zoom you chose.
-- **No more snapping**: while you are looking at another floor, the camera stays there when your character takes stairs or a ladder (also when they come out on their new floor), when an object menu closes, and when build mode ends. Each has its own setting. The game's center camera key still snaps to your character.
-- **Steps aside when the game needs the camera**: expeditions, photo mode, cutscenes and the death camera get the game's own view, and your view comes back afterwards. In build mode the view eases back to the game's angle (turn on `AllowInBuildMode` to keep yours).
+- **No more snapping**: while you are looking at another floor, the camera stays there when your character takes stairs or a ladder (also when they come out on their new floor), when an object menu closes, and when build mode ends. Each has its own setting. The game's center camera key (`Space` by default) still brings the camera back to your character.
+- **Steps aside when the game needs the camera**: expeditions, photo mode, cutscenes and the death camera get the game's own view, and your view comes back afterwards. Build mode keeps your view, and you can keep turning there (turn off `AllowInBuildMode` to have it ease back to the game's angle while you build).
 - **A log file**: what the mod set up, and every snap it held back, is written to `BepInEx\camera.log`.
 
-| Key | What it does | Setting |
+## Controls
+
+| Control | What it does | Setting |
 | --- | --- | --- |
-| Middle mouse drag | Turn and tilt | `MouseButton` |
-| The game's rotate keys | Turn left and right | `RotateLeftKey`, `RotateRightKey` |
-| `Insert` / `Delete` | Tilt steeper / flatter | `TiltUpKey`, `TiltDownKey` |
-| `PageUp` / `PageDown` | Raise / lower | `RaiseKey`, `LowerKey` |
-| `Home` | Back to the game's view | `ResetKey` |
+| Hold the middle mouse button and drag | Drag left and right to turn the camera around your character, up and down to tilt it | `MouseButton` |
+| `Period` (.) / `Comma` (,) | Turn left / right. These are the game's own rotate keys; if you changed them in the game's key settings, the mod uses yours | `RotateLeftKey`, `RotateRightKey` |
+| `Insert` / `Delete` | Tilt steeper (toward looking straight down) / flatter | `TiltUpKey`, `TiltDownKey` |
+| `PageUp` / `PageDown` | Raise / lower the camera | `RaiseKey`, `LowerKey` |
+| `Home` | Put the angle, height and zoom back to the game's | `ResetKey` |
+| Scroll wheel | Zoom in and out, further than the game allows | `ExtraIn`, `ExtraOut`, `ScrollSpeed` |
+| `Space` | The game's center camera key: brings the camera back to your character (and, if you turn on `CenterKeyResetsView`, also resets the view) | `CenterKeyResetsView` |
 
 The keys do nothing while you type in a text box, while a menu or panel is open, or while you rebind a key. A key the game or another Survival Log mod already uses is turned off and the log says which one; pick another in the settings. Time Control's pause and center keys are read from its own settings and left alone.
 
@@ -35,7 +39,7 @@ Cameras are fiddly, and this one changes how the game's camera moves in almost e
 - Leaving build mode only keeps the view while you were looking at another floor. On your character's own floor the game puts the camera back on them, as before.
 - While you look at another floor, the game's rotate keys orbit the view there. In the plain game they send the camera back to your character.
 - With `MouseButton` on `Middle`, dragging with the middle mouse button turns the camera and no longer pans it. Pan with the keyboard, or set `MouseButton` to `Right` or `None`.
-- Build mode, photo mode, expeditions, cutscenes and the death camera use the game's own camera. Your view comes back when they end.
+- Photo mode, expeditions, cutscenes and the death camera use the game's own camera. Your view comes back when they end. Build mode keeps your view unless you turn off `AllowInBuildMode`.
 - The death camera may start from your turned angle rather than the game's.
 - Zoom changes the field of view, as the game's own zoom does, not the distance to your character. Zoomed far out, the edges of the screen stretch.
 - The keys hold back for the whole time a page that takes typing is open (the crafting table and the codex), not only while you type in its search box. The game draws its menus as web pages and only says whether a page takes typing, not whether a text box in it has focus.
@@ -65,7 +69,7 @@ Settings live in `BepInEx\config\com.dev.survivallog.camera.cfg`, created the fi
 
 Built against BepInEx `6.0.0-be.788`.
 
-Check `BepInEx\LogOutput.log` for a line starting `===== Camera 0.1.1 started`. It lists which pieces are on. The lines after it say whether each hook went in, which keys the camera uses (and which were turned off because something else uses them), and the game's camera angle once a world loads.
+Check `BepInEx\LogOutput.log` for a line starting `===== Camera 0.2.0 started`. It lists which pieces are on. The lines after it say whether each piece attached to the game, which keys the camera uses (and which were turned off because something else uses them), and the game's camera angle once a world loads.
 
 The same lines are in `BepInEx\camera.log`, which survives restarts. It also gets a line for every snap the mod held back.
 

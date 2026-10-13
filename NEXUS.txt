@@ -6,14 +6,14 @@ Survival Log's camera looks at your character from one fixed angle and snaps bac
 
 [size=5]Main features[/size]
 [list]
-[*][b]Orbit[/b]: drag with the middle mouse button to turn the camera all the way around your character and tilt it. The game's rotate keys turn it smoothly too.[/*]
+[*][b]Orbit[/b]: hold the middle mouse button and drag to turn the camera all the way around your character and tilt it. The game's rotate keys, Period (.) and Comma (,), turn it smoothly too.[/*]
 [*][b]Tilt[/b]: Insert tilts the view steeper, Delete flatter.[/*]
 [*][b]Height[/b]: PageUp lifts the camera, PageDown lowers it.[/*]
 [*][b]Reset[/b]: Home puts the angle, height and zoom back to the game's.[/*]
 [*][b]Wider zoom[/b]: the scroll wheel zooms further in and out than the game allows, with an adjustable scroll speed.[/*]
 [*][b]Zoom stays put[/b]: the plain game puts your zoom back to an older setting whenever the game re-centres the camera while it follows your character, for example when they take stairs or a ladder. Camera keeps the zoom you chose.[/*]
 [*][b]No more snapping[/b]: while you look at another floor, the camera stays there when your character takes stairs or a ladder (also when they come out on their new floor), when an object menu closes and when build mode ends. The center camera key still snaps to your character.[/*]
-[*][b]Steps aside when needed[/b]: expeditions, photo mode, cutscenes and the death camera use the game's own view, and yours comes back afterwards.[/*]
+[*][b]Steps aside when needed[/b]: expeditions, photo mode, cutscenes and the death camera use the game's own view, and yours comes back afterwards. Build mode keeps your view.[/*]
 [/list]
 Every key can be changed or turned off in the config. Keys do nothing while you type, while a menu is open or while you rebind a key, and a key the game or another Survival Log mod already uses is turned off rather than doubled up. Works alongside Time Control.
 
@@ -24,7 +24,7 @@ Camera adds no data to your save and does not edit game files. You can remove it
 [*]Leaving build mode only keeps the view while you were looking at another floor.[/*]
 [*]While you look at another floor, the game's rotate keys orbit the view instead of sending the camera back to your character.[/*]
 [*]With the default middle mouse drag, that drag turns the camera and no longer pans it. Set MouseButton to Right or None to change that.[/*]
-[*]Build mode, photo mode, expeditions, cutscenes and the death camera use the game's camera. The death camera may start from your turned angle.[/*]
+[*]Photo mode, expeditions, cutscenes and the death camera use the game's camera. The death camera may start from your turned angle.[/*]
 [*]Zoom changes the field of view, like the game's own zoom, so the screen edges stretch when zoomed far out.[/*]
 [*]The keys hold back for the whole time the crafting table or the codex is open, not only while you type in their search box.[/*]
 [*]The game caps one scroll step, so high ScrollSpeed values can zoom no further than lower ones on a fast wheel.[/*]

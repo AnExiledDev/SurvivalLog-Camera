@@ -258,6 +258,14 @@ public class SuspensionTests
     }
 
     [Fact]
+    public void By_default_build_mode_keeps_the_turned_view_and_takes_input()
+    {
+        var building = new CameraFlags(false, false, false, false, true);
+
+        Assert.Equal(Suspension.None, Suspensions.Of(building, Suspensions.AllowInBuildModeByDefault));
+    }
+
+    [Fact]
     public void A_cutscene_during_build_mode_still_hands_the_camera_straight_back()
     {
         Assert.Equal(Suspension.Hard, Suspensions.Of(new CameraFlags(false, false, true, false, true), true));
