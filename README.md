@@ -12,7 +12,7 @@ Survival Log's camera looks at your character from one fixed angle, and it snaps
 - **Reset**: `Home` puts the angle, height and zoom back to the game's.
 - **Wider zoom**: the scroll wheel zooms 10 degrees further in and 15 further out than the game allows, and you can make each scroll step bigger or smaller.
 - **Zoom stays put**: the plain game puts your zoom back to an older setting whenever the game re-centres the camera while it follows your character, for example when they take stairs or a ladder. Camera keeps the zoom you chose.
-- **No more snapping**: while you are looking at another floor, the camera stays there when your character takes stairs or a ladder (also when they come out on their new floor), when an object menu closes, and when build mode ends. Each has its own setting. The game's center camera key (`Space` by default) still brings the camera back to your character.
+- **No more snapping**: while you are looking at another floor, the camera stays there when your character takes stairs or a ladder (also when they come out on their new floor), when an object menu closes, and when build mode ends. Each has its own setting. The game's center camera key (`Space` by default, or `G` with Time Control) still brings the camera back to your character.
 - **Steps aside when the game needs the camera**: expeditions, photo mode, cutscenes and the death camera get the game's own view, and your view comes back afterwards. Build mode keeps your view, and you can keep turning there (turn off `AllowInBuildMode` to have it ease back to the game's angle while you build).
 - **A log file**: what the mod set up, and every snap it held back, is written to `BepInEx\camera.log`.
 
@@ -26,7 +26,7 @@ Survival Log's camera looks at your character from one fixed angle, and it snaps
 | `PageUp` / `PageDown` | Raise / lower the camera | `RaiseKey`, `LowerKey` |
 | `Home` | Put the angle, height and zoom back to the game's | `ResetKey` |
 | Scroll wheel | Zoom in and out, further than the game allows | `ExtraIn`, `ExtraOut`, `ScrollSpeed` |
-| `Space` | The game's center camera key: brings the camera back to your character (and, if you turn on `CenterKeyResetsView`, also resets the view) | `CenterKeyResetsView` |
+| `Space` (`G` with Time Control) | The game's center camera key: brings the camera back to your character (and, if you turn on `CenterKeyResetsView`, also resets the view) | `CenterKeyResetsView` |
 
 The keys do nothing while you type in a text box, while a menu or panel is open, or while you rebind a key. A key the game or another Survival Log mod already uses is turned off and the log says which one; pick another in the settings. Time Control's pause and center keys are read from its own settings and left alone.
 

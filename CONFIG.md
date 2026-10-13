@@ -12,7 +12,7 @@ Settings live in `BepInEx\config\com.dev.survivallog.camera.cfg`, created the fi
 | `PageUp` / `PageDown` | Raise / lower the camera | `RaiseKey`, `LowerKey` |
 | `Home` | Put the angle, height and zoom back to the game's | `ResetKey` |
 | Scroll wheel | Zoom in and out, further than the game allows | `ExtraIn`, `ExtraOut`, `ScrollSpeed` |
-| `Space` | The game's center camera key: brings the camera back to your character | `CenterKeyResetsView` |
+| `Space` (`G` with Time Control) | The game's center camera key: brings the camera back to your character | `CenterKeyResetsView` |
 | Floor buttons, or `F1` to `F3` | The game's way to look at another floor; the camera then stays there | `StayOnStairs`, `StayAfterMenuClose`, `StayAfterBuildMode` |
 
 ## Snap
@@ -23,7 +23,7 @@ Settings live in `BepInEx\config\com.dev.survivallog.camera.cfg`, created the fi
 | `StayAfterMenuClose` | `true` | Keep the camera on the floor you are looking at when an object's menu closes, instead of jumping back to your character's floor. |
 | `StayAfterBuildMode` | `true` | Keep the camera where it is when you leave build mode, instead of jumping back to your character. |
 
-These only hold the camera while you look at another floor (with the floor buttons, or `F1` to `F3`), rather than the camera following your character. After a menu or build mode the camera still goes back to your character if you were looking at their own floor. On stairs and ladders it stays put, even when your character comes out on the floor you are looking at. The game's center camera key (`Space` by default) always brings the camera back to your character.
+These only hold the camera while you look at another floor (with the floor buttons, or `F1` to `F3`), rather than the camera following your character. After a menu or build mode the camera still goes back to your character if you were looking at their own floor. On stairs and ladders it stays put, even when your character comes out on the floor you are looking at. The game's center camera key (`Space` by default, or `G` with Time Control) always brings the camera back to your character.
 
 ## Rotate
 
@@ -69,14 +69,14 @@ The game counts at most five notches per scroll step, so on a wheel that sends s
 
 | Setting | Default | What it does |
 | --- | --- | --- |
-| `RotateLeftKey` | `Game` | Key that turns the camera left. `Game` means the game's own rotate-left key, which is `Period` (.) unless you changed it in the game's key settings. |
-| `RotateRightKey` | `Game` | Key that turns the camera right. `Game` means the game's own rotate-right key, which is `Comma` (,) unless you changed it in the game's key settings. |
-| `TiltUpKey` | `Insert` | Key that tilts the camera steeper, toward looking straight down. |
-| `TiltDownKey` | `Delete` | Key that tilts the camera flatter, toward the horizon. |
+| `RotateLeftKey` | `Game` | Key that turns the camera left. It does nothing while `[Rotate] Enabled` is off. `Game` means the game's own rotate-left key, which is `Period` (.) unless you changed it in the game's key settings. |
+| `RotateRightKey` | `Game` | Key that turns the camera right. It does nothing while `[Rotate] Enabled` is off. `Game` means the game's own rotate-right key, which is `Comma` (,) unless you changed it in the game's key settings. |
+| `TiltUpKey` | `Insert` | Key that tilts the camera steeper, toward looking straight down. It does nothing while `[Rotate] Enabled` is off. |
+| `TiltDownKey` | `Delete` | Key that tilts the camera flatter, toward the horizon. It does nothing while `[Rotate] Enabled` is off. |
 | `RaiseKey` | `PageUp` | Key that lifts the camera. |
 | `LowerKey` | `PageDown` | Key that lowers the camera. |
 | `ResetKey` | `Home` | Key that puts the camera's angle, height and zoom back to the game's. |
-| `CenterKeyResetsView` | `false` | Also put the camera's angle, height and zoom back to the game's when you press the game's center camera key (`Space` by default). |
+| `CenterKeyResetsView` | `false` | Also put the camera's angle, height and zoom back to the game's when you press the game's center camera key (`Space` by default, or `G` with Time Control). |
 
 Keys take Unity key names, such as `F`, `Keypad8`, `PageUp` or `Mouse3` (the full list is Unity's [KeyCode](https://docs.unity3d.com/ScriptReference/KeyCode.html) page). `None` turns a key off.
 
