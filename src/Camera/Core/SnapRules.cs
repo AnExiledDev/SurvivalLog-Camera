@@ -18,12 +18,58 @@ public enum SnapSource
 
     /// <summary>Build mode ended.</summary>
     BuildExit,
+
+    /// <summary>The game's camera mode toggle, which its center key, its rotate keys and the camera button on the HUD all go through.</summary>
+    CameraToggle,
+
+    /// <summary>One of the game's camera keys (the center key or a rotate key) asked for the camera mode toggle.</summary>
+    GameCameraKey,
+
+    /// <summary>A cutscene took the camera.</summary>
+    Cutscene,
+
+    /// <summary>Photo mode started or ended.</summary>
+    PhotoMode,
+
+    /// <summary>The world started and the game put the camera on the character.</summary>
+    WorldStart,
+
+    /// <summary>The tutorial's door scene moved the camera.</summary>
+    TutorialDoor,
+
+    /// <summary>The character travelled to another map.</summary>
+    MapTravel,
 }
 
-/// <summary>Which automatic snaps the player wants held back. Each one is its own setting.</summary>
-public readonly record struct SnapToggles(bool StayOnStairs, bool StayAfterMenuClose, bool StayAfterBuildMode)
+/// <summary>
+/// Which automatic snaps the player wants held back. Each of the first three is its own setting;
+/// OnlyCenterKeyFollows holds back every one of them, and more, while it is on.
+/// </summary>
+public readonly record struct SnapToggles(bool StayOnStairs, bool StayAfterMenuClose, bool StayAfterBuildMode, bool OnlyCenterKeyFollows = false)
 {
-    public bool IsAnyOn => StayOnStairs || StayAfterMenuClose || StayAfterBuildMode;
+    public bool IsAnyOn => StayOnStairs || StayAfterMenuClose || StayAfterBuildMode || OnlyCenterKeyFollows;
+}
+
+/// <summary>What the snap guard made of one camera request.</summary>
+public enum SnapVerdict
+{
+    /// <summary>Not a request to follow the character, or the camera already follows them.</summary>
+    NotAJump,
+
+    /// <summary>A snap whose own setting is off, or one it lets through.</summary>
+    Allowed,
+
+    /// <summary>Dropped: the camera stays where the player put it.</summary>
+    Kept,
+
+    /// <summary>The player asked for it with the center key or the camera button.</summary>
+    PlayerAsked,
+
+    /// <summary>A cutscene, photo mode, the world starting, the tutorial door or map travel needs the camera.</summary>
+    GameNeedsCamera,
+
+    /// <summary>An unmarked request for a floor or map other than the one on screen.</summary>
+    AnotherFloor,
 }
 
 /// <summary>
@@ -58,14 +104,54 @@ public sealed class SnapScope
 
 /// <summary>
 /// One request the game makes to change the camera mode, as the snap guard sees it. IsViewedFloor says the floor it
-/// asks for is the one the camera already shows.
+/// asks for is the one the camera already shows. IsPlayerAsking says the player pressed the center key or the camera
+/// button moments before.
 /// </summary>
-public readonly record struct SnapRequest(SnapSource Source, bool IsFollow, bool IsForced, bool IsCameraFree, bool IsViewedFloor);
+public readonly record struct SnapRequest(SnapSource Source, bool IsFollow, bool IsForced, bool IsCameraFree, bool IsViewedFloor, bool IsPlayerAsking = false);
 
 public static class SnapRules
 {
     /// <summary>
-    /// Whether to drop the game's request to follow the character. Only a follow request made inside one of the
+    /// How long after the center key or the camera button a follow request still counts as the player's. The game
+    /// hands the press through its menu system before the camera sees it, which may take a few frames.
+    /// </summary>
+    public const float AskWindowSeconds = 0.5f;
+
+    /// <summary>Whether a press at askedAt still covers a request at now (both unscaled seconds). No press yet is negative infinity.</summary>
+    public static bool IsWithinAskWindow(float askedAt, float now)
+    {
+        var elapsed = now - askedAt;
+
+        return elapsed >= 0f && elapsed <= AskWindowSeconds;
+    }
+
+    public static bool ShouldKeepView(SnapRequest request, SnapToggles toggles) => Judge(request, toggles) == SnapVerdict.Kept;
+
+    /// <summary>
+    /// What to do with one camera request. With OnlyCenterKeyFollows on, a free camera only goes back to the
+    /// character when the player asks (center key or camera button), when the game needs the camera (cutscenes,
+    /// photo mode, the world starting, the tutorial door, map travel), or when an unmarked request asks for another
+    /// floor or map. Everything else is dropped, forced or not, on any floor: stairs, menus, build mode and the rotate
+    /// keys. With it off, each snap follows its own setting (<see cref="IsHeldBackBySetting"/>).
+    /// </summary>
+    public static SnapVerdict Judge(SnapRequest request, SnapToggles toggles)
+    {
+        if (!request.IsFollow || !request.IsCameraFree) return SnapVerdict.NotAJump;
+
+        if (!toggles.OnlyCenterKeyFollows) return IsHeldBackBySetting(request, toggles) ? SnapVerdict.Kept : SnapVerdict.Allowed;
+
+        if (request.IsPlayerAsking) return SnapVerdict.PlayerAsked;
+
+        return request.Source switch
+        {
+            SnapSource.Cutscene or SnapSource.PhotoMode or SnapSource.WorldStart or SnapSource.TutorialDoor or SnapSource.MapTravel => SnapVerdict.GameNeedsCamera,
+            SnapSource.None => request.IsViewedFloor ? SnapVerdict.Kept : SnapVerdict.AnotherFloor,
+            _ => SnapVerdict.Kept,
+        };
+    }
+
+    /// <summary>
+    /// Whether a snap is held back by its own setting. Only a follow request made inside one of the
     /// snapping code paths is dropped, only while the player has the camera looking elsewhere (the game's free mode),
     /// and only when that snap's setting is on. Each snap then has its own exceptions:
     /// <list type="bullet">
@@ -76,10 +162,8 @@ public static class SnapRules
     /// <item>After a menu or build mode a forced request goes through, and so does one for the floor on screen.</item>
     /// </list>
     /// </summary>
-    public static bool ShouldKeepView(SnapRequest request, SnapToggles toggles)
+    private static bool IsHeldBackBySetting(SnapRequest request, SnapToggles toggles)
     {
-        if (!request.IsFollow || !request.IsCameraFree) return false;
-
         return request.Source switch
         {
             SnapSource.Stairs => toggles.StayOnStairs && !request.IsForced,

@@ -13,17 +13,20 @@ Settings live in `BepInEx\config\com.dev.survivallog.camera.cfg`, created the fi
 | `Home` | Put the angle, height and zoom back to the game's | `ResetKey` |
 | Scroll wheel | Zoom in and out, further than the game allows | `ExtraIn`, `ExtraOut`, `ScrollSpeed` |
 | `Space` (`G` with Time Control) | The game's center camera key: brings the camera back to your character | `CenterKeyResetsView` |
-| Floor buttons, or `F1` to `F3` | The game's way to look at another floor; the camera then stays there | `StayOnStairs`, `StayAfterMenuClose`, `StayAfterBuildMode` |
+| Floor buttons, or `F1` to `F3` | The game's way to look at another floor; the camera then stays there | `OnlyCenterKeyFollows`, `StayOnStairs`, `StayAfterMenuClose`, `StayAfterBuildMode` |
 
 ## Snap
 
 | Setting | Default | What it does |
 | --- | --- | --- |
+| `OnlyCenterKeyFollows` | `true` | Once you have moved the camera away from your character, only the game's center camera key (`Space` by default, or `G` with Time Control) and the camera button on the screen bring it back to them. Nothing else does, on any floor: not stairs or ladders, not closing a menu, not leaving build mode after moving or placing something, and not the game's rotate keys. Cutscenes, photo mode, starting a game, the tutorial and travelling to another map still move the camera the game's way. Off: `StayOnStairs`, `StayAfterMenuClose` and `StayAfterBuildMode` decide. |
 | `StayOnStairs` | `true` | Keep the camera on the floor you are looking at when your character takes stairs or a ladder, instead of jumping to them as they set off or as they come out on their new floor. |
 | `StayAfterMenuClose` | `true` | Keep the camera on the floor you are looking at when an object's menu closes, instead of jumping back to your character's floor. |
 | `StayAfterBuildMode` | `true` | Keep the camera where it is when you leave build mode, instead of jumping back to your character. |
 
-These only hold the camera while you look at another floor (with the floor buttons, or `F1` to `F3`), rather than the camera following your character. After a menu or build mode the camera still goes back to your character if you were looking at their own floor. On stairs and ladders it stays put, even when your character comes out on the floor you are looking at. The game's center camera key (`Space` by default, or `G` with Time Control) always brings the camera back to your character.
+`OnlyCenterKeyFollows` covers any view you moved off your character, on their own floor too, and holds back everything the other three settings do, so they make no difference while it is on. A camera move the mod does not know about still goes through when it heads for a floor or map other than the one on screen.
+
+With `OnlyCenterKeyFollows` off, the other three only hold the camera while you look at another floor (with the floor buttons, or `F1` to `F3`), rather than the camera following your character. After a menu or build mode the camera still goes back to your character if you were looking at their own floor. On stairs and ladders it stays put, even when your character comes out on the floor you are looking at. The game's center camera key (`Space` by default, or `G` with Time Control) always brings the camera back to your character.
 
 ## Rotate
 

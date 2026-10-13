@@ -516,6 +516,129 @@ public class SnapTests
         Assert.False(SnapRules.ShouldKeepView(Elsewhere with { Source = SnapSource.MenuClose, IsViewedFloor = true }, AllOn));
         Assert.False(SnapRules.ShouldKeepView(Elsewhere with { Source = SnapSource.BuildExit, IsViewedFloor = true }, AllOn));
     }
+
+    private static readonly SnapToggles OnlyCenterKey = AllOn with { OnlyCenterKeyFollows = true };
+
+    /// <summary>A follow request on the floor the camera shows, while the player looks around there.</summary>
+    private static readonly SnapRequest OwnFloor = Elsewhere with { IsViewedFloor = true };
+
+    [Fact]
+    public void A_defense_placed_on_the_characters_own_floor_stays_put()
+    {
+        Assert.Equal(SnapVerdict.Kept, SnapRules.Judge(OwnFloor with { Source = SnapSource.BuildExit }, OnlyCenterKey));
+    }
+
+    [Fact]
+    public void A_menu_closing_on_the_characters_own_floor_stays_put()
+    {
+        Assert.Equal(SnapVerdict.Kept, SnapRules.Judge(OwnFloor with { Source = SnapSource.MenuClose }, OnlyCenterKey));
+    }
+
+    [Fact]
+    public void Stairs_menus_and_build_mode_never_move_the_camera_on_any_floor_forced_or_not()
+    {
+        foreach (var source in new[] { SnapSource.Stairs, SnapSource.StairsArrival, SnapSource.MenuClose, SnapSource.BuildExit })
+        {
+            foreach (var isViewedFloor in new[] { true, false })
+            {
+                foreach (var isForced in new[] { true, false })
+                {
+                    var request = Elsewhere with { Source = source, IsViewedFloor = isViewedFloor, IsForced = isForced };
+
+                    Assert.Equal(SnapVerdict.Kept, SnapRules.Judge(request, OnlyCenterKey));
+                }
+            }
+        }
+    }
+
+    [Fact]
+    public void The_center_key_within_the_window_follows()
+    {
+        Assert.True(SnapRules.IsWithinAskWindow(10f, 10f));
+        Assert.True(SnapRules.IsWithinAskWindow(10f, 10.4f));
+        Assert.Equal(SnapVerdict.PlayerAsked, SnapRules.Judge(OwnFloor with { Source = SnapSource.CameraToggle, IsPlayerAsking = true }, OnlyCenterKey));
+    }
+
+    [Fact]
+    public void The_center_key_after_the_window_does_not_follow()
+    {
+        Assert.False(SnapRules.IsWithinAskWindow(10f, 10.6f));
+        Assert.Equal(SnapVerdict.Kept, SnapRules.Judge(OwnFloor with { Source = SnapSource.CameraToggle, IsPlayerAsking = false }, OnlyCenterKey));
+    }
+
+    [Fact]
+    public void A_center_key_never_pressed_or_pressed_after_the_request_asks_for_nothing()
+    {
+        Assert.False(SnapRules.IsWithinAskWindow(float.NegativeInfinity, 10f));
+        Assert.False(SnapRules.IsWithinAskWindow(float.NaN, 10f));
+        Assert.False(SnapRules.IsWithinAskWindow(10.2f, 10f));
+    }
+
+    [Fact]
+    public void The_camera_button_follows()
+    {
+        Assert.Equal(SnapVerdict.PlayerAsked, SnapRules.Judge(OwnFloor with { Source = SnapSource.CameraToggle, IsPlayerAsking = true }, OnlyCenterKey));
+        Assert.Equal(SnapVerdict.PlayerAsked, SnapRules.Judge(Elsewhere with { Source = SnapSource.CameraToggle, IsPlayerAsking = true }, OnlyCenterKey));
+    }
+
+    [Fact]
+    public void A_rotate_key_toggle_on_the_characters_own_floor_stays()
+    {
+        Assert.Equal(SnapVerdict.Kept, SnapRules.Judge(OwnFloor with { Source = SnapSource.CameraToggle }, OnlyCenterKey));
+        Assert.Equal(SnapVerdict.Kept, SnapRules.Judge(Elsewhere with { Source = SnapSource.CameraToggle }, OnlyCenterKey));
+        Assert.Equal(SnapVerdict.Kept, SnapRules.Judge(OwnFloor with { Source = SnapSource.GameCameraKey }, OnlyCenterKey));
+    }
+
+    [Fact]
+    public void Cutscenes_photo_mode_world_start_the_tutorial_door_and_map_travel_pass()
+    {
+        foreach (var source in new[] { SnapSource.Cutscene, SnapSource.PhotoMode, SnapSource.WorldStart, SnapSource.TutorialDoor, SnapSource.MapTravel })
+        {
+            Assert.Equal(SnapVerdict.GameNeedsCamera, SnapRules.Judge(OwnFloor with { Source = source }, OnlyCenterKey));
+            Assert.Equal(SnapVerdict.GameNeedsCamera, SnapRules.Judge(Elsewhere with { Source = source, IsForced = true }, OnlyCenterKey));
+        }
+    }
+
+    [Fact]
+    public void An_unmarked_request_for_the_floor_on_screen_is_dropped()
+    {
+        Assert.Equal(SnapVerdict.Kept, SnapRules.Judge(OwnFloor with { Source = SnapSource.None }, OnlyCenterKey));
+        Assert.Equal(SnapVerdict.Kept, SnapRules.Judge(OwnFloor with { Source = SnapSource.None, IsForced = true }, OnlyCenterKey));
+    }
+
+    [Fact]
+    public void An_unmarked_request_for_another_floor_or_map_passes()
+    {
+        Assert.Equal(SnapVerdict.AnotherFloor, SnapRules.Judge(Elsewhere with { Source = SnapSource.None }, OnlyCenterKey));
+    }
+
+    [Fact]
+    public void Nothing_is_judged_a_jump_while_the_camera_already_follows_the_character()
+    {
+        Assert.Equal(SnapVerdict.NotAJump, SnapRules.Judge(OwnFloor with { Source = SnapSource.None, IsCameraFree = false }, OnlyCenterKey));
+        Assert.Equal(SnapVerdict.NotAJump, SnapRules.Judge(OwnFloor with { Source = SnapSource.CameraToggle, IsFollow = false }, OnlyCenterKey));
+    }
+
+    [Fact]
+    public void Only_the_center_key_rule_holds_even_with_every_other_snap_setting_off()
+    {
+        var onlyThis = new SnapToggles(false, false, false, OnlyCenterKeyFollows: true);
+
+        Assert.True(onlyThis.IsAnyOn);
+        Assert.Equal(SnapVerdict.Kept, SnapRules.Judge(OwnFloor with { Source = SnapSource.BuildExit }, onlyThis));
+        Assert.Equal(SnapVerdict.Kept, SnapRules.Judge(Elsewhere with { Source = SnapSource.MenuClose, IsForced = true }, onlyThis));
+    }
+
+    [Fact]
+    public void With_the_center_key_rule_off_each_snap_follows_its_own_setting_as_it_always_has()
+    {
+        Assert.False(AllOn.OnlyCenterKeyFollows);
+        Assert.Equal(SnapVerdict.Allowed, SnapRules.Judge(OwnFloor with { Source = SnapSource.BuildExit }, AllOn));
+        Assert.Equal(SnapVerdict.Allowed, SnapRules.Judge(OwnFloor with { Source = SnapSource.CameraToggle }, AllOn));
+        Assert.Equal(SnapVerdict.Allowed, SnapRules.Judge(OwnFloor with { Source = SnapSource.None }, AllOn));
+        Assert.Equal(SnapVerdict.Kept, SnapRules.Judge(Elsewhere with { IsPlayerAsking = true }, AllOn));
+        Assert.Equal(SnapVerdict.Allowed, SnapRules.Judge(Elsewhere, new SnapToggles(false, false, false)));
+    }
 }
 
 public class FollowZoomTests

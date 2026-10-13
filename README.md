@@ -1,8 +1,8 @@
 # Camera
 
-Turn, tilt and lift the camera, zoom a little further, and stop it snapping back to your character while you look at another floor.
+Turn, tilt and lift the camera, zoom a little further, and stop it snapping back to your character once you have moved it away.
 
-Survival Log's camera looks at your character from one fixed angle, and it snaps back to them whenever they take the stairs, an object menu closes or build mode ends, even while you are looking at another floor. Camera lets you orbit the view all the way round, tilt it steeper or flatter, raise and lower it, and zoom further each way, and it keeps the view on the floor you chose. It only moves the camera. It never changes your character, the world or a save.
+Survival Log's camera looks at your character from one fixed angle, and it snaps back to them whenever they take the stairs, an object menu closes or build mode ends, even while you are looking somewhere else. Camera lets you orbit the view all the way round, tilt it steeper or flatter, raise and lower it, and zoom further each way, and it keeps the view where you put it until you press the center camera key. It only moves the camera. It never changes your character, the world or a save.
 
 ## Features
 
@@ -12,9 +12,9 @@ Survival Log's camera looks at your character from one fixed angle, and it snaps
 - **Reset**: `Home` puts the angle, height and zoom back to the game's.
 - **Wider zoom**: the scroll wheel zooms 10 degrees further in and 15 further out than the game allows, and you can make each scroll step bigger or smaller.
 - **Zoom stays put**: the plain game puts your zoom back to an older setting whenever the game re-centres the camera while it follows your character, for example when they take stairs or a ladder. Camera keeps the zoom you chose.
-- **No more snapping**: while you are looking at another floor, the camera stays there when your character takes stairs or a ladder (also when they come out on their new floor), when an object menu closes, and when build mode ends. Each has its own setting. The game's center camera key (`Space` by default, or `G` with Time Control) still brings the camera back to your character.
+- **No more snapping**: once you have moved the camera off your character (by panning it or by looking at another floor), only the game's center camera key (`Space` by default, or `G` with Time Control) and the camera button on the screen bring it back to them. Stairs and ladders, closing an object menu, leaving build mode after moving or placing something, and the game's rotate keys all leave the camera where it is, on any floor. Cutscenes, photo mode, starting a game, the tutorial and travelling to another map still move the camera the game's way. Turn off `OnlyCenterKeyFollows` to choose the stairs, menu and build mode cases one by one instead.
 - **Steps aside when the game needs the camera**: expeditions, photo mode, cutscenes and the death camera get the game's own view, and your view comes back afterwards. Build mode keeps your view, and you can keep turning there (turn off `AllowInBuildMode` to have it ease back to the game's angle while you build).
-- **A log file**: what the mod set up, and every snap it held back, is written to `BepInEx\camera.log`.
+- **A log file**: what the mod set up, every snap it held back, and every time it let the camera go back to your character and why, is written to `BepInEx\camera.log`.
 
 ## Controls
 
@@ -36,8 +36,9 @@ Camera adds no data to your save and does not edit game files. You can remove it
 
 Cameras are fiddly, and this one changes how the game's camera moves in almost every scene. If the view jumps, gets stuck, ends up inside a wall or a key does nothing, please tell me (see [Feedback](#feedback-and-bug-reports)), even if you are not sure the mod caused it. Most pieces have their own setting, so you can turn off the one that misbehaves.
 
-- Leaving build mode only keeps the view while you were looking at another floor. On your character's own floor the game puts the camera back on them, as before.
-- While you look at another floor, the game's rotate keys orbit the view there. In the plain game they send the camera back to your character.
+- With `OnlyCenterKeyFollows` off, leaving build mode only keeps the view while you were looking at another floor. On your character's own floor the game puts the camera back on them.
+- Once you have moved the camera off your character, the game's rotate keys orbit the view where it is. In the plain game they send the camera back to your character. If the mod's rotate keys are off (`Enabled` off under `[Rotate]`), the game's rotate keys do nothing until the camera follows your character again.
+- A camera move the mod does not know about still goes through when it heads for a floor or map other than the one on screen, so a game event may still take the camera there. Please tell me if one does.
 - With `MouseButton` on `Middle`, dragging with the middle mouse button turns the camera and no longer pans it. Pan with the keyboard, or set `MouseButton` to `Right` or `None`.
 - Photo mode, expeditions, cutscenes and the death camera use the game's own camera. Your view comes back when they end. Build mode keeps your view unless you turn off `AllowInBuildMode`.
 - The death camera may start from your turned angle rather than the game's.
@@ -69,9 +70,9 @@ Settings live in `BepInEx\config\com.dev.survivallog.camera.cfg`, created the fi
 
 Built against BepInEx `6.0.0-be.788`.
 
-Check `BepInEx\LogOutput.log` for a line starting `===== Camera 0.2.0 started`. It lists which pieces are on. The lines after it say whether each piece attached to the game, which keys the camera uses (and which were turned off because something else uses them), and the game's camera angle once a world loads.
+Check `BepInEx\LogOutput.log` for a line starting `===== Camera 0.3.0 started`. It lists which pieces are on. The lines after it say whether each piece attached to the game, which keys the camera uses (and which were turned off because something else uses them), and the game's camera angle once a world loads.
 
-The same lines are in `BepInEx\camera.log`, which survives restarts. It also gets a line for every snap the mod held back.
+The same lines are in `BepInEx\camera.log`, which survives restarts. It also gets a line for every snap the mod held back, and for every time it let the camera go back to your character and why.
 
 If the camera does not turn at all, look in the log for a line starting `could not`. If a key does nothing, look for its setting name: the log says when a key was turned off and why.
 

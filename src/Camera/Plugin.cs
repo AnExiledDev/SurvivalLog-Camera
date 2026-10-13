@@ -12,19 +12,22 @@ namespace Camera;
 public sealed class Plugin : BasePlugin
 {
     private const string Guid = "com.dev.survivallog.camera";
-    private const string Version = "0.2.0";
+    private const string Version = "0.3.0";
 
     public override void Load()
     {
+        var isOnlyCenterKeyFollowsOn = Config.Bind("Snap", "OnlyCenterKeyFollows", true,
+            "Once you have moved the camera away from your character, only the game's center camera key (Space by default, or G with Time Control) and the camera button on the screen bring it back to them. Nothing else does, on any floor: not stairs or ladders, not closing a menu, not leaving build mode after moving or placing something, and not the game's rotate keys. Cutscenes, photo mode, starting a game, the tutorial and travelling to another map still move the camera the game's way. While this is on, StayOnStairs, StayAfterMenuClose and StayAfterBuildMode make no difference. Off: those three settings decide.\n" +
+            "你把镜头从角色身上移开后，只有游戏的镜头跟随键（默认 Space，装了 Time Control 时为 G）和屏幕上的镜头按钮能把镜头带回角色身上。在任何楼层，其他操作都不会：走楼梯或爬梯子、关闭菜单、移动或摆放物件后退出规划模式，以及游戏的镜头转向键。过场动画、拍照模式、进入游戏、新手引导和前往其他地图时，镜头仍按游戏原本的方式移动。开启时，StayOnStairs、StayAfterMenuClose 和 StayAfterBuildMode 不起作用。关闭后，由这三项决定。").Value;
         var isStayOnStairsOn = Config.Bind("Snap", "StayOnStairs", true,
-            "Keep the camera on the floor you are looking at when your character takes stairs or a ladder, instead of jumping to them. This only matters while you look at another floor (with the floor buttons, or F1 to F3). The game's center camera key (Space by default, or G with Time Control) still brings the camera back to your character.\n" +
-            "角色走楼梯或爬梯子时，镜头留在你正在查看的楼层，不跳到角色身上。只在你查看其他楼层时起作用（用楼层按钮，或 F1 到 F3）。游戏的镜头跟随键（默认 Space，装了 Time Control 时为 G）仍会把镜头带回角色身上。").Value;
+            "Keep the camera on the floor you are looking at when your character takes stairs or a ladder, instead of jumping to them. This only matters while you look at another floor (with the floor buttons, or F1 to F3). The game's center camera key (Space by default, or G with Time Control) still brings the camera back to your character. While OnlyCenterKeyFollows is on, this setting makes no difference.\n" +
+            "角色走楼梯或爬梯子时，镜头留在你正在查看的楼层，不跳到角色身上。只在你查看其他楼层时起作用（用楼层按钮，或 F1 到 F3）。游戏的镜头跟随键（默认 Space，装了 Time Control 时为 G）仍会把镜头带回角色身上。开启 OnlyCenterKeyFollows 时，此项不起作用。").Value;
         var isStayAfterMenuCloseOn = Config.Bind("Snap", "StayAfterMenuClose", true,
-            "Keep the camera on the floor you are looking at when an object's menu closes, instead of jumping back to your character's floor.\n" +
-            "关闭物件的交互菜单时，镜头留在你正在查看的楼层，不跳回角色所在的楼层。").Value;
+            "Keep the camera on the floor you are looking at when an object's menu closes, instead of jumping back to your character's floor. While OnlyCenterKeyFollows is on, this setting makes no difference.\n" +
+            "关闭物件的交互菜单时，镜头留在你正在查看的楼层，不跳回角色所在的楼层。开启 OnlyCenterKeyFollows 时，此项不起作用。").Value;
         var isStayAfterBuildModeOn = Config.Bind("Snap", "StayAfterBuildMode", true,
-            "Keep the camera where it is when you leave build mode, instead of jumping back to your character. This only matters while you look at another floor.\n" +
-            "退出规划模式时，镜头留在原处，不跳回角色身上。只在你查看其他楼层时起作用。").Value;
+            "Keep the camera where it is when you leave build mode, instead of jumping back to your character. This only matters while you look at another floor. While OnlyCenterKeyFollows is on, this setting makes no difference.\n" +
+            "退出规划模式时，镜头留在原处，不跳回角色身上。只在你查看其他楼层时起作用。开启 OnlyCenterKeyFollows 时，此项不起作用。").Value;
 
         var isRotateOn = Config.Bind("Rotate", "Enabled", true,
             "Turn the camera all the way around your character and tilt it up and down. To turn, hold the middle mouse button and drag, or hold the game's rotate keys, Period (.) and Comma (,). To tilt, drag up and down, or hold Insert or Delete. Off: only the game's own rotate keys turn the camera, the game's way, and there is no tilting. Raising and lowering still work.\n" +
@@ -115,7 +118,7 @@ public sealed class Plugin : BasePlugin
 
         var mouseButton = DragButtons.Parse(mouseButtonText) ?? Fallback(DragButton.Middle, $"Rotate.MouseButton '{mouseButtonText}' is not Middle, Right or None, using Middle", log.Write);
         var settings = new CameraSettings(
-            new SnapToggles(isStayOnStairsOn, isStayAfterMenuCloseOn, isStayAfterBuildModeOn),
+            new SnapToggles(isStayOnStairsOn, isStayAfterMenuCloseOn, isStayAfterBuildModeOn, isOnlyCenterKeyFollowsOn),
             isRotateOn,
             mouseButton,
             Clamp(mouseSensitivity, 0.01f, 5f, 0.25f),
@@ -140,7 +143,7 @@ public sealed class Plugin : BasePlugin
         var limits = settings.Limits;
 
         log.TrimIfLarge();
-        log.Write($"===== Camera {Version} started: stay on stairs {OnOff(isStayOnStairsOn)}, after menus {OnOff(isStayAfterMenuCloseOn)}, after build mode {OnOff(isStayAfterBuildModeOn)}, " +
+        log.Write($"===== Camera {Version} started: only the center key follows {OnOff(isOnlyCenterKeyFollowsOn)}, stay on stairs {OnOff(isStayOnStairsOn)}, after menus {OnOff(isStayAfterMenuCloseOn)}, after build mode {OnOff(isStayAfterBuildModeOn)}, " +
             $"rotate {OnOff(isRotateOn)} (mouse {mouseButton}, yaw {(limits.IsYawLimited ? $"within {limits.YawLimit:0.#}" : "all round")}, pitch {limits.PitchMin:0.#} to {limits.PitchMax:0.#}, in build mode {OnOff(isAllowedInBuildMode)}), " +
             $"height {limits.HeightMin:0.#} to {limits.HeightMax:0.#} m, smoothing {settings.SmoothingRate:0.#}");
         CameraKeys.Apply(harmony, settings, log.Write);

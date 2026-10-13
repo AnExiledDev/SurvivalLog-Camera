@@ -134,6 +134,9 @@ internal static class CameraKeys
 
     public static bool IsCenterDown() => IsDown(HotKeyManager.Bind(HotKeyAction.CameraLock));
 
+    /// <summary>When the game's center key last went down, in unscaled seconds; negative infinity until it does.</summary>
+    public static float CenterPressedAt { get; private set; } = float.NegativeInfinity;
+
     /// <summary>
     /// The game's own conditions for its camera rotate keys (ReadCameraYawInput: keyboard camera moves allowed, no key
     /// being rebound, no panel open), plus no text box being typed in and the game taking input at all.
@@ -194,6 +197,26 @@ internal static class CameraKeys
         {
             _areHotKeysFree = true;
             PatchKit.Fail("reading whether the game takes keys", ex);
+        }
+
+        NoteCenterPress();
+    }
+
+    /// <summary>
+    /// The camera's follow request for a center key press can arrive some frames later, so the snap guard needs to
+    /// know when the key went down. Only noted while OnlyCenterKeyFollows is on.
+    /// </summary>
+    private static void NoteCenterPress()
+    {
+        if (_settings is not { Snap.OnlyCenterKeyFollows: true }) return;
+
+        try
+        {
+            if (IsCenterDown()) CenterPressedAt = Time.unscaledTime;
+        }
+        catch (Exception ex)
+        {
+            PatchKit.Fail("reading the center key", ex);
         }
     }
 

@@ -1,5 +1,5 @@
 Name: Camera
-Summary: A free camera for Survival Log: orbit all the way round, tilt, raise and lower, zoom further, and no more snapping back to your character on stairs, after menus or after build mode while you look at another floor.
+Summary: A free camera for Survival Log: orbit all the way round, tilt, raise and lower, zoom further, and no more snapping back to your character unless you press the center camera key.
 
 Description (BBCode):
 Survival Log's camera looks at your character from one fixed angle and snaps back to them whenever they take the stairs, a menu closes or build mode ends. Camera lets you move it the way most games do, and keeps it where you put it. It only moves the camera; it never changes your character, the world or a save.
@@ -12,7 +12,7 @@ Survival Log's camera looks at your character from one fixed angle and snaps bac
 [*][b]Reset[/b]: Home puts the angle, height and zoom back to the game's.[/*]
 [*][b]Wider zoom[/b]: the scroll wheel zooms further in and out than the game allows, with an adjustable scroll speed.[/*]
 [*][b]Zoom stays put[/b]: the plain game puts your zoom back to an older setting whenever the game re-centres the camera while it follows your character, for example when they take stairs or a ladder. Camera keeps the zoom you chose.[/*]
-[*][b]No more snapping[/b]: while you look at another floor, the camera stays there when your character takes stairs or a ladder (also when they come out on their new floor), when an object menu closes and when build mode ends. The center camera key still snaps to your character.[/*]
+[*][b]No more snapping[/b]: once you have moved the camera off your character, only the center camera key and the camera button on the screen bring it back. Stairs and ladders, closing an object menu, leaving build mode after moving or placing something, and the game's rotate keys all leave the camera where it is, on any floor. Cutscenes, photo mode, the tutorial and travelling to another map still move it the game's way.[/*]
 [*][b]Steps aside when needed[/b]: expeditions, photo mode, cutscenes and the death camera use the game's own view, and yours comes back afterwards. Build mode keeps your view.[/*]
 [/list]
 Every key can be changed or turned off in the config. Keys do nothing while you type, while a menu is open or while you rebind a key, and a key the game or another Survival Log mod already uses is turned off rather than doubled up. Works alongside Time Control.
@@ -21,8 +21,9 @@ Camera adds no data to your save and does not edit game files. You can remove it
 
 [size=5]Known issues[/size]
 [list]
-[*]Leaving build mode only keeps the view while you were looking at another floor.[/*]
-[*]While you look at another floor, the game's rotate keys orbit the view instead of sending the camera back to your character.[/*]
+[*]With OnlyCenterKeyFollows off, leaving build mode only keeps the view while you were looking at another floor.[/*]
+[*]Once you have moved the camera off your character, the game's rotate keys orbit the view instead of sending the camera back to your character.[/*]
+[*]A camera move the mod does not know about still goes through when it heads for another floor or map, so a game event may still take the camera there.[/*]
 [*]With the default middle mouse drag, that drag turns the camera and no longer pans it. Set MouseButton to Right or None to change that.[/*]
 [*]Photo mode, expeditions, cutscenes and the death camera use the game's camera. The death camera may start from your turned angle.[/*]
 [*]Zoom changes the field of view, like the game's own zoom, so the screen edges stretch when zoomed far out.[/*]
