@@ -50,7 +50,7 @@ Cameras are fiddly, and this one changes how the game's camera moves in almost e
 
 ## Requirements
 
-- Survival Log 1.1.18317. Built for this version; a game update can break it until the mod is updated.
+- Survival Log 1.1.18902. Built for this version; a game update can break it until the mod is updated.
 - The [BepInEx Pack for Survival Log](https://www.nexusmods.com/survivallog/mods/12), the BepInEx 6 (IL2CPP) build for the game, version `6.0.0-be.788`.
 
 ## Install
@@ -64,13 +64,13 @@ Delete `Camera.dll` from the `BepInEx\plugins` folder. For a clean slate, also d
 
 ## Configuration
 
-Settings live in `BepInEx\config\com.dev.survivallog.camera.cfg`, created the first time the game starts with the mod. Edit it while the game is closed; changes apply at the next game start. See [CONFIG.md](CONFIG.md) for every setting.
+Settings live in `BepInEx\config\com.dev.survivallog.camera.cfg`, created the first time the game starts with the mod. Edit it while the game is closed; changes apply at the next game start. Each setting in the cfg file is explained in English and Simplified Chinese. See [CONFIG.md](CONFIG.md) for every setting.
 
 ## Troubleshooting
 
 Built against BepInEx `6.0.0-be.788`.
 
-Check `BepInEx\LogOutput.log` for a line starting `===== Camera 0.3.0 started`. It lists which pieces are on. The lines after it say whether each piece attached to the game, which keys the camera uses (and which were turned off because something else uses them), and the game's camera angle once a world loads.
+Check `BepInEx\LogOutput.log` for a line starting `===== Camera 0.3.1 started`. It lists which pieces are on. The lines after it say whether each piece attached to the game, which keys the camera uses (and which were turned off because something else uses them), and the game's camera angle once a world loads.
 
 The same lines are in `BepInEx\camera.log`, which survives restarts. It also gets a line for every snap the mod held back, and for every time it let the camera go back to your character and why.
 
