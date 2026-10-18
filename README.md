@@ -34,19 +34,15 @@ Camera adds no data to your save and does not edit game files. You can remove it
 
 ## Known issues and limits
 
-Cameras are fiddly, and this one changes how the game's camera moves in almost every scene. If the view jumps, gets stuck, ends up inside a wall or a key does nothing, please tell me (see [Feedback](#feedback-and-bug-reports)), even if you are not sure the mod caused it. Most pieces have their own setting, so you can turn off the one that misbehaves.
-
 - With `OnlyCenterKeyFollows` off, leaving build mode only keeps the view while you were looking at another floor. On your character's own floor the game puts the camera back on them.
 - Once you have moved the camera off your character, the game's rotate keys orbit the view where it is. In the plain game they send the camera back to your character. If the mod's rotate keys are off (`Enabled` off under `[Rotate]`), the game's rotate keys do nothing until the camera follows your character again.
-- A camera move the mod does not know about still goes through when it heads for a floor or map other than the one on screen, so a game event may still take the camera there. Please tell me if one does.
+- A camera move the mod does not know about still goes through when it heads for a floor or map other than the one on screen, so a game event may still take the camera there.
 - With `MouseButton` on `Middle`, dragging with the middle mouse button turns the camera and no longer pans it. Pan with the keyboard, or set `MouseButton` to `Right` or `None`.
 - Photo mode, expeditions, cutscenes and the death camera use the game's own camera. Your view comes back when they end. Build mode keeps your view unless you turn off `AllowInBuildMode`.
-- The death camera may start from your turned angle rather than the game's.
 - Zoom changes the field of view, as the game's own zoom does, not the distance to your character. Zoomed far out, the edges of the screen stretch.
 - The keys hold back for the whole time a page that takes typing is open (the crafting table and the codex), not only while you type in its search box. The game draws its menus as web pages and only says whether a page takes typing, not whether a text box in it has focus.
 - `ScrollSpeed` can only go so far: the game caps one scroll step at five notches' worth, so on a wheel that sends several notches at once, high values zoom no further than lower ones.
 - Right after your character comes out on another floor, the floor buttons ignore a click for a moment.
-- The mod's own text, in the log, is in English.
 
 ## Requirements
 

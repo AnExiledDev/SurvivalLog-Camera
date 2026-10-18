@@ -27,12 +27,11 @@ Works in English and Chinese.
 [*]Once you have moved the camera off your character, the game's rotate keys orbit the view instead of sending the camera back to your character.[/*]
 [*]A camera move the mod does not know about still goes through when it heads for another floor or map, so a game event may still take the camera there.[/*]
 [*]With the default middle mouse drag, that drag turns the camera and no longer pans it. Set MouseButton to Right or None to change that.[/*]
-[*]Photo mode, expeditions, cutscenes and the death camera use the game's camera. The death camera may start from your turned angle.[/*]
+[*]Photo mode, expeditions, cutscenes and the death camera use the game's camera.[/*]
 [*]Zoom changes the field of view, like the game's own zoom, so the screen edges stretch when zoomed far out.[/*]
 [*]The keys hold back for the whole time the crafting table or the codex is open, not only while you type in their search box.[/*]
 [*]The game caps one scroll step, so high ScrollSpeed values can zoom no further than lower ones on a fast wheel.[/*]
 [/list]
-If you run into anything strange, please tell me (see Feedback below).
 
 [size=5]Requirements[/size]
 [list]
@@ -88,12 +87,11 @@ Camera 不会往存档里写入数据，也不会修改游戏文件。你可以�
 [*]一旦你把镜头从角色身上移开，游戏的镜头转向键会环绕视角，而不是把镜头送回角色身上。[/*]
 [*]模组不认识的镜头移动，如果是前往其他楼层或地图，仍会生效，所以游戏事件仍可能把镜头带过去。[/*]
 [*]使用默认的鼠标中键拖动时，拖动会转动镜头，不再平移镜头。把 MouseButton 设为 Right 或 None 可以改变这一点。[/*]
-[*]拍照模式、外出探索、过场动画和死亡镜头使用游戏的镜头。死亡镜头可能从你转过的角度开始。[/*]
+[*]拍照模式、外出探索、过场动画和死亡镜头使用游戏的镜头。[/*]
 [*]缩放改变的是视野角度，和游戏自己的缩放一样，所以缩得很远时屏幕边缘会被拉伸。[/*]
 [*]制作台或图鉴打开期间，按键会一直不起作用，而不只是在搜索框里打字时。[/*]
 [*]游戏限制了每一格滚动的幅度，所以在一次会滚好几格的滚轮上，ScrollSpeed 调高也可能不会缩放得更多。[/*]
 [/list]
-如果遇到任何奇怪的情况，请告诉我（见下方反馈）。
 
 [size=5]前置要求[/size]
 [list]
