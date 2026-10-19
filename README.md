@@ -71,7 +71,7 @@ Settings live in `BepInEx\config\com.dev.survivallog.camera.cfg`, created the fi
 
 Built against BepInEx `6.0.0-be.788`.
 
-Check `BepInEx\LogOutput.log` for a line starting `===== Camera 0.4.0 started`. It says whether rotating is on and which mouse button turns the camera. The next line lists the other settings, and is written again when a setting changes on the Mods screen. The lines after that say whether each piece attached to the game, which keys the camera uses (and which were turned off because something else uses them), and the game's camera angle once a world loads.
+Check `BepInEx\LogOutput.log` for a line starting `===== Camera 0.4.0 started`. It says whether rotating is on and which mouse button turns the camera. A later line lists the other settings, and is written again when a setting changes on the Mods screen. The lines after that say whether each piece attached to the game, which keys the camera uses (and which were turned off because something else uses them), and the game's camera angle once a world loads.
 
 The same lines are in `BepInEx\camera.log`, which survives restarts. It also gets a line for every snap the mod held back, and for every time it let the camera go back to your character and why.
 
@@ -93,7 +93,7 @@ This is a BepInEx 6 IL2CPP plugin. It compiles against BepInEx and the game's IL
 dotnet build src/Camera -c Release -p:GameDir="C:\path\to\Survival Log"
 ```
 
-`GameDir` is the game folder. The default in the project file is a local path you will almost certainly need to override. The output DLL is at `src\Camera\bin\Release\Camera.dll`.
+`GameDir` is the game folder. The default in the project file is a local path you will almost certainly need to override. Compiling also needs Exiled's Toolkit 0.4.0 or newer: point `-p:ToolkitDll="C:\path\to\ExiledToolkit.dll"` at its DLL. Players don't need the Toolkit to run the mod. The output DLL is at `src\Camera\bin\Release\Camera.dll`.
 
 The unit tests cover the pure camera rules (limits, easing, the zoom range, which snaps are held back, key clashes and reading Time Control's keys) and need nothing from the game:
 
