@@ -225,6 +225,42 @@ public class ViewDriverTests
     }
 
     [Fact]
+    public void Changing_a_setting_keeps_the_view_the_player_turned_to()
+    {
+        var driver = new ViewDriver(AllRound, 0f);
+
+        driver.Step(new ViewPush(90f, 0f, 5f), false, Suspension.None, 40f, 0.016f);
+        driver.Use(AllRound, 12f);
+
+        Near.Equal(90, driver.Target.Yaw);
+        Near.Equal(90, driver.Current.Yaw);
+    }
+
+    [Fact]
+    public void A_tighter_limit_set_while_playing_holds_the_next_turn()
+    {
+        var driver = new ViewDriver(AllRound, 0f);
+
+        driver.Use(ViewLimits.From(30f, 25f, 85f, -4f, 20f), 0f);
+
+        var view = driver.Step(new ViewPush(90f, 0f, 0f), false, Suspension.None, 40f, 0.016f);
+
+        Near.Equal(30, view.Yaw);
+    }
+
+    [Fact]
+    public void Smoothing_set_while_playing_eases_the_next_turn()
+    {
+        var driver = new ViewDriver(AllRound, 0f);
+
+        driver.Use(AllRound, 12f);
+
+        var view = driver.Step(new ViewPush(90f, 0f, 0f), false, Suspension.None, 40f, 0.016f);
+
+        Assert.InRange(view.Yaw, 1f, 89f);
+    }
+
+    [Fact]
     public void A_new_world_starts_from_the_games_view()
     {
         var driver = new ViewDriver(AllRound, 0f);

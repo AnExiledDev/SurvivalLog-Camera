@@ -41,6 +41,7 @@ internal static class ViewPatches
     private static float _mouseX;
     private static float _mouseY;
     private static bool _hasLoggedZoom;
+    private static bool _isZoomHooked;
 
     public static void Apply(Harmony harmony, CameraSettings settings, Action<string> log)
     {
@@ -78,15 +79,24 @@ internal static class ViewPatches
                 done: "mouse drag end hooked", consequence: "releasing the mouse after turning may select what is under it");
         }
 
-        if (_zoom.WidensAnything || settings.ScrollSpeed != 1f)
-        {
-            PatchKit.Patch(harmony, typeof(ViewPatches), typeof(CameraManager), nameof(CameraManager.OnScrollWheel), prefix: nameof(WidenZoom),
-                done: $"zoom range widened by {settings.ZoomExtraIn:0.#} degrees in and {settings.ZoomExtraOut:0.#} out, scroll speed x{settings.ScrollSpeed:0.##}",
-                consequence: "zoom keeps the game's range and speed");
-        }
-
         PatchKit.Patch(harmony, typeof(ViewPatches), typeof(CameraManager), nameof(CameraManager.SetCameraMode), prefix: nameof(CarryFollowZoom),
             done: "the zoom stays put when the game tells the camera to keep following", consequence: "the zoom may jump back when your character takes stairs or a ladder");
+    }
+
+    /// <summary>
+    /// Called on the main thread at start and after each change. The view the player turned to stays; new limits and smoothing apply
+    /// from the next frame. The scroll hook goes in the first time zoom needs it and stays in.
+    /// </summary>
+    public static void Use(Harmony harmony, CameraSettings settings)
+    {
+        _settings = settings;
+        _driver.Use(settings.Limits, settings.SmoothingRate);
+
+        if (_isZoomHooked || (!_zoom.WidensAnything && settings.ScrollSpeed == 1f)) return;
+
+        _isZoomHooked = true;
+        PatchKit.Patch(harmony, typeof(ViewPatches), typeof(CameraManager), nameof(CameraManager.OnScrollWheel), prefix: nameof(WidenZoom),
+            done: "zoom hooked", consequence: "zoom keeps the game's range and speed");
     }
 
     /// <summary>Puts the follow camera back the way the game left it, so the next world captures the game's angle and not a turned one.</summary>

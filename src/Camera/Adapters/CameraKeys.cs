@@ -84,6 +84,9 @@ internal static class CameraKeys
             consequence: "the camera keys may also fire while the game has input switched off or a key is being rebound");
     }
 
+    /// <summary>Called on the main thread at start and after each change. The keys themselves are read once, on the first frame.</summary>
+    public static void Use(CameraSettings settings) => _settings = settings;
+
     /// <summary>
     /// Done on the first frame the game handles keys or moves the camera rather than at plugin load: the game's key
     /// settings are read through its SettingManager, and reading them at load would build it before the game does.

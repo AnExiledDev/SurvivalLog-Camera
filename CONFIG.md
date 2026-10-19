@@ -1,6 +1,6 @@
 # Camera settings
 
-Settings live in `BepInEx\config\com.dev.survivallog.camera.cfg`, created the first time the game starts with the mod. Edit the file while the game is closed; changes apply at the next game start. Delete the file to get the defaults back. A number outside its range is pulled back into it. Each setting's description in the file is written in English and in Simplified Chinese.
+Settings live in `BepInEx\config\com.dev.survivallog.camera.cfg`, created the first time the game starts with the mod. Change them in game on the Mod Manager's Mods screen, or edit the file while the game is closed. Changed on the Mods screen, every setting takes effect at once except `Rotate` `Enabled` and `MouseButton`, `Zoom` `ExtraIn` and `ExtraOut`, and the `Keys` settings other than `CenterKeyResetsView`, which take effect at the next game start. A changed setting keeps the view you turned to. Delete the file to get the defaults back. A number outside its range is pulled back into it. Each setting's description in the file is written in English and in Simplified Chinese.
 
 ## Controls
 

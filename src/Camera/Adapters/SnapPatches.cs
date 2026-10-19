@@ -27,7 +27,18 @@ internal static class SnapPatches
     private static Action<string> _logFileOnly = _ => { };
     private static float _buttonPressedAt = float.NegativeInfinity;
 
-    public static void Apply(Harmony harmony, SnapToggles toggles, Action<string> log, Action<string> logFileOnly)
+    private static bool _isGuardTried;
+    private static bool _isGuardHooked;
+    private static bool _areStairsMarked;
+    private static bool _isMenuCloseMarked;
+    private static bool _isBuildExitMarked;
+    private static bool _areCenterKeyMovesMarked;
+
+    /// <summary>
+    /// Called on the main thread at start and after each change. Each hook goes in the first time a setting needs it and stays in;
+    /// with its setting off, a marked snap is let through the game's way.
+    /// </summary>
+    public static void Use(Harmony harmony, SnapToggles toggles, Action<string> log, Action<string> logFileOnly)
     {
         _toggles = toggles;
         _logFileOnly = logFileOnly;
@@ -39,19 +50,38 @@ internal static class SnapPatches
             return;
         }
 
-        var isGuardHooked = PatchKit.Patch(harmony, typeof(SnapPatches), typeof(CameraManager), nameof(CameraManager.SetCameraMode), prefix: nameof(KeepViewIfSnap),
-            done: "camera snap guard hooked", consequence: "the camera still snaps to your character on stairs, after menus and after build mode");
+        if (!_isGuardTried)
+        {
+            _isGuardTried = true;
+            _isGuardHooked = PatchKit.Patch(harmony, typeof(SnapPatches), typeof(CameraManager), nameof(CameraManager.SetCameraMode), prefix: nameof(KeepViewIfSnap),
+                done: "camera snap guard hooked", consequence: "the camera still snaps to your character on stairs, after menus and after build mode");
+        }
 
-        if (!isGuardHooked) return;
+        if (!_isGuardHooked) return;
 
         var isOnlyCenterKey = toggles.OnlyCenterKeyFollows;
 
-        if (isOnlyCenterKey || toggles.StayOnStairs) MarkStairs(harmony);
-        if (isOnlyCenterKey || toggles.StayAfterMenuClose) MarkMenuClose(harmony);
-        if (isOnlyCenterKey || toggles.StayAfterBuildMode) MarkBuildExit(harmony);
+        if ((isOnlyCenterKey || toggles.StayOnStairs) && !_areStairsMarked)
+        {
+            _areStairsMarked = true;
+            MarkStairs(harmony);
+        }
 
-        if (!isOnlyCenterKey) return;
+        if ((isOnlyCenterKey || toggles.StayAfterMenuClose) && !_isMenuCloseMarked)
+        {
+            _isMenuCloseMarked = true;
+            MarkMenuClose(harmony);
+        }
 
+        if ((isOnlyCenterKey || toggles.StayAfterBuildMode) && !_isBuildExitMarked)
+        {
+            _isBuildExitMarked = true;
+            MarkBuildExit(harmony);
+        }
+
+        if (!isOnlyCenterKey || _areCenterKeyMovesMarked) return;
+
+        _areCenterKeyMovesMarked = true;
         MarkCameraToggle(harmony);
         MarkGameCameraMoves(harmony);
     }

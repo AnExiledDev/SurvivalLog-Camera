@@ -35,8 +35,8 @@ public static class Suspensions
 /// </summary>
 public sealed class ViewDriver
 {
-    private readonly ViewLimits _limits;
-    private readonly float _smoothingRate;
+    private ViewLimits _limits;
+    private float _smoothingRate;
 
     public ViewDriver(ViewLimits limits, float smoothingRate)
     {
@@ -47,6 +47,13 @@ public sealed class ViewDriver
     public View Target { get; private set; } = View.Default;
 
     public View Current { get; private set; } = View.Default;
+
+    /// <summary>New limits and smoothing from the settings; the view the player turned to is kept and limited from the next step.</summary>
+    public void Use(ViewLimits limits, float smoothingRate)
+    {
+        _limits = limits;
+        _smoothingRate = smoothingRate;
+    }
 
     /// <summary>A new world or chapter starts from the game's view.</summary>
     public void Forget()
