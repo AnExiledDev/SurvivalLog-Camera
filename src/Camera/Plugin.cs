@@ -5,13 +5,12 @@ using BepInEx.Configuration;
 using BepInEx.Unity.IL2CPP;
 using Camera.Adapters;
 using Camera.Core;
-using ExiledToolkit;
 using HarmonyLib;
 
 namespace Camera;
 
 [BepInPlugin(Guid, "Camera", Version)]
-[BepInDependency(ExiledToolkit.Plugin.Guid, ">=0.4.0")]
+[BepInDependency(OptionalLive.ToolkitGuid, BepInDependency.DependencyFlags.SoftDependency)]
 public sealed class Plugin : BasePlugin
 {
     private const string Guid = "com.dev.survivallog.camera";
@@ -19,6 +18,8 @@ public sealed class Plugin : BasePlugin
 
     public override void Load()
     {
+        if (!OptionalLive.IsToolkitInstalled) Log.LogInfo(OptionalLive.MissingNote);
+
         var isOnlyCenterKeyFollowsOn = Config.Bind("Snap", "OnlyCenterKeyFollows", true,
             "Once you have moved the camera away from your character, only the game's center camera key (Space by default, or G with Time Control) and the camera button on the screen bring it back to them. Nothing else does, on any floor: not stairs or ladders, not closing a menu, not leaving build mode after moving or placing something, and not the game's rotate keys. Cutscenes, photo mode, starting a game, the tutorial and travelling to another map still move the camera the game's way. While this is on, StayOnStairs, StayAfterMenuClose and StayAfterBuildMode make no difference. Off: those three settings decide.\n" +
             "你把镜头从角色身上移开后，只有游戏的镜头跟随键（默认 Space，装了 Time Control 时为 G）和屏幕上的镜头按钮能把镜头带回角色身上。在任何楼层，其他操作都不会：走楼梯或爬梯子、关闭菜单、移动或摆放物件后退出规划模式，以及游戏的镜头转向键。过场动画、拍照模式、进入游戏、新手引导和前往其他地图时，镜头仍按游戏原本的方式移动。开启时，StayOnStairs、StayAfterMenuClose 和 StayAfterBuildMode 不起作用。关闭后，由这三项决定。");
@@ -41,34 +42,34 @@ public sealed class Plugin : BasePlugin
             new ConfigDescription(
                 "The mouse button you hold and drag to turn and tilt the camera: Middle, Right or None. Drag left and right to turn, up and down to tilt. Dragging with this button no longer moves the camera across the map. Takes effect at the next game start.\n" +
                 "按住并拖动来转动和倾斜镜头的鼠标键：Middle（中键）、Right（右键）或 None（不用鼠标）。左右拖动转向，上下拖动倾斜。用这个键拖动时，不再平移镜头。下次启动游戏时生效。",
-                null, "ModManager.Restart")).Value;
+                null, "ModManager.Restart", "ModManager.ShowWhen=Enabled")).Value;
         var mouseSensitivity = Config.Bind("Rotate", "MouseSensitivity", 0.25f,
-            "How many degrees the camera turns for each pixel you drag, from 0.01 to 5. Higher turns faster.\n" +
-            "每拖动一个像素，镜头转动多少度，范围 0.01 到 5。数值越大，转得越快。");
+            new ConfigDescription("How many degrees the camera turns for each pixel you drag, from 0.01 to 5. Higher turns faster.\n" +
+            "每拖动一个像素，镜头转动多少度，范围 0.01 到 5。数值越大，转得越快。", null, "ModManager.ShowWhen=Enabled"));
         var isMouseXInverted = Config.Bind("Rotate", "InvertX", false,
-            "Turn the other way when you drag left and right.\n" +
-            "左右拖动时，反方向转动。");
+            new ConfigDescription("Turn the other way when you drag left and right.\n" +
+            "左右拖动时，反方向转动。", null, "ModManager.ShowWhen=Enabled"));
         var isMouseYInverted = Config.Bind("Rotate", "InvertY", false,
-            "Tilt the other way when you drag up and down.\n" +
-            "上下拖动时，反方向倾斜。");
+            new ConfigDescription("Tilt the other way when you drag up and down.\n" +
+            "上下拖动时，反方向倾斜。", null, "ModManager.ShowWhen=Enabled"));
         var yawLimit = Config.Bind("Rotate", "YawLimit", 0f,
-            "How far the camera may turn to each side of the game's angle, in degrees. 0 lets it turn all the way round.\n" +
-            "镜头从游戏原本的角度向左右各能转多少度。0 表示可以转一整圈。");
+            new ConfigDescription("How far the camera may turn to each side of the game's angle, in degrees. 0 lets it turn all the way round.\n" +
+            "镜头从游戏原本的角度向左右各能转多少度。0 表示可以转一整圈。", null, "ModManager.ShowWhen=Enabled"));
         var pitchMin = Config.Bind("Rotate", "PitchMin", 25f,
-            "The flattest the camera may look, in degrees below the horizon, from 5 to 89. The game's own angle is always allowed.\n" +
-            "镜头最平能到的角度，即低于水平线多少度，范围 5 到 89。游戏原本的角度总是允许的。");
+            new ConfigDescription("The flattest the camera may look, in degrees below the horizon, from 5 to 89. The game's own angle is always allowed.\n" +
+            "镜头最平能到的角度，即低于水平线多少度，范围 5 到 89。游戏原本的角度总是允许的。", null, "ModManager.ShowWhen=Enabled"));
         var pitchMax = Config.Bind("Rotate", "PitchMax", 85f,
-            "The steepest the camera may look, in degrees below the horizon, from 5 to 89. 90 would be straight down.\n" +
-            "镜头最陡能到的角度，即低于水平线多少度，范围 5 到 89。90 是垂直向下看。");
+            new ConfigDescription("The steepest the camera may look, in degrees below the horizon, from 5 to 89. 90 would be straight down.\n" +
+            "镜头最陡能到的角度，即低于水平线多少度，范围 5 到 89。90 是垂直向下看。", null, "ModManager.ShowWhen=Enabled"));
         var keyRotateSpeed = Config.Bind("Rotate", "KeyRotateSpeed", 90f,
-            "How fast the rotate keys (Period and Comma by default) turn the camera, in degrees a second, from 1 to 720.\n" +
-            "转向键（默认 Period 和 Comma）转动镜头的速度，单位是度每秒，范围 1 到 720。");
+            new ConfigDescription("How fast the rotate keys (Period and Comma by default) turn the camera, in degrees a second, from 1 to 720.\n" +
+            "转向键（默认 Period 和 Comma）转动镜头的速度，单位是度每秒，范围 1 到 720。", null, "ModManager.ShowWhen=Enabled"));
         var keyTiltSpeed = Config.Bind("Rotate", "KeyTiltSpeed", 45f,
-            "How fast the tilt keys (Insert and Delete by default) tilt the camera, in degrees a second, from 1 to 720.\n" +
-            "倾斜键（默认 Insert 和 Delete）倾斜镜头的速度，单位是度每秒，范围 1 到 720。");
+            new ConfigDescription("How fast the tilt keys (Insert and Delete by default) tilt the camera, in degrees a second, from 1 to 720.\n" +
+            "倾斜键（默认 Insert 和 Delete）倾斜镜头的速度，单位是度每秒，范围 1 到 720。", null, "ModManager.ShowWhen=Enabled"));
         var isAllowedInBuildMode = Config.Bind("Rotate", "AllowInBuildMode", Suspensions.AllowInBuildModeByDefault,
-            "Keep your turned view in build mode, and keep turning and tilting there. Off: while you build, the view eases back to the game's angle, and your view comes back when you leave build mode.\n" +
-            "在规划模式中保留你转好的视角，也可以继续转动和倾斜。关闭后，规划时镜头会慢慢回到游戏原本的角度，退出规划模式后再回到你的视角。");
+            new ConfigDescription("Keep your turned view in build mode, and keep turning and tilting there. Off: while you build, the view eases back to the game's angle, and your view comes back when you leave build mode.\n" +
+            "在规划模式中保留你转好的视角，也可以继续转动和倾斜。关闭后，规划时镜头会慢慢回到游戏原本的角度，退出规划模式后再回到你的视角。", null, "ModManager.ShowWhen=Enabled"));
 
         var heightMin = Config.Bind("Height", "Min", -4f,
             "How far the lower key (PageDown by default) may take the camera below the game's height, in metres, from 0 to -50.\n" +
@@ -102,22 +103,22 @@ public sealed class Plugin : BasePlugin
             new ConfigDescription(
                 "Key that turns the camera left. It does nothing while [Rotate] Enabled is off. Game means the game's own rotate-left key, which is Period (.) unless you changed it in the game's key settings. A key the game or another mod already uses is turned off. You can also write a Unity key name such as F, Keypad8 or Mouse3, or None to turn it off. Takes effect at the next game start.\n" +
                 "让镜头向左转的键。[Rotate] 中的 Enabled 关闭时不起作用。Game 表示使用游戏自己的镜头左转键，默认是 Period（.），除非你在游戏设置的按键页改过。游戏或其他模组已经在用的键会被关闭。也可以填 Unity 按键名，例如 F、Keypad8 或 Mouse3，填 None 则关闭。下次启动游戏时生效。",
-                null, "ModManager.Restart")).Value;
+                null, "ModManager.Restart", "ModManager.ShowWhen=Rotate.Enabled")).Value;
         var rotateRightText = Config.Bind("Keys", "RotateRightKey", "Game",
             new ConfigDescription(
                 "Key that turns the camera right. It does nothing while [Rotate] Enabled is off. Game means the game's own rotate-right key, which is Comma (,) unless you changed it in the game's key settings. A key the game or another mod already uses is turned off. None turns it off. Takes effect at the next game start.\n" +
                 "让镜头向右转的键。[Rotate] 中的 Enabled 关闭时不起作用。Game 表示使用游戏自己的镜头右转键，默认是 Comma（,），除非你在游戏设置的按键页改过。游戏或其他模组已经在用的键会被关闭。填 None 则关闭。下次启动游戏时生效。",
-                null, "ModManager.Restart")).Value;
+                null, "ModManager.Restart", "ModManager.ShowWhen=Rotate.Enabled")).Value;
         var tiltUpText = Config.Bind("Keys", "TiltUpKey", "Insert",
             new ConfigDescription(
                 "Key that tilts the camera steeper, toward looking straight down. It does nothing while [Rotate] Enabled is off. A key the game or another mod already uses is turned off. None turns it off. Takes effect at the next game start.\n" +
                 "让镜头变陡（更接近垂直向下看）的键。[Rotate] 中的 Enabled 关闭时不起作用。游戏或其他模组已经在用的键会被关闭。填 None 则关闭。下次启动游戏时生效。",
-                null, "ModManager.Restart")).Value;
+                null, "ModManager.Restart", "ModManager.ShowWhen=Rotate.Enabled")).Value;
         var tiltDownText = Config.Bind("Keys", "TiltDownKey", "Delete",
             new ConfigDescription(
                 "Key that tilts the camera flatter, toward the horizon. It does nothing while [Rotate] Enabled is off. A key the game or another mod already uses is turned off. None turns it off. Takes effect at the next game start.\n" +
                 "让镜头变平（更接近水平线）的键。[Rotate] 中的 Enabled 关闭时不起作用。游戏或其他模组已经在用的键会被关闭。填 None 则关闭。下次启动游戏时生效。",
-                null, "ModManager.Restart")).Value;
+                null, "ModManager.Restart", "ModManager.ShowWhen=Rotate.Enabled")).Value;
         var raiseText = Config.Bind("Keys", "RaiseKey", "PageUp",
             new ConfigDescription(
                 "Key that lifts the camera. A key the game or another mod already uses is turned off. None turns it off. Takes effect at the next game start.\n" +
@@ -173,7 +174,7 @@ public sealed class Plugin : BasePlugin
         CameraKeys.Apply(harmony, startSettings, log.Write);
         ViewPatches.Apply(harmony, startSettings, log.Write);
 
-        LiveSettings.Watch(() =>
+        OptionalLive.Watch(() =>
         {
             var settings = Read();
             var limits = settings.Limits;
