@@ -1,6 +1,6 @@
 # Camera settings
 
-Settings live in `BepInEx\config\com.dev.survivallog.camera.cfg`, created the first time the game starts with the mod. Change them in game on the Mod Manager's Mods screen, or edit the file while the game is closed. Changed on the Mods screen, every setting takes effect at once except `Rotate` `Enabled` and `MouseButton`, `Zoom` `ExtraIn` and `ExtraOut`, and the `Keys` settings other than `CenterKeyResetsView`, which take effect at the next game start. A changed setting keeps the view you turned to. Delete the file to get the defaults back. A number outside its range is pulled back into it. Each setting's description in the file is written in English and in Simplified Chinese. Without Exiled's Toolkit installed, changes made on the Mods screen take effect at the next game start instead.
+Settings live in `BepInEx\config\com.dev.survivallog.camera.cfg`, created the first time the game starts with the mod. Change them in game on the Mod Manager's Mods screen, or edit the file while the game is closed. Changed on the Mods screen, every setting takes effect at once except `Rotate` `Enabled` and `MouseButton`, and the `Keys` settings other than `CenterKeyResetsView`, which take effect at the next game start. A changed setting keeps the view you turned to. Delete the file to get the defaults back. A number outside its range is pulled back into it. Each setting's description in the file is written in English and in Simplified Chinese. Without Exiled's Toolkit installed, changes made on the Mods screen take effect at the next game start instead.
 
 ## Controls
 
@@ -11,7 +11,7 @@ Settings live in `BepInEx\config\com.dev.survivallog.camera.cfg`, created the fi
 | `Insert` / `Delete` | Tilt steeper (toward looking straight down) / flatter | `TiltUpKey`, `TiltDownKey` |
 | `PageUp` / `PageDown` | Raise / lower the camera | `RaiseKey`, `LowerKey` |
 | `Home` | Put the angle, height and zoom back to the game's | `ResetKey` |
-| Scroll wheel | Zoom in and out, further than the game allows | `ExtraIn`, `ExtraOut`, `ScrollSpeed` |
+| Scroll wheel | Move the camera closer to or further from your character | `Closest`, `Farthest`, `ScrollSpeed` |
 | `Space` (`G` with Time Control) | The game's center camera key: brings the camera back to your character | `CenterKeyResetsView` |
 | Floor buttons, or `F1` to `F3` | The game's way to look at another floor; the camera then stays there | `OnlyCenterKeyFollows`, `StayOnStairs`, `StayAfterMenuClose`, `StayAfterBuildMode` |
 
@@ -56,11 +56,11 @@ With `OnlyCenterKeyFollows` off, the other three only hold the camera while you 
 
 | Setting | Default | What it does |
 | --- | --- | --- |
-| `ExtraIn` | `10` | How much further the scroll wheel may zoom in than the game allows, in degrees of view angle, from 0 to 60. The view angle never goes below 5 degrees. |
-| `ExtraOut` | `15` | How much further the scroll wheel may zoom out than the game allows, in degrees of view angle, from 0 to 60. The view angle never goes above 110 degrees. |
-| `ScrollSpeed` | `1` | How far each scroll wheel step zooms, from 0.1 to 5. 1 is the game's speed and 2 zooms twice as far. |
+| `Closest` | `0.5` | How close the scroll wheel may bring the camera, as a share of the game's distance from your character, from 0.2 to 1. 0.5 is half the game's distance. |
+| `Farthest` | `3` | How far the scroll wheel may move the camera away, as a multiple of the game's distance from your character, from 1 to 10. 3 is three times the game's distance. |
+| `ScrollSpeed` | `1` | How far each scroll wheel notch moves the camera, from 0.1 to 5. At 1 each notch moves it a tenth of its distance; 2 moves it twice as far. |
 
-The game counts at most five notches per scroll step, so on a wheel that sends several notches at once, high `ScrollSpeed` values may zoom no further than lower ones. With `ExtraIn` and `ExtraOut` at 0 and `ScrollSpeed` at 1, the mod leaves the game's zoom alone.
+The scroll wheel moves the camera itself toward or away from your character; the lens stays as it is, so the edges of the screen never stretch. The game counts at most five notches per scroll step, so on a wheel that sends several notches at once, high `ScrollSpeed` values may zoom no further than lower ones. With `Closest` and `Farthest` both at 1, the mod leaves the scroll wheel to the game's own zoom.
 
 ## Smoothing
 

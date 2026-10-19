@@ -9,12 +9,15 @@ public enum Suspension
     /// <summary>Build mode: the view eases back to the game's and returns afterwards; input is ignored.</summary>
     Soft,
 
-    /// <summary>Expeditions, photo mode, cutscene cameras and the death camera: the game's view at once, no easing.</summary>
+    /// <summary>Photo mode, cutscene cameras and the death camera: the game's view at once, no easing.</summary>
     Hard,
 }
 
-/// <summary>What the camera manager is doing this frame, as far as the free camera cares.</summary>
-public readonly record struct CameraFlags(bool IsExploring, bool IsPhotoMode, bool IsSubCameraActive, bool IsDeadZooming, bool IsBuilding);
+/// <summary>
+/// What the camera manager is doing this frame, as far as the free camera cares. Expeditions are not here: their
+/// camera is the same follow camera, so the player's view works there as at home.
+/// </summary>
+public readonly record struct CameraFlags(bool IsPhotoMode, bool IsSubCameraActive, bool IsDeadZooming, bool IsBuilding);
 
 public static class Suspensions
 {
@@ -23,7 +26,7 @@ public static class Suspensions
 
     public static Suspension Of(CameraFlags flags, bool allowInBuildMode)
     {
-        if (flags.IsExploring || flags.IsPhotoMode || flags.IsSubCameraActive || flags.IsDeadZooming) return Suspension.Hard;
+        if (flags.IsPhotoMode || flags.IsSubCameraActive || flags.IsDeadZooming) return Suspension.Hard;
 
         return flags.IsBuilding && !allowInBuildMode ? Suspension.Soft : Suspension.None;
     }

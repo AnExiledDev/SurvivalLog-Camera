@@ -8,6 +8,9 @@ public static class Smoothing
     public const float CloseDegrees = 0.01f;
     public const float CloseMetres = 0.001f;
 
+    /// <summary>About a thousandth of the camera's distance.</summary>
+    public const float CloseZoom = 0.001f;
+
     /// <summary>The share of the remaining distance to cover this frame. A rate of 0 or less is instant.</summary>
     public static float Blend(float rate, float deltaTime)
     {
@@ -25,7 +28,8 @@ public static class Smoothing
         var next = new View(
             Lerp(current.Yaw, target.Yaw, blend),
             Lerp(current.Pitch, target.Pitch, blend),
-            Lerp(current.Height, target.Height, blend));
+            Lerp(current.Height, target.Height, blend),
+            Lerp(current.ZoomOut, target.ZoomOut, blend));
 
         return IsClose(next, target) ? target : next;
     }
@@ -35,5 +39,6 @@ public static class Smoothing
     private static bool IsClose(View a, View b) =>
         MathF.Abs(a.Yaw - b.Yaw) < CloseDegrees &&
         MathF.Abs(a.Pitch - b.Pitch) < CloseDegrees &&
-        MathF.Abs(a.Height - b.Height) < CloseMetres;
+        MathF.Abs(a.Height - b.Height) < CloseMetres &&
+        MathF.Abs(a.ZoomOut - b.ZoomOut) < CloseZoom;
 }

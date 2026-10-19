@@ -276,18 +276,17 @@ public class ViewDriverTests
 public class SuspensionTests
 {
     [Fact]
-    public void Expeditions_photo_mode_cutscenes_and_the_death_camera_hand_the_camera_straight_back()
+    public void Photo_mode_cutscenes_and_the_death_camera_hand_the_camera_straight_back()
     {
-        Assert.Equal(Suspension.Hard, Suspensions.Of(new CameraFlags(true, false, false, false, false), false));
-        Assert.Equal(Suspension.Hard, Suspensions.Of(new CameraFlags(false, true, false, false, false), false));
-        Assert.Equal(Suspension.Hard, Suspensions.Of(new CameraFlags(false, false, true, false, false), false));
-        Assert.Equal(Suspension.Hard, Suspensions.Of(new CameraFlags(false, false, false, true, false), false));
+        Assert.Equal(Suspension.Hard, Suspensions.Of(new CameraFlags(true, false, false, false), false));
+        Assert.Equal(Suspension.Hard, Suspensions.Of(new CameraFlags(false, true, false, false), false));
+        Assert.Equal(Suspension.Hard, Suspensions.Of(new CameraFlags(false, false, true, false), false));
     }
 
     [Fact]
     public void Build_mode_eases_back_to_the_games_view_unless_allowed()
     {
-        var building = new CameraFlags(false, false, false, false, true);
+        var building = new CameraFlags(false, false, false, true);
 
         Assert.Equal(Suspension.Soft, Suspensions.Of(building, false));
         Assert.Equal(Suspension.None, Suspensions.Of(building, true));
@@ -296,7 +295,7 @@ public class SuspensionTests
     [Fact]
     public void By_default_build_mode_keeps_the_turned_view_and_takes_input()
     {
-        var building = new CameraFlags(false, false, false, false, true);
+        var building = new CameraFlags(false, false, false, true);
 
         Assert.Equal(Suspension.None, Suspensions.Of(building, Suspensions.AllowInBuildModeByDefault));
     }
@@ -304,7 +303,7 @@ public class SuspensionTests
     [Fact]
     public void A_cutscene_during_build_mode_still_hands_the_camera_straight_back()
     {
-        Assert.Equal(Suspension.Hard, Suspensions.Of(new CameraFlags(false, false, true, false, true), true));
+        Assert.Equal(Suspension.Hard, Suspensions.Of(new CameraFlags(false, true, false, true), true));
     }
 
     [Fact]
@@ -365,62 +364,88 @@ public class ViewInputTests
     }
 }
 
-public class ZoomGuardTests
+public class ZoomTests
 {
+    private static readonly ViewLimits HalfToTriple = ViewLimits.From(0f, 25f, 85f, 0f, 0f, 0.5f, 3f);
+
+    private static double Distance(View view) => Math.Exp(view.ZoomOut);
+
     [Fact]
-    public void The_games_zoom_range_is_widened_by_the_extra_each_way()
+    public void Scrolling_forward_brings_the_camera_closer_and_back_moves_it_away()
     {
-        Assert.Equal((20f, 75f), new ZoomGuard(10f, 15f).Next(30f, 60f));
+        Assert.True(ViewInput.FromScroll(1f, 1f).ZoomOut < 0f);
+        Assert.True(ViewInput.FromScroll(-1f, 1f).ZoomOut > 0f);
     }
 
     [Fact]
-    public void A_range_already_widened_is_not_widened_again()
+    public void Each_notch_moves_the_camera_a_tenth_of_its_distance()
     {
-        var zoom = new ZoomGuard(10f, 15f);
+        var view = Orbit.Aim(View.Default, ViewInput.FromScroll(-1f, 1f), HalfToTriple, 40f);
 
-        zoom.Next(30f, 60f);
-
-        Assert.Null(zoom.Next(20f, 75f));
+        Near.Equal(1.1, (float)Distance(view));
     }
 
     [Fact]
-    public void A_new_range_written_by_the_game_is_widened_from_the_games_values()
+    public void Scroll_speed_scales_each_notch()
     {
-        var zoom = new ZoomGuard(10f, 15f);
+        var once = ViewInput.FromScroll(-1f, 1f).ZoomOut;
 
-        zoom.Next(30f, 60f);
-
-        Assert.Equal((25f, 65f), zoom.Next(35f, 50f));
+        Near.Equal(once * 2f, ViewInput.FromScroll(-1f, 2f).ZoomOut);
     }
 
     [Fact]
-    public void Zoom_never_goes_past_the_narrowest_and_widest_safe_angles()
+    public void A_huge_or_broken_scroll_step_cannot_throw_the_camera_across_the_map()
     {
-        Assert.Equal((ZoomGuard.NarrowestFov, ZoomGuard.WidestFov), new ZoomGuard(10f, 15f).Next(8f, 100f));
+        Assert.Equal(ViewInput.FromScroll(-ViewInput.MostNotches, 1f), ViewInput.FromScroll(-500f, 1f));
+        Assert.Equal(ViewPush.None, ViewInput.FromScroll(float.NaN, 1f));
     }
 
     [Fact]
-    public void The_games_own_range_is_never_narrowed()
+    public void Zooming_stops_at_the_closest_and_farthest_settings()
     {
-        Assert.Null(new ZoomGuard(10f, 15f).Next(3f, 150f));
+        Near.Equal(3, (float)Distance(Orbit.Aim(View.Default, ViewInput.FromScroll(-5f, 50f), HalfToTriple, 40f)));
+        Near.Equal(0.5, (float)Distance(Orbit.Aim(View.Default, ViewInput.FromScroll(5f, 50f), HalfToTriple, 40f)));
     }
 
     [Fact]
-    public void A_range_the_game_could_not_mean_is_left_alone()
+    public void Hand_edited_zoom_limits_are_clamped_to_a_safe_range_that_always_includes_the_games_distance()
     {
-        var zoom = new ZoomGuard(10f, 15f);
+        var limits = ViewLimits.From(0f, 25f, 85f, 0f, 0f, 0.01f, 500f);
+        var backwards = ViewLimits.From(0f, 25f, 85f, 0f, 0f, 2f, 0.5f);
 
-        Assert.Null(zoom.Next(0f, 60f));
-        Assert.Null(zoom.Next(60f, 30f));
-        Assert.Null(zoom.Next(float.NaN, 60f));
-        Assert.Null(zoom.Next(30f, 200f));
+        Near.Equal(ViewLimits.NearestDistance, MathF.Exp(limits.ZoomOutMin));
+        Near.Equal(ViewLimits.FarthestDistance, MathF.Exp(limits.ZoomOutMax));
+        Assert.Equal(0f, backwards.ZoomOutMin);
+        Assert.Equal(0f, backwards.ZoomOutMax);
     }
 
     [Fact]
-    public void Extra_zoom_that_is_negative_or_not_a_number_widens_nothing()
+    public void Closest_and_farthest_both_at_the_games_distance_leave_the_scroll_wheel_to_the_game()
     {
-        Assert.False(new ZoomGuard(-5f, float.NaN).WidensAnything);
-        Assert.True(new ZoomGuard(0f, 1f).WidensAnything);
+        Assert.False(ViewLimits.From(0f, 25f, 85f, 0f, 0f, 1f, 1f).CanZoom);
+        Assert.False(ViewLimits.From(0f, 25f, 85f, 0f, 0f, float.NaN, float.NaN).CanZoom);
+        Assert.True(ViewLimits.From(0f, 25f, 85f, 0f, 0f, 1f, 2f).CanZoom);
+        Assert.True(ViewLimits.From(0f, 25f, 85f, 0f, 0f, 0.5f, 1f).CanZoom);
+    }
+
+    [Fact]
+    public void Zoom_eases_like_turning_and_lands_exactly_on_the_target()
+    {
+        var target = new View(0f, 0f, 0f, 1f);
+        var eased = Smoothing.Toward(View.Default, target, 12f, 0.05f);
+
+        Assert.InRange(eased.ZoomOut, 0.01f, 0.99f);
+        Assert.True(Smoothing.Toward(new View(0f, 0f, 0f, 0.0005f), View.Default, 12f, 0.016f).IsDefault);
+    }
+
+    [Fact]
+    public void The_reset_key_brings_the_camera_back_to_the_games_distance()
+    {
+        var driver = new ViewDriver(HalfToTriple, 0f);
+
+        driver.Step(ViewInput.FromScroll(-3f, 1f), false, Suspension.None, 40f, 0.016f);
+
+        Assert.True(driver.Step(ViewPush.None, true, Suspension.None, 40f, 0.016f).IsDefault);
     }
 }
 

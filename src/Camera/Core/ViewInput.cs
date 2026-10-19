@@ -1,3 +1,5 @@
+using System;
+
 namespace Camera.Core;
 
 /// <summary>Which of the mod's camera keys are held this frame.</summary>
@@ -28,6 +30,16 @@ public static class ViewInput
             (isXInverted ? -deltaX : deltaX) * sensitivity,
             (isYInverted ? deltaY : -deltaY) * sensitivity,
             0f);
+
+    /// <summary>Each notch moves the camera a tenth of its distance in or out, so a step feels the same near and far.</summary>
+    public static readonly float ZoomOutPerNotch = MathF.Log(1.1f);
+
+    /// <summary>The game counts at most this many notches in one scroll step.</summary>
+    public const float MostNotches = 5f;
+
+    /// <summary>Scrolling up (forward) brings the camera closer, as the game's own zoom does.</summary>
+    public static ViewPush FromScroll(float notches, float scrollSpeed) =>
+        float.IsFinite(notches) ? new(0f, 0f, 0f, -Math.Clamp(notches, -MostNotches, MostNotches) * ZoomOutPerNotch * scrollSpeed) : ViewPush.None;
 
     private static float Axis(bool isPositiveHeld, bool isNegativeHeld) => (isPositiveHeld ? 1f : 0f) - (isNegativeHeld ? 1f : 0f);
 }

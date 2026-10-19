@@ -81,19 +81,15 @@ public sealed class Plugin : BasePlugin
             "How fast the raise and lower keys move the camera, in metres a second, from 0.1 to 100.\n" +
             "升高键和降低键移动镜头的速度，单位是米每秒，范围 0.1 到 100。");
 
-        var zoomExtraIn = Config.Bind("Zoom", "ExtraIn", 10f,
-            new ConfigDescription(
-                "How much further the scroll wheel may zoom in than the game allows, in degrees of view angle, from 0 to 60. The view angle never goes below 5 degrees. Takes effect at the next game start.\n" +
-                "滚轮能比游戏多放大多少，按视野角度计算（度），范围 0 到 60。视野角度最小 5 度。下次启动游戏时生效。",
-                null, "ModManager.Restart")).Value;
-        var zoomExtraOut = Config.Bind("Zoom", "ExtraOut", 15f,
-            new ConfigDescription(
-                "How much further the scroll wheel may zoom out than the game allows, in degrees of view angle, from 0 to 60. The view angle never goes above 110 degrees. Takes effect at the next game start.\n" +
-                "滚轮能比游戏多缩小多少，按视野角度计算（度），范围 0 到 60。视野角度最大 110 度。下次启动游戏时生效。",
-                null, "ModManager.Restart")).Value;
+        var zoomClosest = Config.Bind("Zoom", "Closest", 0.5f,
+            "How close the scroll wheel may bring the camera, as a share of the game's distance from your character, from 0.2 to 1. 0.5 is half the game's distance. The scroll wheel moves the camera itself in and out; the lens stays as it is. With Closest and Farthest both at 1, the scroll wheel zooms the game's way.\n" +
+            "滚轮最多能把镜头拉到多近，按游戏原本到角色距离的比例计算，范围 0.2 到 1。0.5 是游戏距离的一半。滚轮会让镜头本身前后移动，视野角度保持不变。Closest 和 Farthest 都为 1 时，滚轮按游戏原本的方式缩放。");
+        var zoomFarthest = Config.Bind("Zoom", "Farthest", 3f,
+            "How far the scroll wheel may move the camera away, as a multiple of the game's distance from your character, from 1 to 10. 3 is three times the game's distance.\n" +
+            "滚轮最多能把镜头拉到多远，按游戏原本到角色距离的倍数计算，范围 1 到 10。3 是游戏距离的三倍。");
         var scrollSpeed = Config.Bind("Zoom", "ScrollSpeed", 1f,
-            "How far each scroll wheel step zooms, from 0.1 to 5. 1 is the game's speed and 2 zooms twice as far. The game counts at most five notches per step, so on a fast wheel high values may zoom no further than lower ones.\n" +
-            "滚轮每滚一格缩放多少，范围 0.1 到 5。1 是游戏原本的速度，2 是两倍。游戏每次最多只算五格，所以在一次会滚好几格的滚轮上，数值调高也可能不会缩放得更多。");
+            "How far each scroll wheel notch moves the camera, from 0.1 to 5. At 1 each notch moves it a tenth of its distance; 2 moves it twice as far. The game counts at most five notches at a time, so on a fast wheel high values may zoom no further than lower ones.\n" +
+            "滚轮每滚一格镜头移动多少，范围 0.1 到 5。为 1 时每格移动当前距离的十分之一，2 是两倍。游戏每次最多只算五格，所以在一次会滚好几格的滚轮上，数值调高也可能不会缩放得更多。");
 
         var smoothingRate = Config.Bind("Smoothing", "Rate", 12f,
             "How quickly the camera catches up to where you turned it, from 0 to 60. Higher is snappier; 0 moves it at once.\n" +
@@ -151,11 +147,9 @@ public sealed class Plugin : BasePlugin
             isMouseXInverted.Value,
             isMouseYInverted.Value,
             isAllowedInBuildMode.Value,
-            ViewLimits.From(yawLimit.Value, pitchMin.Value, pitchMax.Value, heightMin.Value, heightMax.Value),
+            ViewLimits.From(yawLimit.Value, pitchMin.Value, pitchMax.Value, heightMin.Value, heightMax.Value, zoomClosest.Value, zoomFarthest.Value),
             new KeySpeeds(Clamp(keyRotateSpeed.Value, 1f, 720f, 90f), Clamp(keyTiltSpeed.Value, 1f, 720f, 45f), Clamp(heightSpeed.Value, 0.1f, 100f, 6f)),
             Clamp(smoothingRate.Value, 0f, 60f, 12f),
-            zoomExtraIn,
-            zoomExtraOut,
             Clamp(scrollSpeed.Value, 0.1f, 5f, 1f),
             KeyChoice.Parse(rotateLeftText, canUseGameKey: true),
             KeyChoice.Parse(rotateRightText, canUseGameKey: true),
@@ -170,7 +164,7 @@ public sealed class Plugin : BasePlugin
         var startSettings = Read();
 
         log.TrimIfLarge();
-        log.Write($"===== Camera {Version} started: rotate {OnOff(isRotateOn)} (mouse {mouseButton}), zoom range wider by {zoomExtraIn:0.#} degrees in and {zoomExtraOut:0.#} out");
+        log.Write($"===== Camera {Version} started: rotate {OnOff(isRotateOn)} (mouse {mouseButton})");
         CameraKeys.Apply(harmony, startSettings, log.Write);
         ViewPatches.Apply(harmony, startSettings, log.Write);
 
@@ -181,12 +175,13 @@ public sealed class Plugin : BasePlugin
 
             log.Write($"only the center key follows {OnOff(settings.Snap.OnlyCenterKeyFollows)}, stay on stairs {OnOff(settings.Snap.StayOnStairs)}, after menus {OnOff(settings.Snap.StayAfterMenuClose)}, after build mode {OnOff(settings.Snap.StayAfterBuildMode)}, " +
                 $"yaw {(limits.IsYawLimited ? $"within {limits.YawLimit:0.#}" : "all round")}, pitch {limits.PitchMin:0.#} to {limits.PitchMax:0.#}, in build mode {OnOff(settings.IsRotateAllowedInBuildMode)}, " +
-                $"height {limits.HeightMin:0.#} to {limits.HeightMax:0.#} m, smoothing {settings.SmoothingRate:0.#}, scroll speed x{settings.ScrollSpeed:0.##}");
+                $"height {limits.HeightMin:0.#} to {limits.HeightMax:0.#} m, zoom {MathF.Exp(limits.ZoomOutMin):0.##} to {MathF.Exp(limits.ZoomOutMax):0.##} times the game's distance, " +
+                $"smoothing {settings.SmoothingRate:0.#}, scroll speed x{settings.ScrollSpeed:0.##}");
             CameraKeys.Use(settings);
-            ViewPatches.Use(harmony, settings);
+            ViewPatches.Use(settings);
             SnapPatches.Use(harmony, settings.Snap, log.Write, log.WriteFileOnly);
         }, isOnlyCenterKeyFollowsOn, isStayOnStairsOn, isStayAfterMenuCloseOn, isStayAfterBuildModeOn, mouseSensitivity, isMouseXInverted, isMouseYInverted, yawLimit, pitchMin, pitchMax,
-            keyRotateSpeed, keyTiltSpeed, isAllowedInBuildMode, heightMin, heightMax, heightSpeed, scrollSpeed, smoothingRate, doesCenterKeyReset);
+            keyRotateSpeed, keyTiltSpeed, isAllowedInBuildMode, heightMin, heightMax, heightSpeed, zoomClosest, zoomFarthest, scrollSpeed, smoothingRate, doesCenterKeyReset);
     }
 
     private static string OnOff(bool isOn) => isOn ? "on" : "off";

@@ -14,8 +14,6 @@ internal sealed record CameraSettings(
     ViewLimits Limits,
     KeySpeeds Speeds,
     float SmoothingRate,
-    float ZoomExtraIn,
-    float ZoomExtraOut,
     float ScrollSpeed,
     KeyChoice RotateLeftKey,
     KeyChoice RotateRightKey,

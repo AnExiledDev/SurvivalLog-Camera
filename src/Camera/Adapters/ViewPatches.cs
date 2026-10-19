@@ -23,7 +23,6 @@ internal static class ViewPatches
 
     private static CameraSettings? _settings;
     private static ViewDriver _driver = new(ViewLimits.From(0f, 25f, 85f, 0f, 0f), 0f);
-    private static ZoomGuard _zoom = new(0f, 0f);
     private static Action<string> _log = _ => { };
     private static bool _hasBase;
     private static Quaternion _baseRotation = Quaternion.identity;
@@ -40,15 +39,13 @@ internal static class ViewPatches
     private static bool _isMouseRotating;
     private static float _mouseX;
     private static float _mouseY;
-    private static bool _hasLoggedZoom;
-    private static bool _isZoomHooked;
+    private static float _scrollNotches;
 
     public static void Apply(Harmony harmony, CameraSettings settings, Action<string> log)
     {
         _settings = settings;
         _log = log;
         _driver = new ViewDriver(settings.Limits, settings.SmoothingRate);
-        _zoom = new ZoomGuard(settings.ZoomExtraIn, settings.ZoomExtraOut);
 
         var isViewHooked = PatchKit.Patch(harmony, typeof(ViewPatches), typeof(CameraManager), nameof(CameraManager.Update), postfix: nameof(AfterCameraUpdate),
             done: "free camera hooked", consequence: "the camera cannot be turned, tilted or raised");
@@ -61,6 +58,8 @@ internal static class ViewPatches
                 done: "a new world starts from the game's view", consequence: "a turned view may carry into the next world");
             PatchKit.Patch(harmony, typeof(ViewPatches), typeof(CameraManager), nameof(CameraManager.SetCameraMode), postfix: nameof(AfterSetCameraMode),
                 done: "free mode follows the turned view", consequence: "looking at another floor may jump when the view is turned");
+            PatchKit.Patch(harmony, typeof(ViewPatches), typeof(CameraManager), nameof(CameraManager.OnScrollWheel), prefix: nameof(ScrollZoom),
+                done: "the scroll wheel moves the camera in and out", consequence: "the scroll wheel keeps the game's lens zoom");
         }
 
         if (isViewHooked && settings.IsRotateOn)
@@ -84,19 +83,13 @@ internal static class ViewPatches
     }
 
     /// <summary>
-    /// Called on the main thread at start and after each change. The view the player turned to stays; new limits and smoothing apply
-    /// from the next frame. The scroll hook goes in the first time zoom needs it and stays in.
+    /// Called on the main thread after each settings change. The view the player turned to stays; new limits and
+    /// smoothing apply from the next frame.
     /// </summary>
-    public static void Use(Harmony harmony, CameraSettings settings)
+    public static void Use(CameraSettings settings)
     {
         _settings = settings;
         _driver.Use(settings.Limits, settings.SmoothingRate);
-
-        if (_isZoomHooked || (!_zoom.WidensAnything && settings.ScrollSpeed == 1f)) return;
-
-        _isZoomHooked = true;
-        PatchKit.Patch(harmony, typeof(ViewPatches), typeof(CameraManager), nameof(CameraManager.OnScrollWheel), prefix: nameof(WidenZoom),
-            done: "zoom hooked", consequence: "zoom keeps the game's range and speed");
     }
 
     /// <summary>Puts the follow camera back the way the game left it, so the next world captures the game's angle and not a turned one.</summary>
@@ -104,9 +97,7 @@ internal static class ViewPatches
     {
         try
         {
-            var follow = __instance.FollowCamera;
-
-            if (_hasBase && follow != null && follow.Pointer == _followCameraPointer && !_rotationApplied.IsDefault) follow.transform.rotation = _baseRotation;
+            RestoreGameAngle(__instance);
         }
         catch (Exception ex)
         {
@@ -114,6 +105,13 @@ internal static class ViewPatches
         }
 
         ForgetWorld();
+    }
+
+    private static void RestoreGameAngle(CameraManager camera)
+    {
+        var follow = camera.FollowCamera;
+
+        if (_hasBase && follow != null && follow.Pointer == _followCameraPointer && !_rotationApplied.IsDefault) follow.transform.rotation = _baseRotation;
     }
 
     private static void ForgetWorld()
@@ -129,6 +127,7 @@ internal static class ViewPatches
         _isMouseRotating = false;
         _mouseX = 0f;
         _mouseY = 0f;
+        _scrollNotches = 0f;
         _driver.Forget();
     }
 
@@ -187,7 +186,6 @@ internal static class ViewPatches
 
     private static CameraFlags Flags(CameraManager camera) =>
         new(
-            camera._isExploreMode,
             camera._isPhotoMode,
             camera.isSubCameraActive,
             camera._isDeadZooming,
@@ -209,6 +207,8 @@ internal static class ViewPatches
             push += ViewInput.FromMouse(_mouseX, _mouseY, settings.MouseSensitivity, settings.IsMouseXInverted, settings.IsMouseYInverted);
         }
 
+        if (_scrollNotches != 0f) push += ViewInput.FromScroll(_scrollNotches, settings.ScrollSpeed);
+
         return (push, isResetPressed);
     }
 
@@ -216,9 +216,10 @@ internal static class ViewPatches
     {
         _mouseX = 0f;
         _mouseY = 0f;
+        _scrollNotches = 0f;
     }
 
-    /// <summary>The reset key also puts the zoom back where the world started.</summary>
+    /// <summary>The reset key also puts the game's lens zoom back where the world started.</summary>
     private static void RestoreZoom(CameraManager camera)
     {
         if (float.IsFinite(_defaultFollowFov) && _defaultFollowFov > 0f) camera.targetFollowFOV = _defaultFollowFov;
@@ -348,9 +349,13 @@ internal static class ViewPatches
     private static Quaternion Turn(View view) =>
         Quaternion.AngleAxis(view.Yaw, Vector3.up) * Quaternion.AngleAxis(view.Pitch, _baseRotation * Vector3.right);
 
-    /// <summary>The game's offset (RebuildFollowOffset: its yaw times base plus raise) with the view's turn inside the yaw, and the view's height on top.</summary>
+    /// <summary>
+    /// The game's offset (RebuildFollowOffset: its yaw times base plus raise) stretched by the view's zoom, with the
+    /// view's turn inside the yaw and the view's height on top. The offset runs along the camera's line of sight, so
+    /// stretching it moves the camera straight back from what it looks at.
+    /// </summary>
     private static Vector3 FollowOffset(CameraManager camera, View view) =>
-        camera._yawRotation * (Turn(view) * (camera._baseFollowOffset + camera._gmRaiseOffset)) + Vector3.up * view.Height;
+        camera._yawRotation * (Turn(view) * ((camera._baseFollowOffset + camera._gmRaiseOffset) * MathF.Exp(view.ZoomOut))) + Vector3.up * view.Height;
 
     /// <summary>
     /// With rotation on, the game's rotate keys are read by this mod instead and the game's own turn is held still.
@@ -464,28 +469,26 @@ internal static class ViewPatches
     }
 
     /// <summary>
-    /// The scroll wheel is the only reader of the game's zoom limits (OnScrollWheel), so they are widened just before
-    /// it reads them. The game's own range is kept and the extra always added to it, never to a range already widened.
+    /// The game zooms by narrowing and widening the lens (OnScrollWheel), so the camera never moves. While the
+    /// player's view applies, the wheel moves the camera in and out instead and the lens is left alone; the notches
+    /// are picked up by the next camera update. Photo mode, cutscenes, the death camera and build mode with
+    /// AllowInBuildMode off keep the game's own zoom.
     /// </summary>
-    private static void WidenZoom(ref float __0)
+    private static bool ScrollZoom(float __0)
     {
         try
         {
-            if (_settings is { } settings) __0 *= settings.ScrollSpeed;
+            if (_settings is not { } settings || !settings.Limits.CanZoom || !_hasBase || _suspension != Suspension.None) return true;
 
-            if (!_zoom.WidensAnything || _zoom.Next(GameKey.Camera_MinFOV, GameKey.Camera_MaxFOV) is not { } range) return;
+            if (float.IsFinite(__0)) _scrollNotches += __0;
 
-            GameKey.Camera_MinFOV = range.Min;
-            GameKey.Camera_MaxFOV = range.Max;
-
-            if (_hasLoggedZoom) return;
-
-            _hasLoggedZoom = true;
-            _log($"zoom range is now {range.Min:0.#} to {range.Max:0.#} degrees");
+            return false;
         }
         catch (Exception ex)
         {
-            PatchKit.Fail("widening the zoom range", ex);
+            PatchKit.Fail("zooming the camera", ex);
+
+            return true;
         }
     }
 }

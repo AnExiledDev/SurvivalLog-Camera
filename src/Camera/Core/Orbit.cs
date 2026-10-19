@@ -19,7 +19,8 @@ public static class Orbit
         return new View(
             yaw,
             Math.Clamp(target.Pitch + Finite(push.Pitch), pitchLow, pitchHigh),
-            Math.Clamp(target.Height + Finite(push.Height), limits.HeightMin, limits.HeightMax));
+            Math.Clamp(target.Height + Finite(push.Height), limits.HeightMin, limits.HeightMax),
+            Math.Clamp(target.ZoomOut + Finite(push.ZoomOut), limits.ZoomOutMin, limits.ZoomOutMax));
     }
 
     /// <summary>
