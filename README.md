@@ -64,7 +64,7 @@ Delete `Camera.dll` from the `BepInEx\plugins` folder. For a clean slate, also d
 
 ## Configuration
 
-Settings live in `BepInEx\config\com.dev.survivallog.camera.cfg`, created the first time the game starts with the mod. Change them in game on the Mod Manager's Mods screen, or edit the file while the game is closed. Changed on the Mods screen, every setting takes effect at once except `Rotate` `Enabled` and `MouseButton`, `Zoom` `ExtraIn` and `ExtraOut`, and the `Keys` settings other than `CenterKeyResetsView`, which take effect at the next game start. A changed setting keeps the view you turned to. Each setting in the cfg file is explained in English and Simplified Chinese. See [CONFIG.md](CONFIG.md) for every setting.
+Settings live in `BepInEx\config\com.dev.survivallog.camera.cfg`, created the first time the game starts with the mod. Change them in game on the Mod Manager's Mods screen, or edit the file while the game is closed. Changed on the Mods screen, every setting takes effect at once except `Rotate` `Enabled` and `MouseButton`, `Zoom` `ExtraIn` and `ExtraOut`, and the `Keys` settings other than `CenterKeyResetsView`, which take effect at the next game start. A changed setting keeps the view you turned to. Each setting in the cfg file is explained in English and Simplified Chinese. See [CONFIG.md](CONFIG.md) for every setting. Without Exiled's Toolkit installed, changes made on the Mods screen take effect at the next game start instead.
 
 ## Troubleshooting
 
@@ -78,7 +78,7 @@ If the camera does not turn at all, look in the log for a line starting `could n
 
 ## Feedback and bug reports
 
-Found a bug, have an idea, or something feels off? Come say so on the Core Directive Discord: https://discord.gg/trTsyxUFqg . You can also leave a comment on the Nexus page or [open an issue](https://github.com/AnExiledDev/SurvivalLog-Camera/issues). When reporting a bug, attach `BepInEx\LogOutput.log` and `BepInEx\camera.log`.
+Found a bug, have an idea, or something feels off? Come say so on the Core Directive Discord: https://discord.gg/trTsyxUFqg . You can also post in the Posts tab of the mod's Nexus Mods page. When reporting a bug, attach `BepInEx\LogOutput.log` and `BepInEx\camera.log`.
 
 To reach me directly, message `exiled.dev` on Discord; you can find me in the [official Survival Log Discord](https://discord.gg/MZGg4gQAUe). I'm also on X as [@AnExiledDev](https://x.com/AnExiledDev).
 
