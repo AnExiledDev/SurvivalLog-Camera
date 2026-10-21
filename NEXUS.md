@@ -1,5 +1,5 @@
 Name: Camera
-Summary: A free camera for Survival Log: orbit all the way round, tilt, raise and lower, pull the camera closer or further away, and no more snapping back to your character unless you press the center camera key. 让镜头绕着角色转一整圈，倾斜、升高、降低，拉近或拉远；走楼梯、关闭菜单或退出规划模式时，镜头不再跳回角色身上。
+Summary: Turn the camera all the way around your character, tilt it, raise it and zoom in for real, and it stays where you put it instead of snapping back every time you take the stairs, close a menu or leave build mode. Hold the middle mouse button to orbit. Works on expeditions too, and every key can be changed or turned off.
 
 Description (BBCode):
 Survival Log's camera looks at your character from one fixed angle and snaps back to them whenever they take the stairs, a menu closes or build mode ends. Camera lets you move it the way most games do, and keeps it where you put it. It only moves the camera; it never changes your character, the world or a save.
@@ -35,7 +35,7 @@ Works in English and Chinese.
 
 [size=5]Requirements[/size]
 [list]
-[*]Survival Log 1.1.18902. A game update can break it until the mod is updated.[/*]
+[*]Survival Log 1.1.19131. A game update can break it until the mod is updated.[/*]
 [*][url=https://www.nexusmods.com/survivallog/mods/12]BepInEx for Survival Log[/url] (BepInEx 6.0.0-be.788, IL2CPP). Install it first.[/*]
 [*]Optional: [url=https://github.com/AnExiledDev/SurvivalLog-ExiledToolkit]Exiled's Toolkit[/url] 0.4.0 or newer. With it, settings changed on the Mod Manager's Mods screen take effect without restarting the game. Without it, they take effect at the next game start.[/*]
 [/list]
@@ -99,7 +99,7 @@ Camera 不会往存档里写入数据，也不会修改游戏文件。你可以�
 
 [size=5]前置要求[/size]
 [list]
-[*]Survival Log 1.1.18902。游戏更新后模组可能暂时失效，直到模组更新为止。[/*]
+[*]Survival Log 1.1.19131。游戏更新后模组可能暂时失效，直到模组更新为止。[/*]
 [*][url=https://www.nexusmods.com/survivallog/mods/12]BepInEx for Survival Log[/url]（BepInEx 6.0.0-be.788，IL2CPP），请先安装。[/*]
 [*]可选：[url=https://github.com/AnExiledDev/SurvivalLog-ExiledToolkit]Exiled's Toolkit[/url] 0.4.0 或更新版本。装了它，在 Mod Manager 的「模组」界面改动的设置无需重启游戏即可生效；没装的话，改动在下次启动游戏时生效。[/*]
 [/list]
