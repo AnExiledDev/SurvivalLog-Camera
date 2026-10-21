@@ -71,7 +71,7 @@ Settings live in `BepInEx\config\com.dev.survivallog.camera.cfg`, created the fi
 
 Built against BepInEx `6.0.0-be.788`.
 
-Check `BepInEx\LogOutput.log` for a line starting `===== Camera 0.4.0 started`. It says whether rotating is on and which mouse button turns the camera. A later line lists the other settings, and is written again when a setting changes on the Mods screen. The lines after that say whether each piece attached to the game, which keys the camera uses (and which were turned off because something else uses them), and the game's camera angle once a world loads.
+Check `BepInEx\LogOutput.log` for a line starting `===== Camera 0.4.1 started`. It says whether rotating is on and which mouse button turns the camera. A later line lists the other settings, and is written again when a setting changes on the Mods screen. The lines after that say whether each piece attached to the game, which keys the camera uses (and which were turned off because something else uses them), and the game's camera angle once a world loads.
 
 The same lines are in `BepInEx\camera.log`, which survives restarts. It also gets a line for every snap the mod held back, and for every time it let the camera go back to your character and why.
 

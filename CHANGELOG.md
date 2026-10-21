@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.4.1
+
+- After a game update, a hook that can no longer be placed is logged as an error, so the Mod Manager can mark the mod as maybe needing an update.
+- Made for Survival Log 1.1.19131.
+
 ## 0.4.0
 
 - The scroll wheel moves the camera toward or away from your character instead of changing the lens, so the screen edges no longer stretch. New settings Zoom Closest (0.5) and Farthest (3) set how near and how far it goes, as a share of the game's distance. Zoom ExtraIn and ExtraOut are gone. Home and the center camera key (with CenterKeyResetsView) put the distance back too.
