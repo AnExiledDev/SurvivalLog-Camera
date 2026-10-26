@@ -2,19 +2,24 @@
 
 ## 0.4.1
 
-- After a game update, a hook that can no longer be placed is logged as an error, so the Mod Manager can mark the mod as maybe needing an update.
+- After a game update, Mod Manager can tell you if this mod may need an update.
 - Made for Survival Log 1.1.19131.
 
 ## 0.4.0
 
-- The scroll wheel moves the camera toward or away from your character instead of changing the lens, so the screen edges no longer stretch. New settings Zoom Closest (0.5) and Farthest (3) set how near and how far it goes, as a share of the game's distance. Zoom ExtraIn and ExtraOut are gone. Home and the center camera key (with CenterKeyResetsView) put the distance back too.
+- The scroll wheel now moves the camera closer to or farther from your character instead of changing the lens, so the edges of the screen no longer stretch.
+- New settings Zoom Closest (0.5) and Farthest (3) set how close and how far the camera can go, compared with the game's own distance. Zoom ExtraIn and ExtraOut are gone.
+- Home, and the center camera key with CenterKeyResetsView on, also reset the zoom.
 - Orbit, tilt, raise and zoom work on expeditions.
-- The Mods screen links this changelog.
-- On the Mods screen, settings that only matter while another setting is on stay hidden until it is.
-- Settings changed on the Mod Manager's Mods screen take effect at once, except Rotate Enabled and MouseButton, and the seven keys in Keys other than CenterKeyResetsView, which take effect at the next game start. A changed setting keeps the view you turned to.
-- The Mods screen shows the mod's name, description, category and links.
-- Exiled's Toolkit 0.4.0 or newer is optional. With it, settings changed on the Mods screen take effect without a restart; without it, at the next game start.
+- Mod Manager's Mods screen links to this changelog.
+- On the Mods screen, a setting that only matters while another one is on stays hidden until that one is on.
+- Most settings changed on the Mods screen take effect at once. Rotate Enabled, MouseButton and the keys (except CenterKeyResetsView) take effect the next time you start the game.
+- Changing a setting doesn't move the camera from where you turned it.
+- Mod Manager's Mods screen shows the mod's name, description, category and links.
+- Exiled's Toolkit 0.4.0 or newer is optional. With it, settings you change on the Mods screen take effect right away. Without it, they take effect the next time you start the game.
 
 ## 0.3.1
 
-First public release. A free camera for Survival Log: orbit all the way round, tilt, raise and lower, zoom further, and no more snapping back to your character unless you press the center camera key.
+- First public release.
+- Turn the camera all the way around your character, tilt it, raise and lower it, and zoom further.
+- The camera stays where you put it, and only goes back to your character when you press the center camera key.
