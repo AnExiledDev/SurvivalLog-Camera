@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 using Camera.Core;
 using GameCore.HotUpdate;
 using GameCore.HotUpdate.Battle.Show;
@@ -28,6 +29,20 @@ internal static class ViewPatches
     private static Quaternion _baseRotation = Quaternion.identity;
     private static float _basePitch = float.NaN;
     private static IntPtr _followCameraPointer;
+
+    /// <summary>
+    /// The follow camera the base was read from, held so its address cannot be reused by another while this mod
+    /// still compares against it, and its transform, so the rotation is written without asking the camera for it
+    /// every frame.
+    /// </summary>
+    private static Component? _follow;
+
+    private static Transform? _followTransform;
+
+    /// <summary>The turn and rotation for the last two views; dropped with the base rotation they are worked out from.</summary>
+    private static readonly ViewMemo<Quaternion> Turns = new();
+
+    private static readonly ViewMemo<Quaternion> Rotations = new();
     private static float _defaultFollowFov = float.NaN;
     private static float _defaultFreeFov = float.NaN;
     private static View _rotationApplied = View.Default;
@@ -118,6 +133,11 @@ internal static class ViewPatches
     {
         _hasBase = false;
         _followCameraPointer = IntPtr.Zero;
+        _follow = null;
+        _followTransform = null;
+        Turns.Forget();
+        Rotations.Forget();
+        CameraKeys.ForgetGameKeys();
         _basePitch = float.NaN;
         _rotationApplied = View.Default;
         _offsetApplied = null;
@@ -140,14 +160,16 @@ internal static class ViewPatches
             CameraKeys.SetUpOnce();
             _lastCamera = __instance;
 
-            var follow = __instance.FollowCamera;
+            var follow = __instance._FollowCamera_k__BackingField;
 
-            if (follow == null) return;
+            if (!IsAlive(follow)) return;
 
             if (!_hasBase || follow.Pointer != _followCameraPointer) CaptureBase(__instance, follow);
 
+            var mode = __instance._cameraMode_k__BackingField;
+
             _suspension = Suspensions.Of(Flags(__instance), settings.IsRotateAllowedInBuildMode);
-            NoteModeChange(__instance.cameraMode);
+            NoteModeChange(mode);
 
             var deltaTime = float.IsFinite(__1) ? Math.Clamp(__1, 0f, MaxStepSeconds) : 0f;
             var (push, isResetPressed) = _suspension == Suspension.None ? ReadInput(__instance, settings, deltaTime) : (ViewPush.None, false);
@@ -158,9 +180,9 @@ internal static class ViewPatches
 
             var view = _driver.Step(push, isResetPressed, _suspension, _basePitch, deltaTime);
 
-            ApplyToFollowCamera(__instance, follow, view);
+            ApplyToFollowCamera(__instance, view);
 
-            if (_suspension != Suspension.Hard && __instance.cameraMode == CameraMode.Free) OrbitFreeCamera(__instance, view);
+            if (_suspension != Suspension.Hard && mode == CameraMode.Free) OrbitFreeCamera(__instance, view);
         }
         catch (Exception ex)
         {
@@ -171,35 +193,52 @@ internal static class ViewPatches
     /// <summary>The game's angle, read once per follow camera before this mod has turned it.</summary>
     private static void CaptureBase(CameraManager camera, Component follow)
     {
-        var rotation = follow.transform.rotation;
+        var transform = follow.transform;
+        var rotation = transform.rotation;
         var pitch = rotation.eulerAngles.x;
 
         ForgetWorld();
         _baseRotation = rotation;
         _basePitch = pitch > 180f ? pitch - 360f : pitch;
         _followCameraPointer = follow.Pointer;
+        _follow = follow;
+        _followTransform = transform;
         _defaultFollowFov = camera._targetFollowFOV_k__BackingField;
         _defaultFreeFov = camera._targetFreeFOV_k__BackingField;
         _hasBase = true;
         _log($"camera angle read: {_basePitch:0.#} degrees down, zoom {_defaultFollowFov:0.#}");
     }
 
+    /// <summary>
+    /// The properties' backing fields, read directly: each property is a call into the game that only returns its
+    /// field (GameAssembly getters at 0x2798500, 0xEDA680, 0x2F36BE0, 0x2E19020).
+    /// </summary>
     private static CameraFlags Flags(CameraManager camera) =>
         new(
             camera._isPhotoMode,
-            camera.isSubCameraActive,
-            camera._isDeadZooming,
-            camera.IsInstallPlanMode || camera._isPlanModeActive);
+            camera._isSubCameraActive_k__BackingField,
+            camera.__isDeadZooming_k__BackingField,
+            camera._IsInstallPlanMode_k__BackingField || camera.__isPlanModeActive_k__BackingField);
 
+    /// <summary>
+    /// With no camera key held and none gone down, the keys push the view nowhere and reset nothing, so whether keys
+    /// may reach the camera is not asked at all; the reset keys are only looked at on a frame some key went down.
+    /// </summary>
     private static (ViewPush Push, bool IsResetPressed) ReadInput(CameraManager camera, CameraSettings settings, float deltaTime)
     {
         var push = ViewPush.None;
         var isResetPressed = false;
 
-        if (Input.anyKey && CameraKeys.IsKeyboardFree(camera))
+        if (Input.anyKey)
         {
-            push = ViewInput.FromKeys(CameraKeys.Held(), settings.Speeds, deltaTime);
-            isResetPressed = CameraKeys.IsResetDown() || (settings.DoesCenterKeyResetView && CameraKeys.IsCenterDown());
+            var held = CameraKeys.Held();
+            var isResetDown = Input.anyKeyDown && (CameraKeys.IsResetDown() || (settings.DoesCenterKeyResetView && CameraKeys.IsCenterDown()));
+
+            if ((held.IsAny || isResetDown) && CameraKeys.IsKeyboardFree(camera))
+            {
+                push = ViewInput.FromKeys(held, settings.Speeds, deltaTime);
+                isResetPressed = isResetDown;
+            }
         }
 
         if ((_mouseX != 0f || _mouseY != 0f) && CameraKeys.IsMouseFree(camera))
@@ -232,11 +271,11 @@ internal static class ViewPatches
     /// angle; while untouched the game's camera is left entirely alone. The offset is rebuilt through the game's own
     /// method so the peek and raise it adds stay in.
     /// </summary>
-    private static void ApplyToFollowCamera(CameraManager camera, Component follow, View view)
+    private static void ApplyToFollowCamera(CameraManager camera, View view)
     {
         if (!view.IsDefault || !_rotationApplied.IsDefault)
         {
-            follow.transform.rotation = Turn(view) * _baseRotation;
+            _followTransform!.rotation = Rotation(view);
             _rotationApplied = view;
         }
 
@@ -310,9 +349,12 @@ internal static class ViewPatches
     /// </summary>
     private static void OrbitFreeCamera(CameraManager camera, View view)
     {
-        var free = camera.FreeCamera;
+        // A view that has not moved since the last orbit changes nothing, whatever the free camera reads.
+        if (_freeApplied is { } unmoved && unmoved == view) return;
 
-        if (free == null) return;
+        var free = camera._FreeCamera_k__BackingField;
+
+        if (!IsAlive(free)) return;
 
         if (_freeApplied is not { } applied)
         {
@@ -321,15 +363,13 @@ internal static class ViewPatches
             return;
         }
 
-        if (applied == view) return;
-
         var target = camera._targetCameraPosition_k__BackingField;
         var moved = InsideWorld(camera, target + FollowOffset(camera, view) - FollowOffset(camera, applied));
         var transform = free.transform;
 
         camera._targetCameraPosition_k__BackingField = moved;
         transform.position += moved - target;
-        transform.rotation = Turn(view) * _baseRotation;
+        transform.rotation = Rotation(view);
         _freeApplied = view;
     }
 
@@ -346,8 +386,32 @@ internal static class ViewPatches
     }
 
     /// <summary>The turn a view makes: pitch about the game camera's own right-hand side, then yaw about straight up.</summary>
-    private static Quaternion Turn(View view) =>
-        Quaternion.AngleAxis(view.Yaw, Vector3.up) * Quaternion.AngleAxis(view.Pitch, _baseRotation * Vector3.right);
+    private static Quaternion Turn(View view)
+    {
+        if (Turns.TryGet(view, out var turn)) return turn;
+
+        turn = Quaternion.AngleAxis(view.Yaw, Vector3.up) * Quaternion.AngleAxis(view.Pitch, _baseRotation * Vector3.right);
+        Turns.Keep(view, turn);
+
+        return turn;
+    }
+
+    /// <summary>The camera's rotation for a view: the view's turn on top of the game's own angle.</summary>
+    private static Quaternion Rotation(View view)
+    {
+        if (Rotations.TryGet(view, out var rotation)) return rotation;
+
+        rotation = Turn(view) * _baseRotation;
+        Rotations.Keep(view, rotation);
+
+        return rotation;
+    }
+
+    /// <summary>
+    /// Unity's null check for a game object, without the call into the game: the game's own check
+    /// (UnityEngine.Object.CompareBaseObjects at 0x41C0520) is a null reference or a zero native pointer.
+    /// </summary>
+    private static bool IsAlive([NotNullWhen(true)] UnityEngine.Object? thing) => thing is not null && thing.m_CachedPtr != IntPtr.Zero;
 
     /// <summary>
     /// The game's offset (RebuildFollowOffset: its yaw times base plus raise) stretched by the view's zoom, with the

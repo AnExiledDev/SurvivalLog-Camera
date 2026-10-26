@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
+using System.Text;
 using BepInEx;
 using Camera.Core;
 using GameCore.HotUpdate;
@@ -22,7 +22,7 @@ internal static class CameraKeys
     /// <summary>A key one setting uses: a fixed one from the config, or whatever the game's key settings give an action.</summary>
     private sealed record ModKey(string Setting, KeyCode Fixed, HotKeyAction? GameAction)
     {
-        public KeyCode Current => GameAction is { } action ? HotKeyManager.Bind(action) : Fixed;
+        public KeyCode Current => GameAction is { } action ? GameKey(action) : Fixed;
 
         public string Describe() => GameAction is { } action ? $"{Current} (the game's {action} key)" : Fixed.ToString();
     }
@@ -69,10 +69,13 @@ internal static class CameraKeys
     private static ModKey? _lower;
     private static ModKey? _reset;
     private static bool _isSetUp;
-    private static bool _areHotKeysFree = true;
-    private static int _hotKeyFrame = int.MinValue;
-    private static IntPtr _listeningActionField;
     private static IntPtr _listeningActionClass;
+    private static int _listeningActionOffset = -1;
+
+    /// <summary>The game's key for each of its actions, kept until its key settings are saved (<see cref="ForgetGameKeys"/>).</summary>
+    private static readonly KeyBinds GameKeys = new(ReadGameKey);
+
+    private static readonly HotKeyGate HotKeys = new();
 
     public static void Apply(Harmony harmony, CameraSettings settings, Action<string> log)
     {
@@ -82,10 +85,30 @@ internal static class CameraKeys
         PatchKit.Patch(harmony, typeof(CameraKeys), typeof(HotKeyManager), nameof(HotKeyManager.Update), postfix: nameof(NoteHotKeyState),
             done: "camera keys wait while the game has input switched off or a key is being rebound",
             consequence: "the camera keys may also fire while the game has input switched off or a key is being rebound");
+        GameKeys.IsWatched = PatchKit.Patch(harmony, typeof(CameraKeys), typeof(SettingManager), nameof(SettingManager.SaveSetting), postfix: nameof(ForgetGameKeys),
+            done: "the game's key settings are read once and again after each change",
+            consequence: "the game's key settings are read every frame a camera key is held");
     }
 
-    /// <summary>Called on the main thread at start and after each change. The keys themselves are read once, on the first frame.</summary>
-    public static void Use(CameraSettings settings) => _settings = settings;
+    /// <summary>
+    /// Called on the main thread at start and after each change. The keys themselves are read once, on the first
+    /// frame; the game's own keys are read again after a change.
+    /// </summary>
+    public static void Use(CameraSettings settings)
+    {
+        _settings = settings;
+        GameKeys.Forget();
+    }
+
+    /// <summary>
+    /// Every change to the game's key settings (a key rebound, the keys reset) ends in SettingManager.SaveSetting, so
+    /// the keys kept are dropped there. Also called when a new world starts.
+    /// </summary>
+    public static void ForgetGameKeys() => GameKeys.Forget();
+
+    private static int ReadGameKey(int action) => (int)HotKeyManager.Bind((HotKeyAction)action);
+
+    private static KeyCode GameKey(HotKeyAction action) => (KeyCode)GameKeys.KeyFor((int)action);
 
     /// <summary>
     /// Done on the first frame the game handles keys or moves the camera rather than at plugin load: the game's key
@@ -100,7 +123,7 @@ internal static class CameraKeys
         try
         {
             var rotateOn = settings.IsRotateOn;
-            var keys = new[]
+            var candidates = new[]
             {
                 rotateOn ? Resolve("RotateLeftKey", settings.RotateLeftKey, KeyCode.None, HotKeyAction.CameraRotateLeft) : null,
                 rotateOn ? Resolve("RotateRightKey", settings.RotateRightKey, KeyCode.None, HotKeyAction.CameraRotateRight) : null,
@@ -109,7 +132,14 @@ internal static class CameraKeys
                 Resolve("RaiseKey", settings.RaiseKey, KeyCode.PageUp, null),
                 Resolve("LowerKey", settings.LowerKey, KeyCode.PageDown, null),
                 Resolve("ResetKey", settings.ResetKey, KeyCode.Home, null),
-            }.OfType<ModKey>().ToList();
+            };
+            var keys = new List<ModKey>(candidates.Length);
+
+            foreach (var candidate in candidates)
+            {
+                if (candidate != null) keys.Add(candidate);
+            }
+
             var usable = KeepUsable(keys, Taken(settings));
 
             _rotateLeft = usable.GetValueOrDefault("RotateLeftKey");
@@ -119,7 +149,7 @@ internal static class CameraKeys
             _raise = usable.GetValueOrDefault("RaiseKey");
             _lower = usable.GetValueOrDefault("LowerKey");
             _reset = usable.GetValueOrDefault("ResetKey");
-            _log("camera keys: " + (usable.Count == 0 ? "none" : string.Join(", ", usable.Values.Select(key => $"{key.Setting} {key.Describe()}"))));
+            _log("camera keys: " + Describe(usable));
         }
         catch (Exception ex)
         {
@@ -135,7 +165,7 @@ internal static class CameraKeys
 
     public static bool IsResetDown() => _reset != null && IsDown(_reset.Current);
 
-    public static bool IsCenterDown() => IsDown(HotKeyManager.Bind(HotKeyAction.CameraLock));
+    public static bool IsCenterDown() => IsDown(GameKey(HotKeyAction.CameraLock));
 
     /// <summary>
     /// When the game's center key last went down as a request for Follow, in unscaled seconds; negative infinity until
@@ -145,10 +175,21 @@ internal static class CameraKeys
 
     /// <summary>
     /// Whether the center key went down this frame in a way the game turns into a request for Follow: the keyboard
-    /// conditions here, the game's own photo mode check on its camera keys, and a free camera.
+    /// conditions here, the game's own photo mode check on its camera keys, and a free camera. The cheap checks go
+    /// first, so the keyboard conditions are only read when the camera is free and the key went down.
     /// </summary>
-    public static bool IsCenterFollowAsk(CameraManager camera) =>
-        SnapRules.IsCenterKeyFollowAsk(IsCenterDown(), IsKeyboardFree(camera) && !camera._isPhotoMode, camera.cameraMode == CameraMode.Free);
+    public static bool IsCenterFollowAsk(CameraManager camera)
+    {
+        var isCameraFree = camera._cameraMode_k__BackingField == CameraMode.Free;
+
+        if (!isCameraFree) return false;
+
+        var isKeyDown = IsCenterDown();
+
+        if (!isKeyDown) return false;
+
+        return SnapRules.IsCenterKeyFollowAsk(isKeyDown, !camera._isPhotoMode && IsKeyboardFree(camera), isCameraFree);
+    }
 
     /// <summary>
     /// The game's own conditions for its camera rotate keys (ReadCameraYawInput: keyboard camera moves allowed, no key
@@ -193,9 +234,10 @@ internal static class CameraKeys
 
     /// <summary>
     /// The game's key manager may update before or after the camera within a frame, so its last reading counts for
-    /// one frame more. When it has stopped updating, keys are not held back on its account.
+    /// one frame more. When it has stopped updating, keys are not held back on its account. The frame count is only
+    /// read while its last reading held keys back.
     /// </summary>
-    private static bool AreHotKeysFree() => Time.frameCount - _hotKeyFrame > 1 || _areHotKeysFree;
+    private static bool AreHotKeysFree() => !HotKeys.NeedsFrame || HotKeys.IsFree(Time.frameCount);
 
     private static void NoteHotKeyState(HotKeyManager __instance)
     {
@@ -203,12 +245,12 @@ internal static class CameraKeys
 
         try
         {
-            _areHotKeysFree = !__instance._isInputDisabled && !IsRebindingAKey(__instance);
-            _hotKeyFrame = Time.frameCount;
+            if (!__instance._isInputDisabled && !IsRebindingAKey(__instance)) HotKeys.NoteFree();
+            else HotKeys.NoteBlocked(Time.frameCount);
         }
         catch (Exception ex)
         {
-            _areHotKeysFree = true;
+            HotKeys.NoteFree();
             PatchKit.Fail("reading whether the game takes keys", ex);
         }
 
@@ -217,7 +259,8 @@ internal static class CameraKeys
 
     /// <summary>
     /// The camera's follow request for a center key press can arrive some frames later, so the snap guard needs to
-    /// know when the key went down. Only noted while OnlyCenterKeyFollows is on.
+    /// know when the key went down. Only noted while OnlyCenterKeyFollows is on, and only looked at on a frame some
+    /// key went down.
     /// </summary>
     private static void NoteCenterPress()
     {
@@ -225,7 +268,9 @@ internal static class CameraKeys
 
         try
         {
-            if (WorldCamera.Existing() is { } camera && IsCenterFollowAsk(camera)) CenterPressedAt = Time.unscaledTime;
+            if (!Input.anyKeyDown || WorldCamera.Existing() is not { } camera) return;
+
+            if (IsCenterFollowAsk(camera)) CenterPressedAt = Time.unscaledTime;
         }
         catch (Exception ex)
         {
@@ -254,12 +299,15 @@ internal static class CameraKeys
 
     private static Dictionary<string, ModKey> KeepUsable(List<ModKey> keys, List<TakenKey> taken)
     {
-        var wanted = keys.Select(key => new WantedKey(key.Setting, (int)key.Current, key.GameAction is { } action ? (int)action : null)).ToList();
+        var wanted = new List<WantedKey>(keys.Count);
+
+        foreach (var key in keys) wanted.Add(new WantedKey(key.Setting, (int)key.Current, key.GameAction is { } action ? (int)action : null));
+
         var usable = new Dictionary<string, ModKey>();
 
         foreach (var verdict in KeyClash.Check(wanted, taken))
         {
-            var key = keys.First(candidate => candidate.Setting == verdict.Setting);
+            var key = Find(keys, verdict.Setting);
 
             if (verdict.IsUsable)
             {
@@ -276,10 +324,40 @@ internal static class CameraKeys
         return usable;
     }
 
+    /// <summary>KeyClash gives one verdict per wanted key under the same setting name, and each setting is wanted once.</summary>
+    private static ModKey Find(List<ModKey> keys, string setting)
+    {
+        foreach (var key in keys)
+        {
+            if (key.Setting == setting) return key;
+        }
+
+        throw new InvalidOperationException($"no camera key for {setting}");
+    }
+
+    /// <summary>The setup's log line: each usable key with its setting, or "none".</summary>
+    private static string Describe(Dictionary<string, ModKey> usable)
+    {
+        if (usable.Count == 0) return "none";
+
+        var text = new StringBuilder();
+
+        foreach (var key in usable.Values)
+        {
+            if (text.Length > 0) text.Append(", ");
+
+            text.Append(key.Setting).Append(' ').Append(key.Describe());
+        }
+
+        return text.ToString();
+    }
+
     /// <summary>Every key already answered: the fixed list, the drag button, and each of the game's actions as its key settings bind them.</summary>
     private static List<TakenKey> Taken(CameraSettings settings)
     {
-        var taken = AlwaysTaken.Select(entry => new TakenKey((int)entry.Key, entry.By)).ToList();
+        var taken = new List<TakenKey>(AlwaysTaken.Length + 64);
+
+        foreach (var entry in AlwaysTaken) taken.Add(new TakenKey((int)entry.Key, entry.By));
 
         taken.AddRange(TimeControlTaken());
 
@@ -289,7 +367,7 @@ internal static class CameraKeys
         {
             try
             {
-                var key = HotKeyManager.Bind(action);
+                var key = GameKey(action);
 
                 if (key != KeyCode.None) taken.Add(new TakenKey((int)key, $"the game's {action} key", (int)action));
             }
@@ -349,34 +427,42 @@ internal static class CameraKeys
 
     /// <summary>
     /// The game's getter for HotKeyManager._listeningAction boxes the nullable, and il2cpp boxes an empty nullable to
-    /// null, so the getter throws whenever no key is being rebound. The field and the nullable's class are looked up
-    /// once here so <see cref="IsRebindingAKey"/> can box it itself and check for null.
+    /// null, so the getter throws whenever no key is being rebound. The field's offset and the nullable's class are
+    /// looked up once here so <see cref="IsRebindingAKey"/> can box it itself and check for null.
     /// </summary>
     private static void FindListeningActionField()
     {
         try
         {
-            _listeningActionField = IL2CPP.GetIl2CppField(Il2CppClassPointerStore<HotKeyManager>.NativeClassPtr, "_listeningAction");
+            var field = IL2CPP.GetIl2CppField(Il2CppClassPointerStore<HotKeyManager>.NativeClassPtr, "_listeningAction");
             _listeningActionClass = Il2CppClassPointerStore<Il2CppSystem.Nullable<HotKeyAction>>.NativeClassPtr;
+
+            // An instance field never sits at 0 (the object header is there), so 0 means the offset is not known.
+            var offset = field != IntPtr.Zero && _listeningActionClass != IntPtr.Zero ? (int)IL2CPP.il2cpp_field_get_offset(field) : 0;
+
+            if (offset > 0)
+            {
+                _listeningActionOffset = offset;
+
+                return;
+            }
         }
         catch (Exception ex)
         {
-            _listeningActionField = IntPtr.Zero;
+            _listeningActionOffset = -1;
             _log("could not look up the key rebinding state: " + ex.Message);
         }
 
-        if (_listeningActionField != IntPtr.Zero && _listeningActionClass != IntPtr.Zero) return;
-
-        _listeningActionField = IntPtr.Zero;
+        _listeningActionOffset = -1;
         _log("the key rebinding state was not found, so only the camera's own rebinding flag holds the camera keys back while a key is being rebound");
     }
 
     /// <summary>Boxing an empty nullable gives null, so a non-null box means a key is being rebound.</summary>
     private static bool IsRebindingAKey(HotKeyManager keys)
     {
-        if (_listeningActionField == IntPtr.Zero) return false;
+        if (_listeningActionOffset < 0) return false;
 
-        var field = IL2CPP.Il2CppObjectBaseToPtrNotNull(keys) + (int)IL2CPP.il2cpp_field_get_offset(_listeningActionField);
+        var field = IL2CPP.Il2CppObjectBaseToPtrNotNull(keys) + _listeningActionOffset;
 
         return IL2CPP.il2cpp_value_box(_listeningActionClass, field) != IntPtr.Zero;
     }

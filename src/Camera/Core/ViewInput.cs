@@ -3,7 +3,11 @@ using System;
 namespace Camera.Core;
 
 /// <summary>Which of the mod's camera keys are held this frame.</summary>
-public readonly record struct HeldKeys(bool RotateLeft, bool RotateRight, bool TiltUp, bool TiltDown, bool Raise, bool Lower);
+public readonly record struct HeldKeys(bool RotateLeft, bool RotateRight, bool TiltUp, bool TiltDown, bool Raise, bool Lower)
+{
+    /// <summary>With none held the keys push the view nowhere, so the checks on whether keys may reach the camera can be skipped.</summary>
+    public bool IsAny => RotateLeft || RotateRight || TiltUp || TiltDown || Raise || Lower;
+}
 
 /// <summary>How fast a held key moves the view: degrees a second for turning and tilting, metres a second for height.</summary>
 public readonly record struct KeySpeeds(float RotateDegreesPerSecond, float TiltDegreesPerSecond, float MetresPerSecond);

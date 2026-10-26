@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Threading.Tasks;
 using BepInEx;
 using BepInEx.Configuration;
 using BepInEx.Unity.IL2CPP;
@@ -14,7 +15,7 @@ namespace Camera;
 public sealed class Plugin : BasePlugin
 {
     private const string Guid = "com.dev.survivallog.camera";
-    private const string Version = "0.4.1";
+    private const string Version = "0.4.2";
 
     public override void Load()
     {
@@ -163,7 +164,6 @@ public sealed class Plugin : BasePlugin
         var harmony = new Harmony(Guid);
         var startSettings = Read();
 
-        log.TrimIfLarge();
         log.Write($"===== Camera {Version} started: rotate {OnOff(isRotateOn)} (mouse {mouseButton})");
         CameraKeys.Apply(harmony, startSettings, log.Write);
         ViewPatches.Apply(harmony, startSettings, log.Write);
@@ -182,7 +182,27 @@ public sealed class Plugin : BasePlugin
             SnapPatches.Use(harmony, settings.Snap, log.Write, log.WriteFileOnly);
         }, isOnlyCenterKeyFollowsOn, isStayOnStairsOn, isStayAfterMenuCloseOn, isStayAfterBuildModeOn, mouseSensitivity, isMouseXInverted, isMouseYInverted, yawLimit, pitchMin, pitchMax,
             keyRotateSpeed, keyTiltSpeed, isAllowedInBuildMode, heightMin, heightMax, heightSpeed, zoomClosest, zoomFarthest, scrollSpeed, smoothingRate, doesCenterKeyReset);
+
+        WarmUpInBackground(log);
     }
+
+    /// <summary>
+    /// The first frame the camera turns, a key is pressed or a snap is judged would otherwise compile that code on the
+    /// game's frame. WarmUp is pure .NET on objects of its own, so it runs on a worker; a failure only costs that
+    /// first frame its head start, and is noted in the mod's file only (the BepInEx console is left to the game's thread).
+    /// </summary>
+    private static void WarmUpInBackground(CameraLog log) =>
+        Task.Run(() =>
+        {
+            try
+            {
+                WarmUp.Run();
+            }
+            catch (Exception ex)
+            {
+                log.WriteFileOnly("warm-up failed, the first camera turn may take a moment longer: " + ex.Message);
+            }
+        });
 
     private static string OnOff(bool isOn) => isOn ? "on" : "off";
 

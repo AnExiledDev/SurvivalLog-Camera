@@ -229,7 +229,7 @@ internal static class SnapPatches
     {
         try
         {
-            var isCameraFree = WorldCamera.Existing()?.cameraMode == CameraMode.Free;
+            var isCameraFree = WorldCamera.Existing()?._cameraMode_k__BackingField == CameraMode.Free;
 
             if (SnapRules.IsCameraButtonFollowAsk(Scope.Active(Time.frameCount), isCameraFree)) _buttonPressedAt = Time.unscaledTime;
         }
@@ -249,7 +249,7 @@ internal static class SnapPatches
             if (source == SnapSource.None && !_toggles.OnlyCenterKeyFollows) return true;
 
             var isFollow = __0 == CameraMode.Follow;
-            var isCameraFree = __instance.cameraMode == CameraMode.Free;
+            var isCameraFree = __instance._cameraMode_k__BackingField == CameraMode.Free;
             var asker = _toggles.OnlyCenterKeyFollows && isFollow && isCameraFree ? PlayerAsker(__instance) : null;
             var request = new SnapRequest(source, isFollow, __2, isCameraFree, __1 == __instance._mapConfigId_k__BackingField, asker != null);
             var verdict = SnapRules.Judge(request, _toggles);

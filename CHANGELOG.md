@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.4.2
+
+- The camera takes less time each frame, so the game runs a little smoother.
+- Less of a pause the first time you turn the camera or press a camera key after starting the game.
+- Made for Survival Log 1.1.19611.
+
 ## 0.4.1
 
 - After a game update, Mod Manager can tell you if this mod may need an update.
