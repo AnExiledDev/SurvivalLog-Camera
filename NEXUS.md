@@ -2,6 +2,8 @@ Name: Camera
 Summary: Turn the camera all the way around your character, tilt it, raise it and zoom in for real, and it stays where you put it instead of snapping back every time you take the stairs, close a menu or leave build mode. Hold the middle mouse button to orbit. Works on expeditions too, and every key can be changed or turned off.
 
 Description (BBCode):
+[center][img]https://sldb.core-directive.com/media/save/1-save-safe.png[/img][/center]
+
 Survival Log's camera looks at your character from one fixed angle and snaps back to them whenever they take the stairs, a menu closes or build mode ends. Camera lets you move it the way most games do, and keeps it where you put it. It only moves the camera; it never changes your character, the world or a save.
 
 [size=5]Main features[/size]
