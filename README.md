@@ -49,7 +49,7 @@ Camera adds no data to your save and does not edit game files. You can remove it
 
 - Survival Log 1.1.19611. Built for this version; a game update can break it until the mod is updated.
 - The [BepInEx Pack for Survival Log](https://www.nexusmods.com/survivallog/mods/12), the BepInEx 6 (IL2CPP) build for the game, version `6.0.0-be.788`.
-- Optional: [Exiled's Toolkit](https://github.com/AnExiledDev/SurvivalLog-ExiledToolkit) 0.4.0 or newer. With it, settings changed on the Mod Manager's Mods screen take effect without restarting the game. Without it, they take effect at the next game start.
+- Optional: [Exiled's Toolkit](https://github.com/AnExiledDev/SurvivalLog-ExiledToolkit) 0.4.0 or newer. With it, settings changed on the Mod Manager's Mods screen take effect without restarting the game. Without it, they take effect at the next game start. With 0.12.0 or newer, the camera keys also do nothing while you type in another mod's window.
 
 ## Install
 
@@ -71,7 +71,7 @@ Settings live in `BepInEx\config\com.dev.survivallog.camera.cfg`, created the fi
 
 Built against BepInEx `6.0.0-be.788`.
 
-Check `BepInEx\LogOutput.log` for a line starting `===== Camera 0.4.2 started`. It says whether rotating is on and which mouse button turns the camera. A later line lists the other settings, and is written again when a setting changes on the Mods screen. The lines after that say whether each piece attached to the game, which keys the camera uses (and which were turned off because something else uses them), and the game's camera angle once a world loads.
+Check `BepInEx\LogOutput.log` for a line starting `===== Camera 0.4.3 started`. It says whether rotating is on and which mouse button turns the camera. A later line lists the other settings, and is written again when a setting changes on the Mods screen. The lines after that say whether each piece attached to the game, which keys the camera uses (and which were turned off because something else uses them), and the game's camera angle once a world loads.
 
 The same lines are in `BepInEx\camera.log`, which survives restarts. It also gets a line for every snap the mod held back, and for every time it let the camera go back to your character and why.
 

@@ -193,7 +193,8 @@ internal static class CameraKeys
 
     /// <summary>
     /// The game's own conditions for its camera rotate keys (ReadCameraYawInput: keyboard camera moves allowed, no key
-    /// being rebound, no panel open), plus no text box being typed in and the game taking input at all.
+    /// being rebound, no panel open), plus no text box being typed in (a mod window's included, seen through Exiled's
+    /// Toolkit 0.12.0 or newer) and the game taking input at all.
     /// </summary>
     public static bool IsKeyboardFree(CameraManager camera) =>
         AreHotKeysFree() &&
@@ -201,6 +202,7 @@ internal static class CameraKeys
         !camera.isRebindListening &&
         !HotKeyManager.IsUGUIInputFocused() &&
         !IsWebPageTakingKeys() &&
+        !OptionalLive.IsTyping() &&
         !ContainerTabHotKey.IsAnyPanelOpen();
 
     /// <summary>

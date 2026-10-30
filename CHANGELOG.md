@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.4.3
+
+- The camera keys no longer turn or move the camera while you type in a search box or any other text box in another mod's window. This needs Exiled's Toolkit 0.12.0 or newer.
+- Made for Survival Log 1.1.20151.
+
 ## 0.4.2
 
 - The camera takes less time each frame, so the game runs a little smoother.
