@@ -1,10 +1,10 @@
 using System;
 using Camera.Core;
+using ExiledToolkit.Game;
 using GameCore.HotUpdate;
 using GameCore.HotUpdate.Battle.Logic;
 using GameCore.HotUpdate.Battle.Show;
 using GameCore.HotUpdate.ReduxUI;
-using HarmonyLib;
 using UnityEngine;
 
 namespace Camera.Adapters;
@@ -25,6 +25,7 @@ internal static class SnapPatches
 
     private static SnapToggles _toggles;
     private static Action<string> _logFileOnly = _ => { };
+    private static PatchKit? _hooks;
     private static float _buttonPressedAt = float.NegativeInfinity;
 
     private static bool _isGuardTried;
@@ -38,10 +39,11 @@ internal static class SnapPatches
     /// Called on the main thread at start and after each change. Each hook goes in the first time a setting needs it and stays in;
     /// with its setting off, a marked snap is let through the game's way.
     /// </summary>
-    public static void Use(Harmony harmony, SnapToggles toggles, Action<string> log, Action<string> logFileOnly)
+    public static void Use(PatchKit hooks, SnapToggles toggles, Action<string> log, Action<string> logFileOnly)
     {
         _toggles = toggles;
         _logFileOnly = logFileOnly;
+        _hooks = hooks;
 
         if (!toggles.IsAnyOn)
         {
@@ -53,7 +55,7 @@ internal static class SnapPatches
         if (!_isGuardTried)
         {
             _isGuardTried = true;
-            _isGuardHooked = PatchKit.Patch(harmony, typeof(SnapPatches), typeof(CameraManager), nameof(CameraManager.SetCameraMode), prefix: nameof(KeepViewIfSnap),
+            _isGuardHooked = hooks.Patch(typeof(SnapPatches), typeof(CameraManager), nameof(CameraManager.SetCameraMode), prefix: nameof(KeepViewIfSnap),
                 done: "camera snap guard hooked", consequence: "the camera still snaps to your character on stairs, after menus and after build mode");
         }
 
@@ -64,45 +66,45 @@ internal static class SnapPatches
         if ((isOnlyCenterKey || toggles.StayOnStairs) && !_areStairsMarked)
         {
             _areStairsMarked = true;
-            MarkStairs(harmony);
+            MarkStairs(hooks);
         }
 
         if ((isOnlyCenterKey || toggles.StayAfterMenuClose) && !_isMenuCloseMarked)
         {
             _isMenuCloseMarked = true;
-            MarkMenuClose(harmony);
+            MarkMenuClose(hooks);
         }
 
         if ((isOnlyCenterKey || toggles.StayAfterBuildMode) && !_isBuildExitMarked)
         {
             _isBuildExitMarked = true;
-            MarkBuildExit(harmony);
+            MarkBuildExit(hooks);
         }
 
         if (!isOnlyCenterKey || _areCenterKeyMovesMarked) return;
 
         _areCenterKeyMovesMarked = true;
-        MarkCameraToggle(harmony);
-        MarkGameCameraMoves(harmony);
+        MarkCameraToggle(hooks);
+        MarkGameCameraMoves(hooks);
     }
 
-    private static void MarkStairs(Harmony harmony)
+    private static void MarkStairs(PatchKit hooks)
     {
-        PatchKit.Patch(harmony, typeof(SnapPatches), typeof(AE_FloorMove), nameof(AE_FloorMove.Run), prefix: nameof(EnterStairs), finalizer: nameof(LeaveStairs),
+        hooks.Patch(typeof(SnapPatches), typeof(AE_FloorMove), nameof(AE_FloorMove.Run), prefix: nameof(EnterStairs), finalizer: nameof(LeaveStairs),
             done: "the camera stays put when your character takes stairs or a ladder", consequence: "the camera still snaps to your character on stairs and ladders");
-        PatchKit.Patch(harmony, typeof(SnapPatches), typeof(AE_FloorTeleport), nameof(AE_FloorTeleport.Run), prefix: nameof(EnterArrival), finalizer: nameof(LeaveArrival),
+        hooks.Patch(typeof(SnapPatches), typeof(AE_FloorTeleport), nameof(AE_FloorTeleport.Run), prefix: nameof(EnterArrival), finalizer: nameof(LeaveArrival),
             done: "the camera stays put when your character comes out on another floor", consequence: "the camera still jumps to your character's new floor after stairs and ladders");
     }
 
-    private static void MarkMenuClose(Harmony harmony)
+    private static void MarkMenuClose(PatchKit hooks)
     {
-        PatchKit.Patch(harmony, typeof(SnapPatches), typeof(Reducer_Web_SelectMenu), nameof(Reducer_Web_SelectMenu.TryReturnToPlayerFloor), prefix: nameof(EnterMenuClose), finalizer: nameof(LeaveMenuClose),
+        hooks.Patch(typeof(SnapPatches), typeof(Reducer_Web_SelectMenu), nameof(Reducer_Web_SelectMenu.TryReturnToPlayerFloor), prefix: nameof(EnterMenuClose), finalizer: nameof(LeaveMenuClose),
             done: "the camera stays on the floor you were viewing when an object menu closes", consequence: "the camera still snaps to your character's floor when an object menu closes");
     }
 
-    private static void MarkBuildExit(Harmony harmony)
+    private static void MarkBuildExit(PatchKit hooks)
     {
-        PatchKit.Patch(harmony, typeof(SnapPatches), typeof(CameraManager), nameof(CameraManager.OnExitInstallPlanMode), prefix: nameof(EnterBuildExit), finalizer: nameof(LeaveBuildExit),
+        hooks.Patch(typeof(SnapPatches), typeof(CameraManager), nameof(CameraManager.OnExitInstallPlanMode), prefix: nameof(EnterBuildExit), finalizer: nameof(LeaveBuildExit),
             done: "the camera stays where it was when build mode ends", consequence: "the camera still snaps to your character when build mode ends");
     }
 
@@ -112,43 +114,43 @@ internal static class SnapPatches
     /// action sent from outside OnCameraModeChanged is the button. Without the key mark every key would count as the
     /// button, so the button is only timed when that mark is in place.
     /// </summary>
-    private static void MarkCameraToggle(Harmony harmony)
+    private static void MarkCameraToggle(PatchKit hooks)
     {
         const string toggleLost = "the game's rotate keys may still send the camera back to your character from another floor";
         const string buttonLost = "the camera button on the screen does not bring the camera back to your character while you look around (the center key still does)";
 
-        PatchKit.Patch(harmony, typeof(SnapPatches), typeof(Reducer_Web_CoreUI0), nameof(Reducer_Web_CoreUI0.Trigger_RA_CameraMode), prefix: nameof(EnterCameraToggle), finalizer: nameof(LeaveCameraToggle),
+        hooks.Patch(typeof(SnapPatches), typeof(Reducer_Web_CoreUI0), nameof(Reducer_Web_CoreUI0.Trigger_RA_CameraMode), prefix: nameof(EnterCameraToggle), finalizer: nameof(LeaveCameraToggle),
             done: "the game's camera mode toggle is watched", consequence: toggleLost);
-        PatchKit.Patch(harmony, typeof(SnapPatches), typeof(Reducer_Web_CoreUI1), nameof(Reducer_Web_CoreUI1.Trigger_RA_CameraMode), prefix: nameof(EnterCameraToggle), finalizer: nameof(LeaveCameraToggle),
+        hooks.Patch(typeof(SnapPatches), typeof(Reducer_Web_CoreUI1), nameof(Reducer_Web_CoreUI1.Trigger_RA_CameraMode), prefix: nameof(EnterCameraToggle), finalizer: nameof(LeaveCameraToggle),
             done: "the game's camera mode toggle is watched on the second screen layout", consequence: toggleLost);
 
-        var isKeyMarked = PatchKit.Patch(harmony, typeof(SnapPatches), typeof(LogicAdapter), nameof(LogicAdapter.OnCameraModeChanged), prefix: nameof(EnterGameCameraKey), finalizer: nameof(LeaveGameCameraKey),
+        var isKeyMarked = hooks.Patch(typeof(SnapPatches), typeof(LogicAdapter), nameof(LogicAdapter.OnCameraModeChanged), prefix: nameof(EnterGameCameraKey), finalizer: nameof(LeaveGameCameraKey),
             done: "the game's camera keys are told apart from the camera button", consequence: buttonLost);
 
         if (!isKeyMarked) return;
 
-        PatchKit.Patch(harmony, typeof(SnapPatches), typeof(Ac_CoreUI0_CameraMode), nameof(Ac_CoreUI0_CameraMode.SendAction), prefix: nameof(NoteCameraButton),
+        hooks.Patch(typeof(SnapPatches), typeof(Ac_CoreUI0_CameraMode), nameof(Ac_CoreUI0_CameraMode.SendAction), prefix: nameof(NoteCameraButton),
             done: "the camera button on the screen brings the camera back to your character", consequence: buttonLost);
-        PatchKit.Patch(harmony, typeof(SnapPatches), typeof(Ac_CoreUI1_CameraMode), nameof(Ac_CoreUI1_CameraMode.SendAction), prefix: nameof(NoteCameraButton),
+        hooks.Patch(typeof(SnapPatches), typeof(Ac_CoreUI1_CameraMode), nameof(Ac_CoreUI1_CameraMode.SendAction), prefix: nameof(NoteCameraButton),
             done: "the camera button on the second screen layout brings the camera back to your character", consequence: buttonLost);
     }
 
     /// <summary>The game's own camera moves, which keep going to the character whatever the player was looking at.</summary>
-    private static void MarkGameCameraMoves(Harmony harmony)
+    private static void MarkGameCameraMoves(PatchKit hooks)
     {
-        PatchKit.Patch(harmony, typeof(SnapPatches), typeof(CameraManager), nameof(CameraManager.SetFollowTargetForCutscene), prefix: nameof(EnterCutscene), finalizer: nameof(LeaveCutscene),
+        hooks.Patch(typeof(SnapPatches), typeof(CameraManager), nameof(CameraManager.SetFollowTargetForCutscene), prefix: nameof(EnterCutscene), finalizer: nameof(LeaveCutscene),
             done: "cutscenes still move the camera", consequence: "a cutscene may not show its scene while you look around on your character's floor");
-        PatchKit.Patch(harmony, typeof(SnapPatches), typeof(CameraManager), nameof(CameraManager.EnterPhotoMode), prefix: nameof(EnterPhotoMode), finalizer: nameof(LeavePhotoMode),
+        hooks.Patch(typeof(SnapPatches), typeof(CameraManager), nameof(CameraManager.EnterPhotoMode), prefix: nameof(EnterPhotoMode), finalizer: nameof(LeavePhotoMode),
             done: "photo mode still starts on your character", consequence: "photo mode may not start on your character while you look around on their floor");
-        PatchKit.Patch(harmony, typeof(SnapPatches), typeof(CameraManager), nameof(CameraManager.ExitPhotoMode), prefix: nameof(EnterPhotoMode), finalizer: nameof(LeavePhotoMode),
+        hooks.Patch(typeof(SnapPatches), typeof(CameraManager), nameof(CameraManager.ExitPhotoMode), prefix: nameof(EnterPhotoMode), finalizer: nameof(LeavePhotoMode),
             done: "leaving photo mode still returns to your character", consequence: "leaving photo mode may not return to your character while you look around on their floor");
-        PatchKit.Patch(harmony, typeof(SnapPatches), typeof(CameraManager), nameof(CameraManager.StartBattle), prefix: nameof(EnterWorldStart), finalizer: nameof(LeaveWorldStart),
+        hooks.Patch(typeof(SnapPatches), typeof(CameraManager), nameof(CameraManager.StartBattle), prefix: nameof(EnterWorldStart), finalizer: nameof(LeaveWorldStart),
             done: "a world still starts with the camera on your character", consequence: "a world may not start with the camera on your character");
-        PatchKit.Patch(harmony, typeof(SnapPatches), typeof(Guide_PlayDoorAnimation), nameof(Guide_PlayDoorAnimation.Update), prefix: nameof(EnterTutorialDoor), finalizer: nameof(LeaveTutorialDoor),
+        hooks.Patch(typeof(SnapPatches), typeof(Guide_PlayDoorAnimation), nameof(Guide_PlayDoorAnimation.Update), prefix: nameof(EnterTutorialDoor), finalizer: nameof(LeaveTutorialDoor),
             done: "the tutorial's door scene still moves the camera", consequence: "the tutorial's door scene may not move the camera while you look around");
-        PatchKit.Patch(harmony, typeof(SnapPatches), typeof(AE_MoveMap), nameof(AE_MoveMap.Run), prefix: nameof(EnterMapTravel), finalizer: nameof(LeaveMapTravel),
+        hooks.Patch(typeof(SnapPatches), typeof(AE_MoveMap), nameof(AE_MoveMap.Run), prefix: nameof(EnterMapTravel), finalizer: nameof(LeaveMapTravel),
             done: "travelling to another map still moves the camera", consequence: "travelling to another map may not move the camera there");
-        PatchKit.Patch(harmony, typeof(SnapPatches), typeof(AE_Exit2Start), nameof(AE_Exit2Start.Run), prefix: nameof(EnterMapTravel), finalizer: nameof(LeaveMapTravel),
+        hooks.Patch(typeof(SnapPatches), typeof(AE_Exit2Start), nameof(AE_Exit2Start.Run), prefix: nameof(EnterMapTravel), finalizer: nameof(LeaveMapTravel),
             done: "returning from a map still moves the camera", consequence: "returning from a map may not move the camera back");
     }
 
@@ -208,7 +210,7 @@ internal static class SnapPatches
         }
         catch (Exception ex)
         {
-            PatchKit.Fail($"marking a camera snap ({source})", ex);
+            _hooks?.Fail($"marking a camera snap ({source})", ex);
         }
     }
 
@@ -220,7 +222,7 @@ internal static class SnapPatches
         }
         catch (Exception ex)
         {
-            PatchKit.Fail($"ending a camera snap ({source})", ex);
+            _hooks?.Fail($"ending a camera snap ({source})", ex);
         }
     }
 
@@ -235,7 +237,7 @@ internal static class SnapPatches
         }
         catch (Exception ex)
         {
-            PatchKit.Fail("noting the camera button", ex);
+            _hooks?.Fail("noting the camera button", ex);
         }
     }
 
@@ -260,7 +262,7 @@ internal static class SnapPatches
         }
         catch (Exception ex)
         {
-            PatchKit.Fail("checking a camera snap", ex);
+            _hooks?.Fail("checking a camera snap", ex);
 
             return true;
         }

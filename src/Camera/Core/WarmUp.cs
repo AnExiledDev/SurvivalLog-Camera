@@ -22,13 +22,8 @@ public static class WarmUp
         var usable = CheckKeys();
         var reads = ReadKeysTwice();
         var isGateRight = CheckGate();
-        var log = new LogLines();
 
-        log.Add(DateTime.UtcNow, "warm-up");
-
-        var hasLog = log.Take() != null;
-
-        return $"view {(int)view.Yaw} {(int)view.Pitch} {(int)view.Height}, kept {kept} snaps, {usable} keys usable, {reads} key reads, gate {(isGateRight ? "right" : "wrong")}, log {(hasLog ? "taken" : "empty")}";
+        return $"view {(int)view.Yaw} {(int)view.Pitch} {(int)view.Height}, kept {kept} snaps, {usable} keys usable, {reads} key reads, gate {(isGateRight ? "right" : "wrong")}";
     }
 
     /// <summary>A second of the right rotate key held with no smoothing, then every kind of suspension and a reset.</summary>
@@ -79,8 +74,7 @@ public static class WarmUp
         var isAsked = SnapRules.IsWithinAskWindow(0f, 0.1f) &&
             SnapRules.IsCameraButtonFollowAsk(active, true) &&
             SnapRules.IsCenterKeyFollowAsk(true, true, true) &&
-            FollowZoom.ShouldCarry(true, true) &&
-            HookFailure.Is(HookFailure.Prefix + " warm-up");
+            FollowZoom.ShouldCarry(true, true);
 
         return isAsked ? kept : -1;
     }

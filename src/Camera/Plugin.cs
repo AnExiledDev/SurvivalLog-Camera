@@ -1,26 +1,32 @@
 using System;
-using System.IO;
 using System.Threading.Tasks;
 using BepInEx;
 using BepInEx.Configuration;
 using BepInEx.Unity.IL2CPP;
 using Camera.Adapters;
 using Camera.Core;
+using ExiledToolkit.Game;
+using ExiledToolkit.Kit;
 using HarmonyLib;
 
 namespace Camera;
 
 [BepInPlugin(Guid, "Camera", Version)]
-[BepInDependency(OptionalLive.ToolkitGuid, BepInDependency.DependencyFlags.SoftDependency)]
+[BepInDependency(ToolkitGuid, ">=0.19.0")]
 public sealed class Plugin : BasePlugin
 {
     private const string Guid = "com.dev.survivallog.camera";
-    private const string Version = "0.4.3";
+    private const string Version = "0.4.4";
+    private const string ToolkitGuid = "com.dev.survivallog.exiledtoolkit";
+
+    /// <summary>Held-back snaps add up over a long session, so past 1 MB the file is moved to camera.log.1 and started again.</summary>
+    private const long MaxLogBytes = 1024 * 1024;
+
+    /// <summary>The camera's hooks run every frame, so each kind of failure is written three times at most.</summary>
+    private const int MaxLoggedFailures = 3;
 
     public override void Load()
     {
-        if (!OptionalLive.IsToolkitInstalled) Log.LogInfo(OptionalLive.MissingNote);
-
         var isOnlyCenterKeyFollowsOn = Config.Bind("Snap", "OnlyCenterKeyFollows", true,
             "Once you have moved the camera away from your character, only the game's center camera key (Space by default, or G with Time Control) and the camera button on the screen bring it back to them. Nothing else does, on any floor: not stairs or ladders, not closing a menu, not leaving build mode after moving or placing something, and not the game's rotate keys. Cutscenes, photo mode, starting a game, the tutorial and travelling to another map still move the camera the game's way. While this is on, StayOnStairs, StayAfterMenuClose and StayAfterBuildMode make no difference. Off: those three settings decide.\n" +
             "你把镜头从角色身上移开后，只有游戏的镜头跟随键（默认 Space，装了 Time Control 时为 G）和屏幕上的镜头按钮能把镜头带回角色身上。在任何楼层，其他操作都不会：走楼梯或爬梯子、关闭菜单、移动或摆放物件后退出规划模式，以及游戏的镜头转向键。过场动画、拍照模式、进入游戏、新手引导和前往其他地图时，镜头仍按游戏原本的方式移动。开启时，StayOnStairs、StayAfterMenuClose 和 StayAfterBuildMode 不起作用。关闭后，由这三项决定。");
@@ -135,10 +141,7 @@ public sealed class Plugin : BasePlugin
             "Also put the camera's angle, height and zoom back to the game's when you press the game's center camera key (Space by default, or G with Time Control).\n" +
             "按下游戏的镜头跟随键（默认 Space，装了 Time Control 时为 G）时，同时把镜头的角度、高度和缩放恢复成游戏原本的状态。");
 
-        var log = new CameraLog(Log, Path.Combine(Paths.BepInExRootPath, "camera.log"));
-
-        PatchKit.Log = log.Write;
-
+        var log = new ModLog(Log, "camera.log") { MaxFileBytes = MaxLogBytes };
         var mouseButton = DragButtons.Parse(mouseButtonText) ?? Fallback(DragButton.Middle, $"Rotate.MouseButton '{mouseButtonText}' is not Middle, Right or None, using Middle", log.Write);
         CameraSettings Read() => new(
             new SnapToggles(isStayOnStairsOn.Value, isStayAfterMenuCloseOn.Value, isStayAfterBuildModeOn.Value, isOnlyCenterKeyFollowsOn.Value),
@@ -161,14 +164,14 @@ public sealed class Plugin : BasePlugin
             KeyChoice.Parse(resetText, canUseGameKey: false),
             doesCenterKeyReset.Value);
 
-        var harmony = new Harmony(Guid);
+        var hooks = new PatchKit(new Harmony(Guid), log.Write, MaxLoggedFailures);
         var startSettings = Read();
 
         log.Write($"===== Camera {Version} started: rotate {OnOff(isRotateOn)} (mouse {mouseButton})");
-        CameraKeys.Apply(harmony, startSettings, log.Write);
-        ViewPatches.Apply(harmony, startSettings, log.Write);
+        CameraKeys.Apply(hooks, startSettings, log.Write);
+        ViewPatches.Apply(hooks, startSettings, log.Write);
 
-        OptionalLive.Watch(() =>
+        ExiledToolkit.LiveSettings.Watch(() =>
         {
             var settings = Read();
             var limits = settings.Limits;
@@ -179,7 +182,7 @@ public sealed class Plugin : BasePlugin
                 $"smoothing {settings.SmoothingRate:0.#}, scroll speed x{settings.ScrollSpeed:0.##}");
             CameraKeys.Use(settings);
             ViewPatches.Use(settings);
-            SnapPatches.Use(harmony, settings.Snap, log.Write, log.WriteFileOnly);
+            SnapPatches.Use(hooks, settings.Snap, log.Write, log.WriteFileOnly);
         }, isOnlyCenterKeyFollowsOn, isStayOnStairsOn, isStayAfterMenuCloseOn, isStayAfterBuildModeOn, mouseSensitivity, isMouseXInverted, isMouseYInverted, yawLimit, pitchMin, pitchMax,
             keyRotateSpeed, keyTiltSpeed, isAllowedInBuildMode, heightMin, heightMax, heightSpeed, zoomClosest, zoomFarthest, scrollSpeed, smoothingRate, doesCenterKeyReset);
 
@@ -191,7 +194,7 @@ public sealed class Plugin : BasePlugin
     /// game's frame. WarmUp is pure .NET on objects of its own, so it runs on a worker; a failure only costs that
     /// first frame its head start, and is noted in the mod's file only (the BepInEx console is left to the game's thread).
     /// </summary>
-    private static void WarmUpInBackground(CameraLog log) =>
+    private static void WarmUpInBackground(ModLog log) =>
         Task.Run(() =>
         {
             try

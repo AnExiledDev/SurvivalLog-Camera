@@ -1,3 +1,4 @@
+using ExiledToolkit.Game;
 using GameCore.HotUpdate;
 using GameCore.HotUpdate.Battle.Show;
 
@@ -10,6 +11,5 @@ namespace Camera.Adapters;
 /// </summary>
 internal static class WorldCamera
 {
-    public static CameraManager? Existing() =>
-        BaseSingleton<BattleShowWorld>.IsInstanceCreated ? BaseSingleton<BattleShowWorld>.Instance._CameraManager : null;
+    public static CameraManager? Existing() => GameSingleton.Existing<BattleShowWorld>()?._CameraManager;
 }

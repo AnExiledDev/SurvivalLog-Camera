@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.4.4
+
+- Now uses Exiled's Toolkit for its shared parts, so it needs Exiled's Toolkit 0.19.0 or newer.
+- Made for Survival Log 1.1.20719.
+
 ## 0.4.3
 
 - The camera keys no longer turn or move the camera while you type in a search box or any other text box in another mod's window. This needs Exiled's Toolkit 0.12.0 or newer.

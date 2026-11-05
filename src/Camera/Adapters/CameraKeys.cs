@@ -4,10 +4,10 @@ using System.IO;
 using System.Text;
 using BepInEx;
 using Camera.Core;
+using ExiledToolkit.Game;
 using GameCore.HotUpdate;
 using GameCore.HotUpdate.Battle.Show;
 using GameCore.HotUpdate.ReduxUI;
-using HarmonyLib;
 using Il2CppInterop.Runtime;
 using UnityEngine;
 
@@ -61,6 +61,7 @@ internal static class CameraKeys
 
     private static CameraSettings? _settings;
     private static Action<string> _log = _ => { };
+    private static PatchKit? _hooks;
     private static ModKey? _rotateLeft;
     private static ModKey? _rotateRight;
     private static ModKey? _tiltUp;
@@ -77,15 +78,16 @@ internal static class CameraKeys
 
     private static readonly HotKeyGate HotKeys = new();
 
-    public static void Apply(Harmony harmony, CameraSettings settings, Action<string> log)
+    public static void Apply(PatchKit hooks, CameraSettings settings, Action<string> log)
     {
         _settings = settings;
         _log = log;
+        _hooks = hooks;
         FindListeningActionField();
-        PatchKit.Patch(harmony, typeof(CameraKeys), typeof(HotKeyManager), nameof(HotKeyManager.Update), postfix: nameof(NoteHotKeyState),
+        hooks.Patch(typeof(CameraKeys), typeof(HotKeyManager), nameof(HotKeyManager.Update), postfix: nameof(NoteHotKeyState),
             done: "camera keys wait while the game has input switched off or a key is being rebound",
             consequence: "the camera keys may also fire while the game has input switched off or a key is being rebound");
-        GameKeys.IsWatched = PatchKit.Patch(harmony, typeof(CameraKeys), typeof(SettingManager), nameof(SettingManager.SaveSetting), postfix: nameof(ForgetGameKeys),
+        GameKeys.IsWatched = hooks.Patch(typeof(CameraKeys), typeof(SettingManager), nameof(SettingManager.SaveSetting), postfix: nameof(ForgetGameKeys),
             done: "the game's key settings are read once and again after each change",
             consequence: "the game's key settings are read every frame a camera key is held");
     }
@@ -194,7 +196,7 @@ internal static class CameraKeys
     /// <summary>
     /// The game's own conditions for its camera rotate keys (ReadCameraYawInput: keyboard camera moves allowed, no key
     /// being rebound, no panel open), plus no text box being typed in (a mod window's included, seen through Exiled's
-    /// Toolkit 0.12.0 or newer) and the game taking input at all.
+    /// Toolkit) and the game taking input at all.
     /// </summary>
     public static bool IsKeyboardFree(CameraManager camera) =>
         AreHotKeysFree() &&
@@ -202,7 +204,7 @@ internal static class CameraKeys
         !camera.isRebindListening &&
         !HotKeyManager.IsUGUIInputFocused() &&
         !IsWebPageTakingKeys() &&
-        !OptionalLive.IsTyping() &&
+        !ExiledToolkit.Typing.IsActive &&
         !ContainerTabHotKey.IsAnyPanelOpen();
 
     /// <summary>
@@ -215,14 +217,13 @@ internal static class CameraKeys
     {
         try
         {
-            var ui = BaseSingleton<ReduxUISystem>.IsInstanceCreated ? BaseSingleton<ReduxUISystem>.Instance : null;
-            var layer = ui?.GetWebUILayer();
+            var layer = GameSingleton.Existing<ReduxUISystem>()?.GetWebUILayer();
 
             return layer != null && layer.IsKeyboardEnabled;
         }
         catch (Exception ex)
         {
-            PatchKit.Fail("reading whether a menu takes keys", ex);
+            _hooks?.Fail("reading whether a menu takes keys", ex);
 
             return false;
         }
@@ -253,7 +254,7 @@ internal static class CameraKeys
         catch (Exception ex)
         {
             HotKeys.NoteFree();
-            PatchKit.Fail("reading whether the game takes keys", ex);
+            _hooks?.Fail("reading whether the game takes keys", ex);
         }
 
         NoteCenterPress();
@@ -276,7 +277,7 @@ internal static class CameraKeys
         }
         catch (Exception ex)
         {
-            PatchKit.Fail("reading the center key", ex);
+            _hooks?.Fail("reading the center key", ex);
         }
     }
 

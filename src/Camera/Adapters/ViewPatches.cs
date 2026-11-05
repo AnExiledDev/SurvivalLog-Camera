@@ -1,9 +1,9 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
 using Camera.Core;
+using ExiledToolkit.Game;
 using GameCore.HotUpdate;
 using GameCore.HotUpdate.Battle.Show;
-using HarmonyLib;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using CameraTouch = GameCore.Scripts.CameraTouch;
@@ -25,6 +25,7 @@ internal static class ViewPatches
     private static CameraSettings? _settings;
     private static ViewDriver _driver = new(ViewLimits.From(0f, 25f, 85f, 0f, 0f), 0f);
     private static Action<string> _log = _ => { };
+    private static PatchKit? _hooks;
     private static bool _hasBase;
     private static Quaternion _baseRotation = Quaternion.identity;
     private static float _basePitch = float.NaN;
@@ -56,44 +57,45 @@ internal static class ViewPatches
     private static float _mouseY;
     private static float _scrollNotches;
 
-    public static void Apply(Harmony harmony, CameraSettings settings, Action<string> log)
+    public static void Apply(PatchKit hooks, CameraSettings settings, Action<string> log)
     {
         _settings = settings;
         _log = log;
+        _hooks = hooks;
         _driver = new ViewDriver(settings.Limits, settings.SmoothingRate);
 
-        var isViewHooked = PatchKit.Patch(harmony, typeof(ViewPatches), typeof(CameraManager), nameof(CameraManager.Update), postfix: nameof(AfterCameraUpdate),
+        var isViewHooked = hooks.Patch(typeof(ViewPatches), typeof(CameraManager), nameof(CameraManager.Update), postfix: nameof(AfterCameraUpdate),
             done: "free camera hooked", consequence: "the camera cannot be turned, tilted or raised");
 
         if (isViewHooked)
         {
-            PatchKit.Patch(harmony, typeof(ViewPatches), typeof(CameraManager), nameof(CameraManager.RebuildFollowOffset), postfix: nameof(AfterRebuildFollowOffset),
+            hooks.Patch(typeof(ViewPatches), typeof(CameraManager), nameof(CameraManager.RebuildFollowOffset), postfix: nameof(AfterRebuildFollowOffset),
                 done: "follow offset hooked", consequence: "the camera turns in place instead of around your character");
-            PatchKit.Patch(harmony, typeof(ViewPatches), typeof(CameraManager), nameof(CameraManager.Initialize), prefix: nameof(BeforeInitialize),
+            hooks.Patch(typeof(ViewPatches), typeof(CameraManager), nameof(CameraManager.Initialize), prefix: nameof(BeforeInitialize),
                 done: "a new world starts from the game's view", consequence: "a turned view may carry into the next world");
-            PatchKit.Patch(harmony, typeof(ViewPatches), typeof(CameraManager), nameof(CameraManager.SetCameraMode), postfix: nameof(AfterSetCameraMode),
+            hooks.Patch(typeof(ViewPatches), typeof(CameraManager), nameof(CameraManager.SetCameraMode), postfix: nameof(AfterSetCameraMode),
                 done: "free mode follows the turned view", consequence: "looking at another floor may jump when the view is turned");
-            PatchKit.Patch(harmony, typeof(ViewPatches), typeof(CameraManager), nameof(CameraManager.OnScrollWheel), prefix: nameof(ScrollZoom),
+            hooks.Patch(typeof(ViewPatches), typeof(CameraManager), nameof(CameraManager.OnScrollWheel), prefix: nameof(ScrollZoom),
                 done: "the scroll wheel moves the camera in and out", consequence: "the scroll wheel keeps the game's lens zoom");
         }
 
         if (isViewHooked && settings.IsRotateOn)
         {
-            PatchKit.Patch(harmony, typeof(ViewPatches), typeof(CameraManager), nameof(CameraManager.ReadCameraYawInput), prefix: nameof(SkipGameYawInput),
+            hooks.Patch(typeof(ViewPatches), typeof(CameraManager), nameof(CameraManager.ReadCameraYawInput), prefix: nameof(SkipGameYawInput),
                 done: "the game's own rotate keys drive this camera instead", consequence: "the game's rotate keys turn the camera twice");
         }
 
         if (isViewHooked && settings.IsRotateOn && settings.MouseButton != DragButton.None)
         {
-            PatchKit.Patch(harmony, typeof(ViewPatches), typeof(CameraTouch), nameof(CameraTouch.OnBeginDrag), prefix: nameof(BeginMouseRotate),
+            hooks.Patch(typeof(ViewPatches), typeof(CameraTouch), nameof(CameraTouch.OnBeginDrag), prefix: nameof(BeginMouseRotate),
                 done: $"{settings.MouseButton} mouse drag turns the camera", consequence: "the mouse cannot turn the camera");
-            PatchKit.Patch(harmony, typeof(ViewPatches), typeof(CameraTouch), nameof(CameraTouch.OnDrag), prefix: nameof(MouseRotate),
+            hooks.Patch(typeof(ViewPatches), typeof(CameraTouch), nameof(CameraTouch.OnDrag), prefix: nameof(MouseRotate),
                 done: "mouse drag hooked", consequence: "the mouse cannot turn the camera");
-            PatchKit.Patch(harmony, typeof(ViewPatches), typeof(CameraTouch), nameof(CameraTouch.OnEndDrag), prefix: nameof(EndMouseRotate),
+            hooks.Patch(typeof(ViewPatches), typeof(CameraTouch), nameof(CameraTouch.OnEndDrag), prefix: nameof(EndMouseRotate),
                 done: "mouse drag end hooked", consequence: "releasing the mouse after turning may select what is under it");
         }
 
-        PatchKit.Patch(harmony, typeof(ViewPatches), typeof(CameraManager), nameof(CameraManager.SetCameraMode), prefix: nameof(CarryFollowZoom),
+        hooks.Patch(typeof(ViewPatches), typeof(CameraManager), nameof(CameraManager.SetCameraMode), prefix: nameof(CarryFollowZoom),
             done: "the zoom stays put when the game tells the camera to keep following", consequence: "the zoom may jump back when your character takes stairs or a ladder");
     }
 
@@ -116,7 +118,7 @@ internal static class ViewPatches
         }
         catch (Exception ex)
         {
-            PatchKit.Fail("restoring the game's camera angle", ex);
+            _hooks?.Fail("restoring the game's camera angle", ex);
         }
 
         ForgetWorld();
@@ -186,7 +188,7 @@ internal static class ViewPatches
         }
         catch (Exception ex)
         {
-            PatchKit.Fail("moving the camera", ex);
+            _hooks?.Fail("moving the camera", ex);
         }
     }
 
@@ -296,7 +298,7 @@ internal static class ViewPatches
         }
         catch (Exception ex)
         {
-            PatchKit.Fail("turning the follow offset", ex);
+            _hooks?.Fail("turning the follow offset", ex);
         }
     }
 
@@ -309,7 +311,7 @@ internal static class ViewPatches
         }
         catch (Exception ex)
         {
-            PatchKit.Fail("noting a camera mode change", ex);
+            _hooks?.Fail("noting a camera mode change", ex);
         }
     }
 
@@ -329,7 +331,7 @@ internal static class ViewPatches
         }
         catch (Exception ex)
         {
-            PatchKit.Fail("keeping the zoom", ex);
+            _hooks?.Fail("keeping the zoom", ex);
         }
     }
 
@@ -440,7 +442,7 @@ internal static class ViewPatches
         }
         catch (Exception ex)
         {
-            PatchKit.Fail("holding the game's own camera turn", ex);
+            _hooks?.Fail("holding the game's own camera turn", ex);
 
             return true;
         }
@@ -468,7 +470,7 @@ internal static class ViewPatches
         catch (Exception ex)
         {
             _isMouseRotating = false;
-            PatchKit.Fail("starting a mouse turn", ex);
+            _hooks?.Fail("starting a mouse turn", ex);
 
             return true;
         }
@@ -490,7 +492,7 @@ internal static class ViewPatches
         }
         catch (Exception ex)
         {
-            PatchKit.Fail("turning with the mouse", ex);
+            _hooks?.Fail("turning with the mouse", ex);
 
             return true;
         }
@@ -514,7 +516,7 @@ internal static class ViewPatches
         catch (Exception ex)
         {
             _isMouseRotating = false;
-            PatchKit.Fail("ending a mouse turn", ex);
+            _hooks?.Fail("ending a mouse turn", ex);
 
             return true;
         }
@@ -550,7 +552,7 @@ internal static class ViewPatches
         }
         catch (Exception ex)
         {
-            PatchKit.Fail("zooming the camera", ex);
+            _hooks?.Fail("zooming the camera", ex);
 
             return true;
         }

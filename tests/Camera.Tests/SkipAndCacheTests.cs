@@ -241,49 +241,6 @@ public class ViewMemoTests
     }
 }
 
-public class LogLinesTests
-{
-    private const string StampFormat = "yyyy-MM-dd HH:mm:ss.fff";
-
-    [Fact]
-    public void Lines_come_out_oldest_first_each_stamped_with_its_own_local_time()
-    {
-        var lines = new LogLines();
-        var first = new DateTime(2026, 10, 26, 8, 30, 1, 250, DateTimeKind.Utc);
-        var second = first.AddSeconds(2);
-
-        lines.Add(first, "camera angle read");
-        lines.Add(second, "kept the view");
-
-        var expected =
-            first.ToLocalTime().ToString(StampFormat) + " camera angle read" + Environment.NewLine +
-            second.ToLocalTime().ToString(StampFormat) + " kept the view" + Environment.NewLine;
-
-        Assert.Equal(expected, lines.Take());
-    }
-
-    [Fact]
-    public void Nothing_waiting_gives_nothing_to_write()
-    {
-        Assert.Null(new LogLines().Take());
-    }
-
-    [Fact]
-    public void Taken_lines_are_not_written_twice()
-    {
-        var lines = new LogLines();
-
-        lines.Add(DateTime.UtcNow, "one");
-        lines.Take();
-
-        Assert.Null(lines.Take());
-
-        lines.Add(DateTime.UtcNow, "two");
-
-        Assert.EndsWith(" two" + Environment.NewLine, lines.Take());
-    }
-}
-
 public class HeldKeysTests
 {
     [Fact]
@@ -321,7 +278,7 @@ public class WarmUpTests
     [Fact]
     public void The_warm_up_goes_all_the_way_through_the_camera_code_it_compiles()
     {
-        Assert.Equal("view 90 0 0, kept 10 snaps, 2 keys usable, 2 key reads, gate right, log taken", WarmUp.Run());
+        Assert.Equal("view 90 0 0, kept 10 snaps, 2 keys usable, 2 key reads, gate right", WarmUp.Run());
     }
 
     [Fact]
