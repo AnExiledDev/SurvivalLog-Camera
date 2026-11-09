@@ -16,7 +16,7 @@ Survival Log's camera looks at your character from one fixed angle and snaps bac
 [*][b]Zoom stays put[/b]: the plain game puts your zoom back to an older setting whenever the game re-centres the camera while it follows your character, for example when they take stairs or a ladder. Camera keeps the zoom you chose.[/*]
 [*][b]No more snapping[/b]: once you have moved the camera off your character, only the center camera key and the camera button on the screen bring it back. Stairs and ladders, closing an object menu, leaving build mode after moving or placing something, and the game's rotate keys all leave the camera where it is, on any floor. Cutscenes, photo mode, the tutorial and travelling to another map still move it the game's way.[/*]
 [*][b]Works on expeditions[/b]: orbit, tilt, raise and zoom work while exploring.[/*]
-[*][b]Steps aside when needed[/b]: photo mode, cutscenes and the death camera use the game's own view, and yours comes back afterwards. Build mode keeps your view.[/*]
+[*][b]Steps aside when needed[/b]: photo mode, cutscenes and the death camera use the game's view, and yours comes back afterwards. Build mode keeps your view.[/*]
 [/list]
 Every key can be changed or turned off in the config. Keys do nothing while you type, while a menu is open or while you rebind a key, and a key the game or another Survival Log mod already uses is turned off rather than doubled up. Works alongside Time Control.
 

@@ -6,15 +6,15 @@ Survival Log's camera looks at your character from one fixed angle, and it snaps
 
 ## Features
 
-- **Orbit**: hold the middle mouse button and drag to turn the camera around your character and tilt it. The game's own rotate keys, `Period` (.) and `Comma` (,), turn it too, smoothly and all the way round.
-- **Tilt**: `Insert` tilts the view steeper (toward looking straight down), `Delete` flatter. By default the angle stays between 25 and 85 degrees below the horizon. The game's own angle is always allowed.
+- **Orbit**: hold the middle mouse button and drag to turn the camera around your character and tilt it. The game's rotate keys, `Period` (.) and `Comma` (,), turn it too, smoothly and all the way round.
+- **Tilt**: `Insert` tilts the view steeper (toward looking straight down), `Delete` flatter. By default the angle stays between 25 and 85 degrees below the horizon. The game's angle is always allowed.
 - **Height**: `PageUp` lifts the camera, `PageDown` lowers it.
 - **Reset**: `Home` puts the angle, height and zoom back to the game's.
 - **Real zoom**: the scroll wheel moves the camera toward or away from your character, from half the game's distance out to three times it, instead of stretching the lens. You can set both limits and make each scroll step bigger or smaller.
 - **Zoom stays put**: the plain game puts your zoom back to an older setting whenever the game re-centres the camera while it follows your character, for example when they take stairs or a ladder. Camera keeps the zoom you chose.
 - **No more snapping**: once you have moved the camera off your character (by panning it or by looking at another floor), only the game's center camera key (`Space` by default, or `G` with Time Control) and the camera button on the screen bring it back to them. Stairs and ladders, closing an object menu, leaving build mode after moving or placing something, and the game's rotate keys all leave the camera where it is, on any floor. Cutscenes, photo mode, starting a game, the tutorial and travelling to another map still move the camera the game's way. Turn off `OnlyCenterKeyFollows` to choose the stairs, menu and build mode cases one by one instead.
 - **Works on expeditions**: orbit, tilt, raise and zoom work while exploring, the same as at home.
-- **Steps aside when the game needs the camera**: photo mode, cutscenes and the death camera get the game's own view, and your view comes back afterwards. Build mode keeps your view, and you can keep turning there (turn off `AllowInBuildMode` to have it ease back to the game's angle while you build).
+- **Steps aside when the game needs the camera**: photo mode, cutscenes and the death camera get the game's view, and your view comes back afterwards. Build mode keeps your view, and you can keep turning there (turn off `AllowInBuildMode` to have it ease back to the game's angle while you build).
 - **A log file**: what the mod set up, every snap it held back, and every time it let the camera go back to your character and why, is written to `BepInEx\camera.log`.
 
 ## Controls
@@ -22,7 +22,7 @@ Survival Log's camera looks at your character from one fixed angle, and it snaps
 | Control | What it does | Setting |
 | --- | --- | --- |
 | Hold the middle mouse button and drag | Drag left and right to turn the camera around your character, up and down to tilt it | `MouseButton` |
-| `Period` (.) / `Comma` (,) | Turn left / right. These are the game's own rotate keys; if you changed them in the game's key settings, the mod uses yours | `RotateLeftKey`, `RotateRightKey` |
+| `Period` (.) / `Comma` (,) | Turn left / right. These are the game's rotate keys; if you changed them in the game's key settings, the mod uses yours | `RotateLeftKey`, `RotateRightKey` |
 | `Insert` / `Delete` | Tilt steeper (toward looking straight down) / flatter | `TiltUpKey`, `TiltDownKey` |
 | `PageUp` / `PageDown` | Raise / lower the camera | `RaiseKey`, `LowerKey` |
 | `Home` | Put the angle, height and zoom back to the game's | `ResetKey` |
@@ -39,7 +39,7 @@ Camera adds no data to your save and does not edit game files. You can remove it
 - Once you have moved the camera off your character, the game's rotate keys orbit the view where it is. In the plain game they send the camera back to your character. If the mod's rotate keys are off (`Enabled` off under `[Rotate]`), the game's rotate keys do nothing until the camera follows your character again.
 - A camera move the mod does not know about still goes through when it heads for a floor or map other than the one on screen, so a game event may still take the camera there.
 - With `MouseButton` on `Middle`, dragging with the middle mouse button turns the camera and no longer pans it. Pan with the keyboard, or set `MouseButton` to `Right` or `None`.
-- Photo mode, cutscenes and the death camera use the game's own camera. Your view comes back when they end. Build mode keeps your view unless you turn off `AllowInBuildMode`.
+- Photo mode, cutscenes and the death camera use the game's camera. Your view comes back when they end. Build mode keeps your view unless you turn off `AllowInBuildMode`.
 - On an expedition, with `MouseButton` on `Middle`, dragging with the middle mouse button turns the camera as it does at home. Dragging with the left button still looks around the way the game does.
 - The keys hold back for the whole time a page that takes typing is open (the crafting table and the codex), not only while you type in its search box. The game draws its menus as web pages and only says whether a page takes typing, not whether a text box in it has focus.
 - `ScrollSpeed` can only go so far: the game caps one scroll step at five notches' worth, so on a wheel that sends several notches at once, high values zoom no further than lower ones.

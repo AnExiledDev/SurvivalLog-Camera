@@ -7,7 +7,7 @@ public enum KeyChoiceKind
     /// <summary>The setting is off.</summary>
     None,
 
-    /// <summary>Use whatever key the game's own key settings give the matching action.</summary>
+    /// <summary>Use whatever key the game's key settings give the matching action.</summary>
     Game,
 
     /// <summary>A key named in the config, still to be checked against Unity's key names.</summary>

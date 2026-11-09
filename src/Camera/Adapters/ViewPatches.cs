@@ -13,7 +13,7 @@ namespace Camera.Adapters;
 /// <summary>
 /// The free camera. The game's follow camera keeps its own place behind the character; this turns that place around
 /// the character (yaw), swings it over the top (pitch) and lifts it (height) by rotating the follow offset the game
-/// already builds, and turns the follow camera to match. The game's own free mode (looking at another floor) copies
+/// already builds, and turns the follow camera to match. The game's free mode (looking at another floor) copies
 /// the follow camera's angle when it starts, and is orbited the same way while it runs.
 /// </summary>
 internal static class ViewPatches
@@ -82,7 +82,7 @@ internal static class ViewPatches
         if (isViewHooked && settings.IsRotateOn)
         {
             hooks.Patch(typeof(ViewPatches), typeof(CameraManager), nameof(CameraManager.ReadCameraYawInput), prefix: nameof(SkipGameYawInput),
-                done: "the game's own rotate keys drive this camera instead", consequence: "the game's rotate keys turn the camera twice");
+                done: "the game's rotate keys drive this camera instead", consequence: "the game's rotate keys turn the camera twice");
         }
 
         if (isViewHooked && settings.IsRotateOn && settings.MouseButton != DragButton.None)
@@ -270,7 +270,7 @@ internal static class ViewPatches
 
     /// <summary>
     /// The rotation is written every frame while the view is turned, and once more on the way back to the game's
-    /// angle; while untouched the game's camera is left entirely alone. The offset is rebuilt through the game's own
+    /// angle; while untouched the game's camera is left entirely alone. The offset is rebuilt through the game's
     /// method so the peek and raise it adds stay in.
     /// </summary>
     private static void ApplyToFollowCamera(CameraManager camera, View view)
@@ -346,7 +346,7 @@ internal static class ViewPatches
 
     /// <summary>
     /// Moves the free camera around the same point the follow camera turns around, by the change since last frame,
-    /// moving the game's own target for its easing with it so the two never pull apart. The point is kept inside the
+    /// moving the game's target for its easing with it so the two never pull apart. The point is kept inside the
     /// game's world bounds.
     /// </summary>
     private static void OrbitFreeCamera(CameraManager camera, View view)
@@ -398,7 +398,7 @@ internal static class ViewPatches
         return turn;
     }
 
-    /// <summary>The camera's rotation for a view: the view's turn on top of the game's own angle.</summary>
+    /// <summary>The camera's rotation for a view: the view's turn on top of the game's angle.</summary>
     private static Quaternion Rotation(View view)
     {
         if (Rotations.TryGet(view, out var rotation)) return rotation;
@@ -410,7 +410,7 @@ internal static class ViewPatches
     }
 
     /// <summary>
-    /// Unity's null check for a game object, without the call into the game: the game's own check
+    /// Unity's null check for a game object, without the call into the game: the game's check
     /// (UnityEngine.Object.CompareBaseObjects at 0x41C0520) is a null reference or a zero native pointer.
     /// </summary>
     private static bool IsAlive([NotNullWhen(true)] UnityEngine.Object? thing) => thing is not null && thing.m_CachedPtr != IntPtr.Zero;
@@ -424,7 +424,7 @@ internal static class ViewPatches
         camera._yawRotation * (Turn(view) * ((camera._baseFollowOffset + camera._gmRaiseOffset) * MathF.Exp(view.ZoomOut))) + Vector3.up * view.Height;
 
     /// <summary>
-    /// With rotation on, the game's rotate keys are read by this mod instead and the game's own turn is held still.
+    /// With rotation on, the game's rotate keys are read by this mod instead and the game's turn is held still.
     /// When the mod ended up with no rotate key at all (both off, both taken, or the keys could not be set up), the
     /// game keeps its own turn so the keys still do something.
     /// </summary>
@@ -442,7 +442,7 @@ internal static class ViewPatches
         }
         catch (Exception ex)
         {
-            _hooks?.Fail("holding the game's own camera turn", ex);
+            _hooks?.Fail("holding the game's camera turn", ex);
 
             return true;
         }
@@ -538,7 +538,7 @@ internal static class ViewPatches
     /// The game zooms by narrowing and widening the lens (OnScrollWheel), so the camera never moves. While the
     /// player's view applies, the wheel moves the camera in and out instead and the lens is left alone; the notches
     /// are picked up by the next camera update. Photo mode, cutscenes, the death camera and build mode with
-    /// AllowInBuildMode off keep the game's own zoom.
+    /// AllowInBuildMode off keep the game's zoom.
     /// </summary>
     private static bool ScrollZoom(float __0)
     {

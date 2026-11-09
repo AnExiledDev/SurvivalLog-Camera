@@ -24,7 +24,7 @@ public static class Orbit
     }
 
     /// <summary>
-    /// The pitch changes that keep the camera's real angle inside the limits. The game's own angle (a change of 0)
+    /// The pitch changes that keep the camera's real angle inside the limits. The game's angle (a change of 0)
     /// is always allowed, even when the limits leave it out, so the default view can always be reached. When the
     /// game's angle could not be read, pitch stays at the game's.
     /// </summary>

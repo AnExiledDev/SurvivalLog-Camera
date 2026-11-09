@@ -42,7 +42,7 @@ public sealed class Plugin : BasePlugin
 
         var isRotateOn = Config.Bind("Rotate", "Enabled", true,
             new ConfigDescription(
-                "Turn the camera all the way around your character and tilt it up and down. To turn, hold the middle mouse button and drag, or hold the game's rotate keys, Period (.) and Comma (,). To tilt, drag up and down, or hold Insert or Delete. Off: only the game's own rotate keys turn the camera, the game's way, and there is no tilting. Raising and lowering still work. Takes effect at the next game start.\n" +
+                "Turn the camera all the way around your character and tilt it up and down. To turn, hold the middle mouse button and drag, or hold the game's rotate keys, Period (.) and Comma (,). To tilt, drag up and down, or hold Insert or Delete. Off: only the game's rotate keys turn the camera, the game's way, and there is no tilting. Raising and lowering still work. Takes effect at the next game start.\n" +
                 "让镜头绕着角色转一整圈，并可上下倾斜。转动：按住鼠标中键拖动，或按住游戏的镜头转向键 Period（.）和 Comma（,）。倾斜：上下拖动，或按住 Insert 或 Delete。关闭后，只有游戏自带的转向键能按游戏原本的方式转动镜头，也不能倾斜。升高和降低仍然可用。下次启动游戏时生效。",
                 null, "ModManager.Restart")).Value;
         var mouseButtonText = Config.Bind("Rotate", "MouseButton", "Middle",
@@ -63,7 +63,7 @@ public sealed class Plugin : BasePlugin
             new ConfigDescription("How far the camera may turn to each side of the game's angle, in degrees. 0 lets it turn all the way round.\n" +
             "镜头从游戏原本的角度向左右各能转多少度。0 表示可以转一整圈。", null, "ModManager.ShowWhen=Enabled"));
         var pitchMin = Config.Bind("Rotate", "PitchMin", 25f,
-            new ConfigDescription("The flattest the camera may look, in degrees below the horizon, from 5 to 89. The game's own angle is always allowed.\n" +
+            new ConfigDescription("The flattest the camera may look, in degrees below the horizon, from 5 to 89. The game's angle is always allowed.\n" +
             "镜头最平能到的角度，即低于水平线多少度，范围 5 到 89。游戏原本的角度总是允许的。", null, "ModManager.ShowWhen=Enabled"));
         var pitchMax = Config.Bind("Rotate", "PitchMax", 85f,
             new ConfigDescription("The steepest the camera may look, in degrees below the horizon, from 5 to 89. 90 would be straight down.\n" +
@@ -104,12 +104,12 @@ public sealed class Plugin : BasePlugin
 
         var rotateLeftText = Config.Bind("Keys", "RotateLeftKey", "Game",
             new ConfigDescription(
-                "Key that turns the camera left. It does nothing while [Rotate] Enabled is off. Game means the game's own rotate-left key, which is Period (.) unless you changed it in the game's key settings. A key the game or another mod already uses is turned off. You can also write a Unity key name such as F, Keypad8 or Mouse3, or None to turn it off. Takes effect at the next game start.\n" +
+                "Key that turns the camera left. It does nothing while [Rotate] Enabled is off. Game means the game's rotate-left key, which is Period (.) unless you changed it in the game's key settings. A key the game or another mod already uses is turned off. You can also write a Unity key name such as F, Keypad8 or Mouse3, or None to turn it off. Takes effect at the next game start.\n" +
                 "让镜头向左转的键。[Rotate] 中的 Enabled 关闭时不起作用。Game 表示使用游戏自己的镜头左转键，默认是 Period（.），除非你在游戏设置的按键页改过。游戏或其他模组已经在用的键会被关闭。也可以填 Unity 按键名，例如 F、Keypad8 或 Mouse3，填 None 则关闭。下次启动游戏时生效。",
                 null, "ModManager.Restart", "ModManager.ShowWhen=Rotate.Enabled")).Value;
         var rotateRightText = Config.Bind("Keys", "RotateRightKey", "Game",
             new ConfigDescription(
-                "Key that turns the camera right. It does nothing while [Rotate] Enabled is off. Game means the game's own rotate-right key, which is Comma (,) unless you changed it in the game's key settings. A key the game or another mod already uses is turned off. None turns it off. Takes effect at the next game start.\n" +
+                "Key that turns the camera right. It does nothing while [Rotate] Enabled is off. Game means the game's rotate-right key, which is Comma (,) unless you changed it in the game's key settings. A key the game or another mod already uses is turned off. None turns it off. Takes effect at the next game start.\n" +
                 "让镜头向右转的键。[Rotate] 中的 Enabled 关闭时不起作用。Game 表示使用游戏自己的镜头右转键，默认是 Comma（,），除非你在游戏设置的按键页改过。游戏或其他模组已经在用的键会被关闭。填 None 则关闭。下次启动游戏时生效。",
                 null, "ModManager.Restart", "ModManager.ShowWhen=Rotate.Enabled")).Value;
         var tiltUpText = Config.Bind("Keys", "TiltUpKey", "Insert",

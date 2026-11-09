@@ -24,7 +24,7 @@
 ## 0.4.0
 
 - The scroll wheel now moves the camera closer to or farther from your character instead of changing the lens, so the edges of the screen no longer stretch.
-- New settings Zoom Closest (0.5) and Farthest (3) set how close and how far the camera can go, compared with the game's own distance. Zoom ExtraIn and ExtraOut are gone.
+- New settings Zoom Closest (0.5) and Farthest (3) set how close and how far the camera can go, compared with the game's distance. Zoom ExtraIn and ExtraOut are gone.
 - Home, and the center camera key with CenterKeyResetsView on, also reset the zoom.
 - Orbit, tilt, raise and zoom work on expeditions.
 - Mod Manager's Mods screen links to this changelog.

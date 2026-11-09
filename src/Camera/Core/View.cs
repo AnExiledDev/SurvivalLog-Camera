@@ -1,10 +1,10 @@
 namespace Camera.Core;
 
 /// <summary>
-/// The player's change to the game's own camera. Yaw turns it around the point it looks at and Pitch swings it over
+/// The player's change to the game's camera. Yaw turns it around the point it looks at and Pitch swings it over
 /// the top (positive is steeper, more top-down), both in degrees; Height raises it in metres. ZoomOut moves it away
 /// from that point along its line of sight: the natural log of how many times the game's distance it sits at, so 0
-/// is the game's distance and equal steps feel the same near and far. All zero is the game's own view, untouched.
+/// is the game's distance and equal steps feel the same near and far. All zero is the game's view, untouched.
 /// </summary>
 public readonly record struct View(float Yaw, float Pitch, float Height, float ZoomOut = 0f)
 {

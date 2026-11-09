@@ -16,7 +16,7 @@ public readonly record struct KeySpeeds(float RotateDegreesPerSecond, float Tilt
 public static class ViewInput
 {
     /// <summary>
-    /// Left turns the view the way the game's own rotate-left key does (a negative yaw). Tilt up swings the camera up
+    /// Left turns the view the way the game's rotate-left key does (a negative yaw). Tilt up swings the camera up
     /// over the top, so the view gets steeper. Opposite keys held together cancel.
     /// </summary>
     public static ViewPush FromKeys(HeldKeys held, KeySpeeds speeds, float deltaTime) =>
@@ -41,7 +41,7 @@ public static class ViewInput
     /// <summary>The game counts at most this many notches in one scroll step.</summary>
     public const float MostNotches = 5f;
 
-    /// <summary>Scrolling up (forward) brings the camera closer, as the game's own zoom does.</summary>
+    /// <summary>Scrolling up (forward) brings the camera closer, as the game's zoom does.</summary>
     public static ViewPush FromScroll(float notches, float scrollSpeed) =>
         float.IsFinite(notches) ? new(0f, 0f, 0f, -Math.Clamp(notches, -MostNotches, MostNotches) * ZoomOutPerNotch * scrollSpeed) : ViewPush.None;
 

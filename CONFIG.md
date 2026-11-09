@@ -7,7 +7,7 @@ Settings live in `BepInEx\config\com.dev.survivallog.camera.cfg`, created the fi
 | Control | What it does | Setting |
 | --- | --- | --- |
 | Hold the middle mouse button and drag | Drag left and right to turn the camera around your character, up and down to tilt it | `MouseButton` |
-| `Period` (.) / `Comma` (,) | Turn left / right. These are the game's own rotate keys; if you changed them in the game's key settings, the mod uses yours | `RotateLeftKey`, `RotateRightKey` |
+| `Period` (.) / `Comma` (,) | Turn left / right. These are the game's rotate keys; if you changed them in the game's key settings, the mod uses yours | `RotateLeftKey`, `RotateRightKey` |
 | `Insert` / `Delete` | Tilt steeper (toward looking straight down) / flatter | `TiltUpKey`, `TiltDownKey` |
 | `PageUp` / `PageDown` | Raise / lower the camera | `RaiseKey`, `LowerKey` |
 | `Home` | Put the angle, height and zoom back to the game's | `ResetKey` |
@@ -32,13 +32,13 @@ With `OnlyCenterKeyFollows` off, the other three only hold the camera while you 
 
 | Setting | Default | What it does |
 | --- | --- | --- |
-| `Enabled` | `true` | Turn the camera all the way around your character and tilt it up and down. To turn, hold the middle mouse button and drag, or hold the game's rotate keys, `Period` (.) and `Comma` (,). To tilt, drag up and down, or hold `Insert` or `Delete`. Off: only the game's own rotate keys turn the camera, the game's way, and there is no tilting. Raising and lowering still work. |
+| `Enabled` | `true` | Turn the camera all the way around your character and tilt it up and down. To turn, hold the middle mouse button and drag, or hold the game's rotate keys, `Period` (.) and `Comma` (,). To tilt, drag up and down, or hold `Insert` or `Delete`. Off: only the game's rotate keys turn the camera, the game's way, and there is no tilting. Raising and lowering still work. |
 | `MouseButton` | `Middle` | The mouse button you hold and drag to turn and tilt the camera: `Middle`, `Right` or `None`. Drag left and right to turn, up and down to tilt. Dragging with this button no longer moves the camera across the map. |
 | `MouseSensitivity` | `0.25` | How many degrees the camera turns for each pixel you drag, from 0.01 to 5. Higher turns faster. |
 | `InvertX` | `false` | Turn the other way when you drag left and right. |
 | `InvertY` | `false` | Tilt the other way when you drag up and down. |
 | `YawLimit` | `0` | How far the camera may turn to each side of the game's angle, in degrees. 0 lets it turn all the way round. |
-| `PitchMin` | `25` | The flattest the camera may look, in degrees below the horizon, from 5 to 89. The game's own angle is always allowed. |
+| `PitchMin` | `25` | The flattest the camera may look, in degrees below the horizon, from 5 to 89. The game's angle is always allowed. |
 | `PitchMax` | `85` | The steepest the camera may look, in degrees below the horizon, from 5 to 89. 90 would be straight down. |
 | `KeyRotateSpeed` | `90` | How fast the rotate keys (`Period` and `Comma` by default) turn the camera, in degrees a second, from 1 to 720. |
 | `KeyTiltSpeed` | `45` | How fast the tilt keys (`Insert` and `Delete` by default) tilt the camera, in degrees a second, from 1 to 720. |
@@ -60,7 +60,7 @@ With `OnlyCenterKeyFollows` off, the other three only hold the camera while you 
 | `Farthest` | `3` | How far the scroll wheel may move the camera away, as a multiple of the game's distance from your character, from 1 to 10. 3 is three times the game's distance. |
 | `ScrollSpeed` | `1` | How far each scroll wheel notch moves the camera, from 0.1 to 5. At 1 each notch moves it a tenth of its distance; 2 moves it twice as far. |
 
-The scroll wheel moves the camera itself toward or away from your character; the lens stays as it is, so the edges of the screen never stretch. The game counts at most five notches per scroll step, so on a wheel that sends several notches at once, high `ScrollSpeed` values may zoom no further than lower ones. With `Closest` and `Farthest` both at 1, the mod leaves the scroll wheel to the game's own zoom.
+The scroll wheel moves the camera itself toward or away from your character; the lens stays as it is, so the edges of the screen never stretch. The game counts at most five notches per scroll step, so on a wheel that sends several notches at once, high `ScrollSpeed` values may zoom no further than lower ones. With `Closest` and `Farthest` both at 1, the mod leaves the scroll wheel to the game's zoom.
 
 ## Smoothing
 
@@ -72,8 +72,8 @@ The scroll wheel moves the camera itself toward or away from your character; the
 
 | Setting | Default | What it does |
 | --- | --- | --- |
-| `RotateLeftKey` | `Game` | Key that turns the camera left. It does nothing while `[Rotate] Enabled` is off. `Game` means the game's own rotate-left key, which is `Period` (.) unless you changed it in the game's key settings. |
-| `RotateRightKey` | `Game` | Key that turns the camera right. It does nothing while `[Rotate] Enabled` is off. `Game` means the game's own rotate-right key, which is `Comma` (,) unless you changed it in the game's key settings. |
+| `RotateLeftKey` | `Game` | Key that turns the camera left. It does nothing while `[Rotate] Enabled` is off. `Game` means the game's rotate-left key, which is `Period` (.) unless you changed it in the game's key settings. |
+| `RotateRightKey` | `Game` | Key that turns the camera right. It does nothing while `[Rotate] Enabled` is off. `Game` means the game's rotate-right key, which is `Comma` (,) unless you changed it in the game's key settings. |
 | `TiltUpKey` | `Insert` | Key that tilts the camera steeper, toward looking straight down. It does nothing while `[Rotate] Enabled` is off. |
 | `TiltDownKey` | `Delete` | Key that tilts the camera flatter, toward the horizon. It does nothing while `[Rotate] Enabled` is off. |
 | `RaiseKey` | `PageUp` | Key that lifts the camera. |
@@ -85,4 +85,4 @@ Keys take Unity key names, such as `F`, `Keypad8`, `PageUp` or `Mouse3` (the ful
 
 A key the game already uses, or one another Survival Log mod uses, is turned off at startup and the log names the setting and who has the key. Pick another key for it. Time Control's pause and center keys are read from Time Control's own settings file; without that file, `Space` and `G` are kept free for it.
 
-If neither rotate key ends up with a key, the game's own rotate keys keep working the game's way.
+If neither rotate key ends up with a key, the game's rotate keys keep working the game's way.

@@ -15,7 +15,7 @@ namespace Camera.Adapters;
 /// that method is marked while it runs and the request made inside it can be traced to it. Stairs and ladders make
 /// two: one as the character sets off (AE_FloorMove) and a forced one as they come out on the new floor
 /// (AE_FloorTeleport, through the FloorChanged event to CameraManager.JumpMap).
-/// With OnlyCenterKeyFollows on, the game's own camera moves (cutscenes, photo mode, the world starting, the tutorial
+/// With OnlyCenterKeyFollows on, the game's camera moves (cutscenes, photo mode, the world starting, the tutorial
 /// door, map travel) and its camera mode toggle are marked too, and the center key and the camera button are timed,
 /// so <see cref="SnapRules.Judge"/> can let only those through.
 /// </summary>
@@ -135,7 +135,7 @@ internal static class SnapPatches
             done: "the camera button on the second screen layout brings the camera back to your character", consequence: buttonLost);
     }
 
-    /// <summary>The game's own camera moves, which keep going to the character whatever the player was looking at.</summary>
+    /// <summary>The game's camera moves, which keep going to the character whatever the player was looking at.</summary>
     private static void MarkGameCameraMoves(PatchKit hooks)
     {
         hooks.Patch(typeof(SnapPatches), typeof(CameraManager), nameof(CameraManager.SetFollowTargetForCutscene), prefix: nameof(EnterCutscene), finalizer: nameof(LeaveCutscene),
@@ -199,7 +199,7 @@ internal static class SnapPatches
     private static void LeaveMapTravel() => Leave(SnapSource.MapTravel);
 
     /// <summary>
-    /// These run inside the game's own stairs, menu, build and camera code, so a failure here must never reach it.
+    /// These run inside the game's stairs, menu, build and camera code, so a failure here must never reach it.
     /// Leave runs as a finalizer, so the mark is cleared even when the game's method throws.
     /// </summary>
     private static void Enter(SnapSource source)

@@ -94,7 +94,7 @@ internal static class CameraKeys
 
     /// <summary>
     /// Called on the main thread at start and after each change. The keys themselves are read once, on the first
-    /// frame; the game's own keys are read again after a change.
+    /// frame; the game's keys are read again after a change.
     /// </summary>
     public static void Use(CameraSettings settings)
     {
@@ -162,7 +162,7 @@ internal static class CameraKeys
     public static HeldKeys Held() =>
         new(IsHeld(_rotateLeft), IsHeld(_rotateRight), IsHeld(_tiltUp), IsHeld(_tiltDown), IsHeld(_raise), IsHeld(_lower));
 
-    /// <summary>Whether either rotate key survived setup. With none, the game's own rotate handling is left running.</summary>
+    /// <summary>Whether either rotate key survived setup. With none, the game's rotate handling is left running.</summary>
     public static bool HasRotateKey => _rotateLeft != null || _rotateRight != null;
 
     public static bool IsResetDown() => _reset != null && IsDown(_reset.Current);
@@ -177,7 +177,7 @@ internal static class CameraKeys
 
     /// <summary>
     /// Whether the center key went down this frame in a way the game turns into a request for Follow: the keyboard
-    /// conditions here, the game's own photo mode check on its camera keys, and a free camera. The cheap checks go
+    /// conditions here, the game's photo mode check on its camera keys, and a free camera. The cheap checks go
     /// first, so the keyboard conditions are only read when the camera is free and the key went down.
     /// </summary>
     public static bool IsCenterFollowAsk(CameraManager camera)
@@ -194,7 +194,7 @@ internal static class CameraKeys
     }
 
     /// <summary>
-    /// The game's own conditions for its camera rotate keys (ReadCameraYawInput: keyboard camera moves allowed, no key
+    /// The game's conditions for its camera rotate keys (ReadCameraYawInput: keyboard camera moves allowed, no key
     /// being rebound, no panel open), plus no text box being typed in (a mod window's included, seen through Exiled's
     /// Toolkit) and the game taking input at all.
     /// </summary>

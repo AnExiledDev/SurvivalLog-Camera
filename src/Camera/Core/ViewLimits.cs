@@ -27,12 +27,12 @@ public sealed record ViewLimits(float YawLimit, float PitchMin, float PitchMax, 
 
     public bool IsYawLimited => YawLimit > 0f;
 
-    /// <summary>Whether the scroll wheel moves the camera at all; when it cannot, the game's own zoom is left alone.</summary>
+    /// <summary>Whether the scroll wheel moves the camera at all; when it cannot, the game's zoom is left alone.</summary>
     public bool CanZoom => ZoomOutMin < 0f || ZoomOutMax > 0f;
 
     /// <summary>
     /// Hand-edited config is clamped rather than refused, so a typo costs a limit, never the mod. Closest and farthest
-    /// are multiples of the game's distance, and the game's own distance (1) always stays inside them.
+    /// are multiples of the game's distance, and the game's distance (1) always stays inside them.
     /// </summary>
     public static ViewLimits From(float yawLimit, float pitchMin, float pitchMax, float heightMin, float heightMax, float closest = 1f, float farthest = 1f)
     {
