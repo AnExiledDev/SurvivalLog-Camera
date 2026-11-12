@@ -16,7 +16,7 @@ namespace Camera;
 public sealed class Plugin : BasePlugin
 {
     private const string Guid = "com.dev.survivallog.camera";
-    private const string Version = "0.4.4";
+    private const string Version = "0.4.5";
     private const string ToolkitGuid = "com.dev.survivallog.exiledtoolkit";
 
     /// <summary>Held-back snaps add up over a long session, so past 1 MB the file is moved to camera.log.1 and started again.</summary>
@@ -28,8 +28,8 @@ public sealed class Plugin : BasePlugin
     public override void Load()
     {
         var isOnlyCenterKeyFollowsOn = Config.Bind("Snap", "OnlyCenterKeyFollows", true,
-            "Once you have moved the camera away from your character, only the game's center camera key (Space by default, or G with Time Control) and the camera button on the screen bring it back to them. Nothing else does, on any floor: not stairs or ladders, not closing a menu, not leaving build mode after moving or placing something, and not the game's rotate keys. Cutscenes, photo mode, starting a game, the tutorial and travelling to another map still move the camera the game's way. While this is on, StayOnStairs, StayAfterMenuClose and StayAfterBuildMode make no difference. Off: those three settings decide.\n" +
-            "你把镜头从角色身上移开后，只有游戏的镜头跟随键（默认 Space，装了 Time Control 时为 G）和屏幕上的镜头按钮能把镜头带回角色身上。在任何楼层，其他操作都不会：走楼梯或爬梯子、关闭菜单、移动或摆放物件后退出规划模式，以及游戏的镜头转向键。过场动画、拍照模式、进入游戏、新手引导和前往其他地图时，镜头仍按游戏原本的方式移动。开启时，StayOnStairs、StayAfterMenuClose 和 StayAfterBuildMode 不起作用。关闭后，由这三项决定。");
+            "Once you have moved the camera away from your character, only the game's center camera key (Space by default, or G with Time Control) and the camera button on the screen bring it back to them. Stairs and ladders, closing a menu, leaving build mode after moving or placing something and the game's rotate keys all leave the camera where it is, on any floor. Cutscenes, photo mode, starting a game, the tutorial and travelling to another map still move the camera like they normally do. While this is on, StayOnStairs, StayAfterMenuClose and StayAfterBuildMode make no difference. When it is off, those three settings decide.\n" +
+            "你把镜头从角色身上移开后，只有游戏的镜头跟随键（默认 Space，装了 Time Control 时为 G）和屏幕上的镜头按钮能把镜头带回角色身上。在任何楼层，走楼梯或爬梯子、关闭菜单、移动或摆放物件后退出规划模式，以及按游戏的镜头转向键，都会让镜头留在原处。过场动画、拍照模式、进入游戏、新手引导和前往其他地图时，镜头仍会照常移动。开启时，StayOnStairs、StayAfterMenuClose 和 StayAfterBuildMode 不起作用。关闭后，由这三项决定。");
         var isStayOnStairsOn = Config.Bind("Snap", "StayOnStairs", true,
             "Keep the camera on the floor you are looking at when your character takes stairs or a ladder, instead of jumping to them. This only matters while you look at another floor (with the floor buttons, or F1 to F3). The game's center camera key (Space by default, or G with Time Control) still brings the camera back to your character. While OnlyCenterKeyFollows is on, this setting makes no difference.\n" +
             "角色走楼梯或爬梯子时，镜头留在你正在查看的楼层，不跳到角色身上。只在你查看其他楼层时起作用（用楼层按钮，或 F1 到 F3）。游戏的镜头跟随键（默认 Space，装了 Time Control 时为 G）仍会把镜头带回角色身上。开启 OnlyCenterKeyFollows 时，此项不起作用。");
@@ -42,8 +42,8 @@ public sealed class Plugin : BasePlugin
 
         var isRotateOn = Config.Bind("Rotate", "Enabled", true,
             new ConfigDescription(
-                "Turn the camera all the way around your character and tilt it up and down. To turn, hold the middle mouse button and drag, or hold the game's rotate keys, Period (.) and Comma (,). To tilt, drag up and down, or hold Insert or Delete. Off: only the game's rotate keys turn the camera, the game's way, and there is no tilting. Raising and lowering still work. Takes effect at the next game start.\n" +
-                "让镜头绕着角色转一整圈，并可上下倾斜。转动：按住鼠标中键拖动，或按住游戏的镜头转向键 Period（.）和 Comma（,）。倾斜：上下拖动，或按住 Insert 或 Delete。关闭后，只有游戏自带的转向键能按游戏原本的方式转动镜头，也不能倾斜。升高和降低仍然可用。下次启动游戏时生效。",
+                "Turn the camera all the way around your character and tilt it up and down. To turn, hold the middle mouse button and drag, or hold the game's rotate keys, Period (.) and Comma (,). To tilt, drag up and down, or hold Insert or Delete. When this is off, only the game's rotate keys turn the camera, the same as without the mod, and you can't tilt it. Raising and lowering still work. Takes effect at the next game start.\n" +
+                "让镜头绕着角色转一整圈，并可上下倾斜。转动：按住鼠标中键拖动，或按住游戏的镜头转向键 Period（.）和 Comma（,）。倾斜：上下拖动，或按住 Insert 或 Delete。关闭后，只有游戏的镜头转向键能转动镜头，和没装模组时一样，也不能倾斜。升高和降低仍然可用。下次启动游戏时生效。",
                 null, "ModManager.Restart")).Value;
         var mouseButtonText = Config.Bind("Rotate", "MouseButton", "Middle",
             new ConfigDescription(
@@ -75,7 +75,7 @@ public sealed class Plugin : BasePlugin
             new ConfigDescription("How fast the tilt keys (Insert and Delete by default) tilt the camera, in degrees a second, from 1 to 720.\n" +
             "倾斜键（默认 Insert 和 Delete）倾斜镜头的速度，单位是度每秒，范围 1 到 720。", null, "ModManager.ShowWhen=Enabled"));
         var isAllowedInBuildMode = Config.Bind("Rotate", "AllowInBuildMode", Suspensions.AllowInBuildModeByDefault,
-            new ConfigDescription("Keep your turned view in build mode, and keep turning and tilting there. Off: while you build, the view eases back to the game's angle, and your view comes back when you leave build mode.\n" +
+            new ConfigDescription("Keep your turned view in build mode, and keep turning and tilting there. When this is off, the view eases back to the game's angle while you build, and your view comes back when you leave build mode.\n" +
             "在规划模式中保留你转好的视角，也可以继续转动和倾斜。关闭后，规划时镜头会慢慢回到游戏原本的角度，退出规划模式后再回到你的视角。", null, "ModManager.ShowWhen=Enabled"));
 
         var heightMin = Config.Bind("Height", "Min", -4f,
@@ -89,57 +89,57 @@ public sealed class Plugin : BasePlugin
             "升高键和降低键移动镜头的速度，单位是米每秒，范围 0.1 到 100。");
 
         var zoomClosest = Config.Bind("Zoom", "Closest", 0.5f,
-            "How close the scroll wheel may bring the camera, as a share of the game's distance from your character, from 0.2 to 1. 0.5 is half the game's distance. The scroll wheel moves the camera itself in and out; the lens stays as it is. With Closest and Farthest both at 1, the scroll wheel zooms the game's way.\n" +
-            "滚轮最多能把镜头拉到多近，按游戏原本到角色距离的比例计算，范围 0.2 到 1。0.5 是游戏距离的一半。滚轮会让镜头本身前后移动，视野角度保持不变。Closest 和 Farthest 都为 1 时，滚轮按游戏原本的方式缩放。");
+            "How close the scroll wheel may bring the camera, as a share of the game's distance from your character, from 0.2 to 1. 0.5 is half the game's distance. The scroll wheel moves the camera itself closer or further away, so the edges of the screen don't stretch. With Closest and Farthest both at 1, the scroll wheel zooms the same as without the mod.\n" +
+            "滚轮最多能把镜头拉到多近，按游戏原本到角色距离的比例计算，范围 0.2 到 1。0.5 是游戏距离的一半。滚轮会让镜头本身前后移动，画面边缘不会被拉伸。Closest 和 Farthest 都为 1 时，滚轮和没装模组时一样缩放。");
         var zoomFarthest = Config.Bind("Zoom", "Farthest", 3f,
             "How far the scroll wheel may move the camera away, as a multiple of the game's distance from your character, from 1 to 10. 3 is three times the game's distance.\n" +
             "滚轮最多能把镜头拉到多远，按游戏原本到角色距离的倍数计算，范围 1 到 10。3 是游戏距离的三倍。");
         var scrollSpeed = Config.Bind("Zoom", "ScrollSpeed", 1f,
-            "How far each scroll wheel notch moves the camera, from 0.1 to 5. At 1 each notch moves it a tenth of its distance; 2 moves it twice as far. The game counts at most five notches at a time, so on a fast wheel high values may zoom no further than lower ones.\n" +
+            "How far each scroll wheel notch moves the camera, from 0.1 to 5. At 1, each notch moves it a tenth of its distance from your character, and 2 moves it twice as far. The game counts at most five notches at a time, so on a fast wheel high values may zoom no further than lower ones.\n" +
             "滚轮每滚一格镜头移动多少，范围 0.1 到 5。为 1 时每格移动当前距离的十分之一，2 是两倍。游戏每次最多只算五格，所以在一次会滚好几格的滚轮上，数值调高也可能不会缩放得更多。");
 
         var smoothingRate = Config.Bind("Smoothing", "Rate", 12f,
-            "How quickly the camera catches up to where you turned it, from 0 to 60. Higher is snappier; 0 moves it at once.\n" +
+            "How quickly the camera catches up to where you turned it, from 0 to 60. Higher is snappier, and 0 moves it at once.\n" +
             "镜头跟上你转到的位置有多快，范围 0 到 60。数值越大越干脆，0 表示立刻到位。");
 
         var rotateLeftText = Config.Bind("Keys", "RotateLeftKey", "Game",
             new ConfigDescription(
-                "Key that turns the camera left. It does nothing while [Rotate] Enabled is off. Game means the game's rotate-left key, which is Period (.) unless you changed it in the game's key settings. A key the game or another mod already uses is turned off. You can also write a Unity key name such as F, Keypad8 or Mouse3, or None to turn it off. Takes effect at the next game start.\n" +
-                "让镜头向左转的键。[Rotate] 中的 Enabled 关闭时不起作用。Game 表示使用游戏自己的镜头左转键，默认是 Period（.），除非你在游戏设置的按键页改过。游戏或其他模组已经在用的键会被关闭。也可以填 Unity 按键名，例如 F、Keypad8 或 Mouse3，填 None 则关闭。下次启动游戏时生效。",
+                "The key that turns the camera left. It does nothing while [Rotate] Enabled is off. Game means the game's rotate-left key, which is Period (.) unless you changed it in the game's key settings. A key the game or another mod already uses is turned off. You can also write a Unity key name such as F, Keypad8 or Mouse3, or None to turn it off. Takes effect at the next game start.\n" +
+                "让镜头向左转的键。[Rotate] 中的 Enabled 关闭时不起作用。Game 表示使用游戏的镜头左转键，默认是 Period（.），除非你在游戏设置的按键页改过。游戏或其他模组已经在用的键会被关闭。也可以填 Unity 按键名，例如 F、Keypad8 或 Mouse3，填 None 则关闭。下次启动游戏时生效。",
                 null, "ModManager.Restart", "ModManager.ShowWhen=Rotate.Enabled")).Value;
         var rotateRightText = Config.Bind("Keys", "RotateRightKey", "Game",
             new ConfigDescription(
-                "Key that turns the camera right. It does nothing while [Rotate] Enabled is off. Game means the game's rotate-right key, which is Comma (,) unless you changed it in the game's key settings. A key the game or another mod already uses is turned off. None turns it off. Takes effect at the next game start.\n" +
-                "让镜头向右转的键。[Rotate] 中的 Enabled 关闭时不起作用。Game 表示使用游戏自己的镜头右转键，默认是 Comma（,），除非你在游戏设置的按键页改过。游戏或其他模组已经在用的键会被关闭。填 None 则关闭。下次启动游戏时生效。",
+                "The key that turns the camera right. It does nothing while [Rotate] Enabled is off. Game means the game's rotate-right key, which is Comma (,) unless you changed it in the game's key settings. A key the game or another mod already uses is turned off. None turns it off. Takes effect at the next game start.\n" +
+                "让镜头向右转的键。[Rotate] 中的 Enabled 关闭时不起作用。Game 表示使用游戏的镜头右转键，默认是 Comma（,），除非你在游戏设置的按键页改过。游戏或其他模组已经在用的键会被关闭。填 None 则关闭。下次启动游戏时生效。",
                 null, "ModManager.Restart", "ModManager.ShowWhen=Rotate.Enabled")).Value;
         var tiltUpText = Config.Bind("Keys", "TiltUpKey", "Insert",
             new ConfigDescription(
-                "Key that tilts the camera steeper, toward looking straight down. It does nothing while [Rotate] Enabled is off. A key the game or another mod already uses is turned off. None turns it off. Takes effect at the next game start.\n" +
+                "The key that tilts the camera steeper, toward looking straight down. It does nothing while [Rotate] Enabled is off. A key the game or another mod already uses is turned off. None turns it off. Takes effect at the next game start.\n" +
                 "让镜头变陡（更接近垂直向下看）的键。[Rotate] 中的 Enabled 关闭时不起作用。游戏或其他模组已经在用的键会被关闭。填 None 则关闭。下次启动游戏时生效。",
                 null, "ModManager.Restart", "ModManager.ShowWhen=Rotate.Enabled")).Value;
         var tiltDownText = Config.Bind("Keys", "TiltDownKey", "Delete",
             new ConfigDescription(
-                "Key that tilts the camera flatter, toward the horizon. It does nothing while [Rotate] Enabled is off. A key the game or another mod already uses is turned off. None turns it off. Takes effect at the next game start.\n" +
+                "The key that tilts the camera flatter, toward the horizon. It does nothing while [Rotate] Enabled is off. A key the game or another mod already uses is turned off. None turns it off. Takes effect at the next game start.\n" +
                 "让镜头变平（更接近水平线）的键。[Rotate] 中的 Enabled 关闭时不起作用。游戏或其他模组已经在用的键会被关闭。填 None 则关闭。下次启动游戏时生效。",
                 null, "ModManager.Restart", "ModManager.ShowWhen=Rotate.Enabled")).Value;
         var raiseText = Config.Bind("Keys", "RaiseKey", "PageUp",
             new ConfigDescription(
-                "Key that lifts the camera. A key the game or another mod already uses is turned off. None turns it off. Takes effect at the next game start.\n" +
+                "The key that lifts the camera. A key the game or another mod already uses is turned off. None turns it off. Takes effect at the next game start.\n" +
                 "升高镜头的键。游戏或其他模组已经在用的键会被关闭。填 None 则关闭。下次启动游戏时生效。",
                 null, "ModManager.Restart")).Value;
         var lowerText = Config.Bind("Keys", "LowerKey", "PageDown",
             new ConfigDescription(
-                "Key that lowers the camera. A key the game or another mod already uses is turned off. None turns it off. Takes effect at the next game start.\n" +
+                "The key that lowers the camera. A key the game or another mod already uses is turned off. None turns it off. Takes effect at the next game start.\n" +
                 "降低镜头的键。游戏或其他模组已经在用的键会被关闭。填 None 则关闭。下次启动游戏时生效。",
                 null, "ModManager.Restart")).Value;
         var resetText = Config.Bind("Keys", "ResetKey", "Home",
             new ConfigDescription(
-                "Key that puts the camera's angle, height and zoom back to the game's. A key the game or another mod already uses is turned off. None turns it off. Takes effect at the next game start.\n" +
-                "把镜头的角度、高度和缩放恢复成游戏原本状态的键。游戏或其他模组已经在用的键会被关闭。填 None 则关闭。下次启动游戏时生效。",
+                "The key that resets the camera's angle, height and zoom to default. A key the game or another mod already uses is turned off. None turns it off. Takes effect at the next game start.\n" +
+                "把镜头的角度、高度和缩放恢复默认的键。游戏或其他模组已经在用的键会被关闭。填 None 则关闭。下次启动游戏时生效。",
                 null, "ModManager.Restart")).Value;
         var doesCenterKeyReset = Config.Bind("Keys", "CenterKeyResetsView", false,
-            "Also put the camera's angle, height and zoom back to the game's when you press the game's center camera key (Space by default, or G with Time Control).\n" +
-            "按下游戏的镜头跟随键（默认 Space，装了 Time Control 时为 G）时，同时把镜头的角度、高度和缩放恢复成游戏原本的状态。");
+            "When you press the game's center camera key (Space by default, or G with Time Control), also reset the camera's angle, height and zoom to default.\n" +
+            "按下游戏的镜头跟随键（默认 Space，装了 Time Control 时为 G）时，同时把镜头的角度、高度和缩放恢复默认。");
 
         var log = new ModLog(Log, "camera.log") { MaxFileBytes = MaxLogBytes };
         var mouseButton = DragButtons.Parse(mouseButtonText) ?? Fallback(DragButton.Middle, $"Rotate.MouseButton '{mouseButtonText}' is not Middle, Right or None, using Middle", log.Write);

@@ -9,45 +9,45 @@ Survival Log's camera looks at your character from one fixed angle, and it snaps
 - **Orbit**: hold the middle mouse button and drag to turn the camera around your character and tilt it. The game's rotate keys, `Period` (.) and `Comma` (,), turn it too, smoothly and all the way round.
 - **Tilt**: `Insert` tilts the view steeper (toward looking straight down), `Delete` flatter. By default the angle stays between 25 and 85 degrees below the horizon. The game's angle is always allowed.
 - **Height**: `PageUp` lifts the camera, `PageDown` lowers it.
-- **Reset**: `Home` puts the angle, height and zoom back to the game's.
-- **Real zoom**: the scroll wheel moves the camera toward or away from your character, from half the game's distance out to three times it, instead of stretching the lens. You can set both limits and make each scroll step bigger or smaller.
-- **Zoom stays put**: the plain game puts your zoom back to an older setting whenever the game re-centres the camera while it follows your character, for example when they take stairs or a ladder. Camera keeps the zoom you chose.
-- **No more snapping**: once you have moved the camera off your character (by panning it or by looking at another floor), only the game's center camera key (`Space` by default, or `G` with Time Control) and the camera button on the screen bring it back to them. Stairs and ladders, closing an object menu, leaving build mode after moving or placing something, and the game's rotate keys all leave the camera where it is, on any floor. Cutscenes, photo mode, starting a game, the tutorial and travelling to another map still move the camera the game's way. Turn off `OnlyCenterKeyFollows` to choose the stairs, menu and build mode cases one by one instead.
+- **Reset**: `Home` resets the angle, height and zoom to default.
+- **Real zoom**: the scroll wheel moves the camera toward or away from your character instead of stretching the lens. You set how close and how far it can go (by default from half the game's distance out to three times it) and how far each scroll step moves it.
+- **Zoom stays put**: without the mod, the game puts your zoom back to an older setting whenever it re-centers the camera on your character, for example when they take stairs or a ladder. Camera keeps the zoom you chose.
+- **No more snapping**: once you have moved the camera off your character (by panning it or by looking at another floor), only the game's center camera key (`Space` by default, or `G` with Time Control) and the camera button on the screen bring it back to them. Stairs and ladders, closing an object menu, leaving build mode after moving or placing something, and the game's rotate keys all leave the camera where it is, on any floor. Cutscenes, photo mode, starting a game, the tutorial and travelling to another map still move the camera like they normally do. Turn off `OnlyCenterKeyFollows` to choose the stairs, menu and build mode cases one by one instead.
 - **Works on expeditions**: orbit, tilt, raise and zoom work while exploring, the same as at home.
-- **Steps aside when the game needs the camera**: photo mode, cutscenes and the death camera get the game's view, and your view comes back afterwards. Build mode keeps your view, and you can keep turning there (turn off `AllowInBuildMode` to have it ease back to the game's angle while you build).
-- **A log file**: what the mod set up, every snap it held back, and every time it let the camera go back to your character and why, is written to `BepInEx\camera.log`.
+- **Photo mode and cutscenes**: photo mode, cutscenes and the death camera get the game's view, and your view comes back afterwards. Build mode keeps your view, and you can keep turning there (turn off `AllowInBuildMode` to have it ease back to the game's angle while you build).
+- **A log file**: `BepInEx\camera.log` shows what the mod set up, every time it kept the camera from jumping back to your character, and every time it let the camera go back and why.
 
 ## Controls
 
 | Control | What it does | Setting |
 | --- | --- | --- |
 | Hold the middle mouse button and drag | Drag left and right to turn the camera around your character, up and down to tilt it | `MouseButton` |
-| `Period` (.) / `Comma` (,) | Turn left / right. These are the game's rotate keys; if you changed them in the game's key settings, the mod uses yours | `RotateLeftKey`, `RotateRightKey` |
+| `Period` (.) / `Comma` (,) | Turn left / right. These are the game's rotate keys, so if you changed them in the game's key settings, the mod uses yours | `RotateLeftKey`, `RotateRightKey` |
 | `Insert` / `Delete` | Tilt steeper (toward looking straight down) / flatter | `TiltUpKey`, `TiltDownKey` |
 | `PageUp` / `PageDown` | Raise / lower the camera | `RaiseKey`, `LowerKey` |
-| `Home` | Put the angle, height and zoom back to the game's | `ResetKey` |
+| `Home` | Reset the angle, height and zoom to default | `ResetKey` |
 | Scroll wheel | Move the camera closer to or further from your character | `Closest`, `Farthest`, `ScrollSpeed` |
 | `Space` (`G` with Time Control) | The game's center camera key: brings the camera back to your character (and, if you turn on `CenterKeyResetsView`, also resets the view) | `CenterKeyResetsView` |
 
-The keys do nothing while you type in a text box, while a menu or panel is open, or while you rebind a key. A key the game or another Survival Log mod already uses is turned off and the log says which one; pick another in the settings. Time Control's pause and center keys are read from its own settings and left alone.
+The keys do nothing while you type in a text box, while a menu or panel is open, or while you rebind a key. A key the game or another Survival Log mod already uses is turned off and the log says which one, so pick another in the settings. The mod reads Time Control's pause and center keys from Time Control's settings and leaves them alone.
 
 Camera adds no data to your save and does not edit game files. You can remove it at any time.
 
 ## Known issues and limits
 
-- With `OnlyCenterKeyFollows` off, leaving build mode only keeps the view while you were looking at another floor. On your character's own floor the game puts the camera back on them.
-- Once you have moved the camera off your character, the game's rotate keys orbit the view where it is. In the plain game they send the camera back to your character. If the mod's rotate keys are off (`Enabled` off under `[Rotate]`), the game's rotate keys do nothing until the camera follows your character again.
-- A camera move the mod does not know about still goes through when it heads for a floor or map other than the one on screen, so a game event may still take the camera there.
+- With `OnlyCenterKeyFollows` off, leaving build mode only keeps the view while you were looking at another floor. On your character's floor the game puts the camera back on them.
+- Once you have moved the camera off your character, the game's rotate keys orbit the view where it is. Without the mod they send the camera back to your character. If the mod's rotate keys are off (`Enabled` off under `[Rotate]`), the game's rotate keys do nothing until the camera follows your character again.
+- A game event the mod doesn't know about can still move the camera to another floor or map.
 - With `MouseButton` on `Middle`, dragging with the middle mouse button turns the camera and no longer pans it. Pan with the keyboard, or set `MouseButton` to `Right` or `None`.
 - Photo mode, cutscenes and the death camera use the game's camera. Your view comes back when they end. Build mode keeps your view unless you turn off `AllowInBuildMode`.
 - On an expedition, with `MouseButton` on `Middle`, dragging with the middle mouse button turns the camera as it does at home. Dragging with the left button still looks around the way the game does.
-- The keys hold back for the whole time a page that takes typing is open (the crafting table and the codex), not only while you type in its search box. The game draws its menus as web pages and only says whether a page takes typing, not whether a text box in it has focus.
-- `ScrollSpeed` can only go so far: the game caps one scroll step at five notches' worth, so on a wheel that sends several notches at once, high values zoom no further than lower ones.
+- The camera keys do nothing the whole time a page you can type in is open (the crafting table and the codex), even when you aren't typing in its search box. The game turns on typing for as long as such a page is open, so the mod can't tell whether you are actually typing.
+- The game counts at most five notches per scroll step, so on a wheel that sends several notches at once, high `ScrollSpeed` values zoom no further than lower ones.
 - Right after your character comes out on another floor, the floor buttons ignore a click for a moment.
 
 ## Requirements
 
-- Survival Log 1.1.20719. Built for this version; a game update can break it until the mod is updated.
+- Survival Log 1.1.20719. A game update can break it until the mod is updated.
 - The [BepInEx Pack for Survival Log](https://www.nexusmods.com/survivallog/mods/12), the BepInEx 6 (IL2CPP) build for the game, version `6.0.0-be.788`.
 - [Exiled's Toolkit](https://github.com/AnExiledDev/SurvivalLog-ExiledToolkit) 0.19.0 or newer. Camera does not load without it. It applies settings changed on the Mod Manager's Mods screen without restarting the game, and keeps the camera keys quiet while you type in another mod's window.
 - Optional: [Mod Manager](https://www.nexusmods.com/survivallog/mods/73). With it, you can change every setting in game on its Mods screen and see what each one does, without opening the config file.
@@ -66,15 +66,15 @@ Delete `Camera.dll` from the `BepInEx\plugins` folder. For a clean slate, also d
 
 ## Configuration
 
-Settings live in `BepInEx\config\com.dev.survivallog.camera.cfg`, created the first time the game starts with the mod. Change them in game on the Mod Manager's Mods screen, or edit the file while the game is closed. Changed on the Mods screen, every setting takes effect at once except `Rotate` `Enabled` and `MouseButton`, and the `Keys` settings other than `CenterKeyResetsView`, which take effect at the next game start. A changed setting keeps the view you turned to. Each setting in the cfg file is explained in English and Simplified Chinese. See [CONFIG.md](CONFIG.md) for every setting.
+Settings live in `BepInEx\config\com.dev.survivallog.camera.cfg`, created the first time the game starts with the mod. Change them in game on the Mod Manager's Mods screen, or edit the file while the game is closed. Settings you change on the Mods screen take effect at once. The exceptions are `Rotate` `Enabled`, `MouseButton` and every `Keys` setting except `CenterKeyResetsView`, which take effect the next time you start the game. Changing a setting doesn't move the camera from where you turned it. Each setting in the cfg file is explained in English and Simplified Chinese. See [CONFIG.md](CONFIG.md) for every setting.
 
 ## Troubleshooting
 
 Built against BepInEx `6.0.0-be.788`.
 
-Check `BepInEx\LogOutput.log` for a line starting `===== Camera 0.4.4 started`. It says whether rotating is on and which mouse button turns the camera. A later line lists the other settings, and is written again when a setting changes on the Mods screen. The lines after that say whether each piece attached to the game, which keys the camera uses (and which were turned off because something else uses them), and the game's camera angle once a world loads.
+Check `BepInEx\LogOutput.log` for a line starting `===== Camera 0.4.5 started`. It says whether rotating is on and which mouse button turns the camera. A later line lists the other settings, and is written again when a setting changes on the Mods screen. The lines after that say whether each part of the mod set up, which keys the camera uses (and which were turned off because something else uses them), and the game's camera angle once a world loads.
 
-The same lines are in `BepInEx\camera.log`, which survives restarts. It also gets a line for every snap the mod held back, and for every time it let the camera go back to your character and why.
+The same lines are in `BepInEx\camera.log`, which survives restarts. It also gets a line for every time the mod kept the camera from jumping back to your character, and for every time it let the camera go back and why.
 
 If the camera does not turn at all, look in the log for a line starting `could not`. If a key does nothing, look for its setting name: the log says when a key was turned off and why.
 
@@ -82,7 +82,7 @@ If the camera does not turn at all, look in the log for a line starting `could n
 
 Found a bug, have an idea, or something feels off? Come say so on the Core Directive Discord: https://discord.gg/trTsyxUFqg . You can also post in the Posts tab of the mod's Nexus Mods page. When reporting a bug, attach `BepInEx\LogOutput.log` and `BepInEx\camera.log`.
 
-To reach me directly, message `exiled.dev` on Discord; you can find me in the [official Survival Log Discord](https://discord.gg/MZGg4gQAUe). I'm also on X as [@AnExiledDev](https://x.com/AnExiledDev).
+To reach me directly, message `exiled.dev` on Discord. You can find me in the [official Survival Log Discord](https://discord.gg/MZGg4gQAUe). I'm also on X as [@AnExiledDev](https://x.com/AnExiledDev).
 
 A Survival Log wiki with detailed documentation for all of my mods is coming soon.
 

@@ -1,8 +1,13 @@
 # Changelog
 
+## 0.4.5
+
+- Clearer wording in the settings and on the Mods screen.
+- Made for Survival Log 1.1.20719.
+
 ## 0.4.4
 
-- Now uses Exiled's Toolkit for its shared parts, so it needs Exiled's Toolkit 0.19.0 or newer.
+- Camera now needs Exiled's Toolkit 0.19.0 or newer, because some of its code moved into the Toolkit.
 - Made for Survival Log 1.1.20719.
 
 ## 0.4.3
@@ -24,7 +29,7 @@
 ## 0.4.0
 
 - The scroll wheel now moves the camera closer to or farther from your character instead of changing the lens, so the edges of the screen no longer stretch.
-- New settings Zoom Closest (0.5) and Farthest (3) set how close and how far the camera can go, compared with the game's distance. Zoom ExtraIn and ExtraOut are gone.
+- The new Zoom settings Closest and Farthest set how close and how far the scroll wheel can move the camera, compared with the game's distance (0.5 and 3 by default). The old Zoom ExtraIn and ExtraOut settings are gone.
 - Home, and the center camera key with CenterKeyResetsView on, also reset the zoom.
 - Orbit, tilt, raise and zoom work on expeditions.
 - Mod Manager's Mods screen links to this changelog.

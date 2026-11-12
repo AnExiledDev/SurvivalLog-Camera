@@ -4,21 +4,21 @@ Summary: Turn the camera all the way around your character, tilt it, raise it an
 Description (BBCode):
 [center][img]https://sldb.core-directive.com/media/save/1-save-safe.png[/img][/center]
 
-Survival Log's camera looks at your character from one fixed angle and snaps back to them whenever they take the stairs, a menu closes or build mode ends. Camera lets you move it the way most games do, and keeps it where you put it. It only moves the camera; it never changes your character, the world or a save.
+Survival Log's camera looks at your character from one fixed angle and snaps back to them whenever they take the stairs, a menu closes or build mode ends. Camera lets you move it the way most games do, and keeps it where you put it. It only moves the camera. It never changes your character, the world or a save.
 
 [size=5]Main features[/size]
 [list]
 [*][b]Orbit[/b]: hold the middle mouse button and drag to turn the camera all the way around your character and tilt it. The game's rotate keys, Period (.) and Comma (,), turn it smoothly too.[/*]
 [*][b]Tilt[/b]: Insert tilts the view steeper, Delete flatter.[/*]
 [*][b]Height[/b]: PageUp lifts the camera, PageDown lowers it.[/*]
-[*][b]Reset[/b]: Home puts the angle, height and zoom back to the game's.[/*]
-[*][b]Real zoom[/b]: the scroll wheel moves the camera toward or away from your character instead of stretching the lens, with adjustable limits and scroll speed.[/*]
-[*][b]Zoom stays put[/b]: the plain game puts your zoom back to an older setting whenever the game re-centres the camera while it follows your character, for example when they take stairs or a ladder. Camera keeps the zoom you chose.[/*]
-[*][b]No more snapping[/b]: once you have moved the camera off your character, only the center camera key and the camera button on the screen bring it back. Stairs and ladders, closing an object menu, leaving build mode after moving or placing something, and the game's rotate keys all leave the camera where it is, on any floor. Cutscenes, photo mode, the tutorial and travelling to another map still move it the game's way.[/*]
+[*][b]Reset[/b]: Home resets the angle, height and zoom to default.[/*]
+[*][b]Real zoom[/b]: the scroll wheel moves the camera toward or away from your character instead of stretching the lens. You set how close and how far it can go, and how fast it scrolls.[/*]
+[*][b]Zoom stays put[/b]: without the mod, the game puts your zoom back to an older setting whenever it re-centers the camera on your character, for example when they take stairs or a ladder. Camera keeps the zoom you chose.[/*]
+[*][b]No more snapping[/b]: once you have moved the camera off your character, only the center camera key and the camera button on the screen bring it back. Stairs and ladders, closing an object menu, leaving build mode after moving or placing something, and the game's rotate keys all leave the camera where it is, on any floor. Cutscenes, photo mode, the tutorial and travelling to another map still move it like they normally do.[/*]
 [*][b]Works on expeditions[/b]: orbit, tilt, raise and zoom work while exploring.[/*]
-[*][b]Steps aside when needed[/b]: photo mode, cutscenes and the death camera use the game's view, and yours comes back afterwards. Build mode keeps your view.[/*]
+[*][b]Photo mode and cutscenes[/b]: photo mode, cutscenes and the death camera use the game's view, and yours comes back afterwards. Build mode keeps your view.[/*]
 [/list]
-Every key can be changed or turned off in the config. Keys do nothing while you type, while a menu is open or while you rebind a key, and a key the game or another Survival Log mod already uses is turned off rather than doubled up. Works alongside Time Control.
+Every key can be changed or turned off in the config. The keys do nothing while you type, while a menu is open or while you rebind a key. A key the game or another Survival Log mod already uses is turned off, so one key never does two things. Works alongside Time Control.
 
 Camera adds no data to your save and does not edit game files. You can remove it at any time.
 
@@ -28,11 +28,11 @@ Works in English and Chinese.
 [list]
 [*]With OnlyCenterKeyFollows off, leaving build mode only keeps the view while you were looking at another floor.[/*]
 [*]Once you have moved the camera off your character, the game's rotate keys orbit the view instead of sending the camera back to your character.[/*]
-[*]A camera move the mod does not know about still goes through when it heads for another floor or map, so a game event may still take the camera there.[/*]
-[*]With the default middle mouse drag, that drag turns the camera and no longer pans it. Set MouseButton to Right or None to change that.[/*]
+[*]A game event the mod doesn't know about can still move the camera to another floor or map.[/*]
+[*]By default, dragging with the middle mouse button turns the camera and no longer pans it. Set MouseButton to Right or None to pan with the middle button again.[/*]
 [*]Photo mode, cutscenes and the death camera use the game's camera.[/*]
-[*]The keys hold back for the whole time the crafting table or the codex is open, not only while you type in their search box.[/*]
-[*]The game caps one scroll step, so high ScrollSpeed values can zoom no further than lower ones on a fast wheel.[/*]
+[*]The camera keys do nothing the whole time the crafting table or the codex is open, even when you aren't typing in its search box.[/*]
+[*]The game counts at most five notches per scroll step, so on a fast wheel high ScrollSpeed values can zoom no further than lower ones.[/*]
 [/list]
 
 [center][img]https://sldb.core-directive.com/img/mods-banner.jpg[/img]
@@ -59,11 +59,11 @@ Works in English and Chinese.
 Delete [font=Courier New]Camera.dll[/font] from the [font=Courier New]BepInEx\plugins[/font] folder.
 
 [size=5]Configuration[/size]
-To change keys, limits or speeds, or turn off any piece, edit [font=Courier New]BepInEx\config\com.dev.survivallog.camera.cfg[/font] while the game is closed, or do it in game on the Mod Manager's Mods screen, where changes take effect at once, all but [font=Courier New]Rotate[/font] [font=Courier New]Enabled[/font] and [font=Courier New]MouseButton[/font], and the [font=Courier New]Keys[/font] settings other than [font=Courier New]CenterKeyResetsView[/font], which take effect at the next game start (see [url=https://github.com/AnExiledDev/SurvivalLog-Camera/blob/main/CONFIG.md]CONFIG.md[/url] for every setting; the cfg file explains each setting in English and Chinese).
+To change keys, limits or speeds, or turn off any feature, use the Mod Manager's Mods screen in game, or edit [font=Courier New]BepInEx\config\com.dev.survivallog.camera.cfg[/font] while the game is closed. Changes on the Mods screen take effect at once, except [font=Courier New]Rotate[/font] [font=Courier New]Enabled[/font], [font=Courier New]MouseButton[/font] and the [font=Courier New]Keys[/font] settings other than [font=Courier New]CenterKeyResetsView[/font], which take effect the next time you start the game. The cfg file explains each setting in English and Chinese, and [url=https://github.com/AnExiledDev/SurvivalLog-Camera/blob/main/CONFIG.md]CONFIG.md[/url] lists every setting.
 
 [size=5]Feedback[/size]
 Found a bug or have an idea? Come say hi on the [url=https://discord.gg/trTsyxUFqg]Core Directive Discord[/url], or post in this page's Posts tab. For bugs, please include [font=Courier New]BepInEx\LogOutput.log[/font] and [font=Courier New]BepInEx\camera.log[/font].
-To reach me directly, message [b]exiled.dev[/b] on Discord; you can find me in the [url=https://discord.gg/MZGg4gQAUe]official Survival Log Discord[/url]. I'm also on X as [url=https://x.com/AnExiledDev]@AnExiledDev[/url].
+To reach me directly, message [b]exiled.dev[/b] on Discord. You can find me in the [url=https://discord.gg/MZGg4gQAUe]official Survival Log Discord[/url]. I'm also on X as [url=https://x.com/AnExiledDev]@AnExiledDev[/url].
 
 [size=5]Source and license[/size]
 Open source under MIT: [url=https://github.com/AnExiledDev/SurvivalLog-Camera]github.com/AnExiledDev/SurvivalLog-Camera[/url]
@@ -78,14 +78,14 @@ Survival Log 的镜头从一个固定的角度看着你的角色，而且每当�
 [*][b]环绕[/b]：按住鼠标中键拖动，让镜头绕着角色转一整圈并倾斜。游戏的镜头转向键 Period（.）和 Comma（,）也能平滑转动。[/*]
 [*][b]倾斜[/b]：Insert 让视角变陡，Delete 让视角变平。[/*]
 [*][b]高度[/b]：PageUp 升高镜头，PageDown 降低镜头。[/*]
-[*][b]重置[/b]：Home 把角度、高度和缩放恢复成游戏原本的状态。[/*]
-[*][b]真正的缩放[/b]：滚轮让镜头本身靠近或远离角色，而不是拉伸视野角度，远近范围和滚动速度都可以调整。[/*]
-[*][b]缩放保持不变[/b]：原版游戏在镜头跟随角色时，每次重新居中（比如角色走楼梯或爬梯子）都会把缩放恢复成旧的设置。Camera 会保留你选的缩放。[/*]
-[*][b]不再跳回[/b]：一旦你把镜头从角色身上移开，只有镜头跟随键和屏幕上的镜头按钮能把它带回来。走楼梯或爬梯子、关闭物件菜单、移动或摆放物件后退出规划模式，以及游戏的镜头转向键，都会让镜头留在原处，在任何楼层都一样。过场动画、拍照模式、新手引导和前往其他地图时，镜头仍按游戏原本的方式移动。[/*]
+[*][b]重置[/b]：Home 把角度、高度和缩放恢复默认。[/*]
+[*][b]真正的缩放[/b]：滚轮让镜头本身靠近或远离角色，而不是拉伸视野角度。最近、最远能到哪里，以及滚动速度，都由你来设置。[/*]
+[*][b]缩放保持不变[/b]：没装模组时，游戏每次把镜头重新对准角色（比如角色走楼梯或爬梯子）都会把缩放恢复成旧的设置。Camera 会保留你选的缩放。[/*]
+[*][b]不再跳回[/b]：一旦你把镜头从角色身上移开，只有镜头跟随键和屏幕上的镜头按钮能把它带回来。走楼梯或爬梯子、关闭物件菜单、移动或摆放物件后退出规划模式，以及游戏的镜头转向键，都会让镜头留在原处，在任何楼层都一样。过场动画、拍照模式、新手引导和前往其他地图时，镜头仍会照常移动。[/*]
 [*][b]外出探索时也能用[/b]：探索时可以环绕、倾斜、升降和缩放镜头。[/*]
-[*][b]需要时自动让开[/b]：拍照模式、过场动画和死亡镜头使用游戏自己的视角，结束后你的视角会回来。规划模式保留你的视角。[/*]
+[*][b]拍照模式和过场动画[/b]：拍照模式、过场动画和死亡镜头使用游戏的视角，结束后你的视角会回来。规划模式保留你的视角。[/*]
 [/list]
-每个按键都可以在配置中修改或关闭。打字时、菜单打开时或重新绑定按键时，按键不起作用；游戏或其他 Survival Log 模组已经在用的键会被关闭，不会重复触发。可以和 Time Control 一起使用。
+每个按键都可以在配置中修改或关闭。打字时、菜单打开时或重新绑定按键时，按键不起作用。游戏或其他 Survival Log 模组已经在用的键会被关闭，一个键不会同时做两件事。可以和 Time Control 一起使用。
 
 Camera 不会往存档里写入数据，也不会修改游戏文件。你可以随时移除它。
 
@@ -95,11 +95,11 @@ Camera 不会往存档里写入数据，也不会修改游戏文件。你可以�
 [list]
 [*]关闭 OnlyCenterKeyFollows 时，退出规划模式只在你查看其他楼层时才保留视角。[/*]
 [*]一旦你把镜头从角色身上移开，游戏的镜头转向键会环绕视角，而不是把镜头送回角色身上。[/*]
-[*]模组不认识的镜头移动，如果是前往其他楼层或地图，仍会生效，所以游戏事件仍可能把镜头带过去。[/*]
-[*]使用默认的鼠标中键拖动时，拖动会转动镜头，不再平移镜头。把 MouseButton 设为 Right 或 None 可以改变这一点。[/*]
+[*]模组不知道的游戏事件仍可能把镜头移到其他楼层或地图。[/*]
+[*]默认情况下，按住鼠标中键拖动会转动镜头，不再平移镜头。把 MouseButton 设为 Right 或 None，中键拖动就能重新平移。[/*]
 [*]拍照模式、过场动画和死亡镜头使用游戏的镜头。[/*]
-[*]制作台或图鉴打开期间，按键会一直不起作用，而不只是在搜索框里打字时。[/*]
-[*]游戏限制了每一格滚动的幅度，所以在一次会滚好几格的滚轮上，ScrollSpeed 调高也可能不会缩放得更多。[/*]
+[*]制作台或图鉴打开期间，镜头按键会一直不起作用，即使你没在搜索框里打字。[/*]
+[*]游戏每次滚动最多只算五格，所以在一次会滚好几格的滚轮上，ScrollSpeed 调高也可能不会缩放得更多。[/*]
 [/list]
 
 [url=https://www.nexusmods.com/survivallog/mods/73]获取 Mod Manager[/url]，在游戏里设置所有模组。[url=https://sldb.core-directive.com/zh/]打开 Survival Log 维基[/url]，物品、配方、地图一查就有。
@@ -108,7 +108,7 @@ Camera 不会往存档里写入数据，也不会修改游戏文件。你可以�
 [list]
 [*]Survival Log 1.1.20719。游戏更新后模组可能暂时失效，直到模组更新为止。[/*]
 [*][url=https://www.nexusmods.com/survivallog/mods/12]BepInEx for Survival Log[/url]（BepInEx 6.0.0-be.788，IL2CPP），请先安装。[/*]
-[*][url=https://www.nexusmods.com/survivallog/mods/61]Exiled's Toolkit[/url] 0.19.0 或更新版本。没有它本模组不会加载。它让在 Mod Manager 的「模组」界面修改的设置无需重启游戏即可生效；在其他模组的窗口里打字时，它让镜头按键不起作用。[/*]
+[*][url=https://www.nexusmods.com/survivallog/mods/61]Exiled's Toolkit[/url] 0.19.0 或更新版本。没有它本模组不会加载。有了它，在 Mod Manager 的「模组」界面改的设置不用重启游戏就能生效，在其他模组的窗口里打字时，镜头按键也不会起作用。[/*]
 [*]可选：[url=https://www.nexusmods.com/survivallog/mods/73]Mod Manager[/url]。装了它，可以在游戏里它的「模组」界面修改每项设置，并看到每项的说明，不用打开配置文件。[/*]
 [/list]
 
@@ -125,7 +125,7 @@ Camera 不会往存档里写入数据，也不会修改游戏文件。你可以�
 从 [font=Courier New]BepInEx\plugins[/font] 文件夹中删除 [font=Courier New]Camera.dll[/font]。
 
 [size=5]配置[/size]
-如需修改按键、限制或速度，或关闭任何一项功能，可以在游戏内 Mod Manager 的「模组」界面修改（改动立即生效，[font=Courier New]Rotate[/font] 中的 [font=Courier New]Enabled[/font] 和 [font=Courier New]MouseButton[/font]，以及 [font=Courier New]Keys[/font] 中除 [font=Courier New]CenterKeyResetsView[/font] 以外的设置 在下次启动游戏时生效），也可以在游戏关闭时编辑 [font=Courier New]BepInEx\config\com.dev.survivallog.camera.cfg[/font]。配置文件中每项设置都有中文说明，完整说明见 [url=https://github.com/AnExiledDev/SurvivalLog-Camera/blob/main/CONFIG.md]CONFIG.md[/url]（英文）。
+如需修改按键、限制或速度，或关闭任何一项功能，可以在游戏内 Mod Manager 的「模组」界面修改，也可以在游戏关闭时编辑 [font=Courier New]BepInEx\config\com.dev.survivallog.camera.cfg[/font]。在「模组」界面的改动立即生效，只有 [font=Courier New]Rotate[/font] 中的 [font=Courier New]Enabled[/font] 和 [font=Courier New]MouseButton[/font]，以及 [font=Courier New]Keys[/font] 中除 [font=Courier New]CenterKeyResetsView[/font] 以外的设置，要等下次启动游戏才生效。配置文件中每项设置都有中文说明，完整说明见 [url=https://github.com/AnExiledDev/SurvivalLog-Camera/blob/main/CONFIG.md]CONFIG.md[/url]（英文）。
 
 [size=5]反馈[/size]
 发现 bug 或有好点子？欢迎来 [url=https://discord.gg/trTsyxUFqg]Core Directive Discord[/url] 打个招呼，或在本页的「Posts」标签里发帖。报告 bug 时，请附上 [font=Courier New]BepInEx\LogOutput.log[/font] 和 [font=Courier New]BepInEx\camera.log[/font]。
