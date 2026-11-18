@@ -62,8 +62,8 @@ Delete [font=Courier New]Camera.dll[/font] from the [font=Courier New]BepInEx\pl
 To change keys, limits or speeds, or turn off any feature, use the Mod Manager's Mods screen in game, or edit [font=Courier New]BepInEx\config\com.dev.survivallog.camera.cfg[/font] while the game is closed. Changes on the Mods screen take effect at once, except [font=Courier New]Rotate[/font] [font=Courier New]Enabled[/font], [font=Courier New]MouseButton[/font] and the [font=Courier New]Keys[/font] settings other than [font=Courier New]CenterKeyResetsView[/font], which take effect the next time you start the game. The cfg file explains each setting in English and Chinese, and [url=https://github.com/AnExiledDev/SurvivalLog-Camera/blob/main/CONFIG.md]CONFIG.md[/url] lists every setting.
 
 [size=5]Feedback[/size]
-Found a bug or have an idea? Come say hi on the [url=https://discord.gg/trTsyxUFqg]Core Directive Discord[/url], or post in this page's Posts tab. For bugs, please include [font=Courier New]BepInEx\LogOutput.log[/font] and [font=Courier New]BepInEx\camera.log[/font].
-To reach me directly, message [b]exiled.dev[/b] on Discord. You can find me in the [url=https://discord.gg/MZGg4gQAUe]official Survival Log Discord[/url]. I'm also on X as [url=https://x.com/AnExiledDev]@AnExiledDev[/url].
+Found a bug or have an idea? Come say hi in the [url=https://discord.gg/pDrQtqbZgb]unofficial modding Discord for Survival Log[/url], or post in this page's Posts tab. For bugs, please include [font=Courier New]BepInEx\LogOutput.log[/font] and [font=Courier New]BepInEx\camera.log[/font].
+To reach me directly, message [b]exiled.dev[/b] on Discord. You can find me in the [url=https://discord.gg/pDrQtqbZgb]unofficial modding Discord[/url] and the [url=https://discord.gg/MZGg4gQAUe]official Survival Log Discord[/url]. I'm also on X as [url=https://x.com/AnExiledDev]@AnExiledDev[/url].
 
 [size=5]Source and license[/size]
 Open source under MIT: [url=https://github.com/AnExiledDev/SurvivalLog-Camera]github.com/AnExiledDev/SurvivalLog-Camera[/url]
@@ -128,8 +128,8 @@ Camera 不会往存档里写入数据，也不会修改游戏文件。你可以�
 如需修改按键、限制或速度，或关闭任何一项功能，可以在游戏内 Mod Manager 的「模组」界面修改，也可以在游戏关闭时编辑 [font=Courier New]BepInEx\config\com.dev.survivallog.camera.cfg[/font]。在「模组」界面的改动立即生效，只有 [font=Courier New]Rotate[/font] 中的 [font=Courier New]Enabled[/font] 和 [font=Courier New]MouseButton[/font]，以及 [font=Courier New]Keys[/font] 中除 [font=Courier New]CenterKeyResetsView[/font] 以外的设置，要等下次启动游戏才生效。配置文件中每项设置都有中文说明，完整说明见 [url=https://github.com/AnExiledDev/SurvivalLog-Camera/blob/main/CONFIG.md]CONFIG.md[/url]（英文）。
 
 [size=5]反馈[/size]
-发现 bug 或有好点子？欢迎来 [url=https://discord.gg/trTsyxUFqg]Core Directive Discord[/url] 打个招呼，或在本页的「Posts」标签里发帖。报告 bug 时，请附上 [font=Courier New]BepInEx\LogOutput.log[/font] 和 [font=Courier New]BepInEx\camera.log[/font]。
-想直接联系我，可以在 Discord 上给 [b]exiled.dev[/b] 发消息，我在 [url=https://discord.gg/MZGg4gQAUe]Survival Log 官方 Discord[/url] 里。也可以在 X 上找我：[url=https://x.com/AnExiledDev]@AnExiledDev[/url]。
+发现 bug 或有好点子？欢迎来 [url=https://discord.gg/pDrQtqbZgb]Survival Log 非官方模组 Discord[/url] 打个招呼，或在本页的「Posts」标签里发帖。报告 bug 时，请附上 [font=Courier New]BepInEx\LogOutput.log[/font] 和 [font=Courier New]BepInEx\camera.log[/font]。
+想直接联系我，可以在 Discord 上给 [b]exiled.dev[/b] 发消息，我在 [url=https://discord.gg/pDrQtqbZgb]Survival Log 非官方模组 Discord[/url] 和 [url=https://discord.gg/MZGg4gQAUe]Survival Log 官方 Discord[/url] 里。也可以在 X 上找我：[url=https://x.com/AnExiledDev]@AnExiledDev[/url]。
 
 [size=5]源代码与许可[/size]
 基于 MIT 许可开源：[url=https://github.com/AnExiledDev/SurvivalLog-Camera]github.com/AnExiledDev/SurvivalLog-Camera[/url]
