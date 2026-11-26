@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.4.8
+
+- Small speed up: the mod checks the frame in a cheaper way.
+- Made for Survival Log 1.1.21671.
+
 ## 0.4.7
 
 - Small speed up: the mod reads the time in a cheaper way.

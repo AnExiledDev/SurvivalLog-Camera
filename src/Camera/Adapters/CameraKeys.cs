@@ -251,7 +251,7 @@ internal static class CameraKeys
     /// one frame more. When it has stopped updating, keys are not held back on its account. The frame count is only
     /// read while its last reading held keys back.
     /// </summary>
-    private static bool AreHotKeysFree() => !HotKeys.NeedsFrame || HotKeys.IsFree(Time.frameCount);
+    private static bool AreHotKeysFree() => !HotKeys.NeedsFrame || HotKeys.IsFree(UnityFrame.Count());
 
     private static void NoteHotKeyState(HotKeyManager __instance)
     {
@@ -260,7 +260,7 @@ internal static class CameraKeys
         try
         {
             if (!__instance._isInputDisabled && !IsRebindingAKey(__instance)) HotKeys.NoteFree();
-            else HotKeys.NoteBlocked(Time.frameCount);
+            else HotKeys.NoteBlocked(UnityFrame.Count());
         }
         catch (Exception ex)
         {

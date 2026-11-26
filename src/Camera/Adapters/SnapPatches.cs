@@ -206,7 +206,7 @@ internal static class SnapPatches
     {
         try
         {
-            Scope.Enter(source, Time.frameCount);
+            Scope.Enter(source, UnityFrame.Count());
         }
         catch (Exception ex)
         {
@@ -233,7 +233,7 @@ internal static class SnapPatches
         {
             var isCameraFree = WorldCamera.Existing()?._cameraMode_k__BackingField == CameraMode.Free;
 
-            if (SnapRules.IsCameraButtonFollowAsk(Scope.Active(Time.frameCount), isCameraFree)) _buttonPressedAt = CameraKeys.Now;
+            if (SnapRules.IsCameraButtonFollowAsk(Scope.Active(UnityFrame.Count()), isCameraFree)) _buttonPressedAt = CameraKeys.Now;
         }
         catch (Exception ex)
         {
@@ -246,7 +246,7 @@ internal static class SnapPatches
     {
         try
         {
-            var source = Scope.Active(Time.frameCount);
+            var source = Scope.Active(UnityFrame.Count());
 
             if (source == SnapSource.None && !_toggles.OnlyCenterKeyFollows) return true;
 
