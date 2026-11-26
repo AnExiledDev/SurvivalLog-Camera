@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.4.7
+
+- Small speed up: the mod reads the time in a cheaper way.
+- Made for Survival Log 1.1.21671.
+
 ## 0.4.6
 
 - Turning rotation on or off, the mouse button and every key in `Keys` now take effect as soon as you change them on the Mods screen, with no restart. Turning rotation off turns the camera back to the game's angle.

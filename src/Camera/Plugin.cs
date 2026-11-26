@@ -16,7 +16,7 @@ namespace Camera;
 public sealed class Plugin : BasePlugin
 {
     private const string Guid = "com.dev.survivallog.camera";
-    private const string Version = "0.4.6";
+    private const string Version = "0.4.7";
     private const string ToolkitGuid = "com.dev.survivallog.exiledtoolkit";
 
     /// <summary>Held-back snaps add up over a long session, so past 1 MB the file is moved to camera.log.1 and started again.</summary>

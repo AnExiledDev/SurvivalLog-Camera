@@ -5,6 +5,7 @@ using System.Text;
 using BepInEx;
 using Camera.Core;
 using ExiledToolkit.Game;
+using ExiledToolkit.Kit;
 using GameCore.HotUpdate;
 using GameCore.HotUpdate.Battle.Show;
 using GameCore.HotUpdate.ReduxUI;
@@ -172,10 +173,18 @@ internal static class CameraKeys
     public static bool IsCenterDown() => IsDown(GameKey(HotKeyAction.CameraLock));
 
     /// <summary>
-    /// When the game's center key last went down as a request for Follow, in unscaled seconds; negative infinity until
+    /// When the game's center key last went down as a request for Follow, in <see cref="Now"/> seconds; negative infinity until
     /// it does. A press the game ignores (typing, a panel open, the camera already following) is not noted.
     /// </summary>
     public static float CenterPressedAt { get; private set; } = float.NegativeInfinity;
+
+    /// <summary>
+    /// Real seconds since the mod loaded, from the Toolkit clock. Counted from load so a float keeps its precision
+    /// however long the computer has been on.
+    /// </summary>
+    public static float Now => (float)(Clock.Now - LoadedAt);
+
+    private static readonly double LoadedAt = Clock.Now;
 
     /// <summary>
     /// Whether the center key went down this frame in a way the game turns into a request for Follow: the keyboard
@@ -275,7 +284,7 @@ internal static class CameraKeys
         {
             if (!Input.anyKeyDown || WorldCamera.Existing() is not { } camera) return;
 
-            if (IsCenterFollowAsk(camera)) CenterPressedAt = Time.unscaledTime;
+            if (IsCenterFollowAsk(camera)) CenterPressedAt = Now;
         }
         catch (Exception ex)
         {

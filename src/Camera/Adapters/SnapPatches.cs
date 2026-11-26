@@ -233,7 +233,7 @@ internal static class SnapPatches
         {
             var isCameraFree = WorldCamera.Existing()?._cameraMode_k__BackingField == CameraMode.Free;
 
-            if (SnapRules.IsCameraButtonFollowAsk(Scope.Active(Time.frameCount), isCameraFree)) _buttonPressedAt = Time.unscaledTime;
+            if (SnapRules.IsCameraButtonFollowAsk(Scope.Active(Time.frameCount), isCameraFree)) _buttonPressedAt = CameraKeys.Now;
         }
         catch (Exception ex)
         {
@@ -274,7 +274,7 @@ internal static class SnapPatches
     /// </summary>
     private static string? PlayerAsker(CameraManager camera)
     {
-        var now = Time.unscaledTime;
+        var now = CameraKeys.Now;
 
         if (CameraKeys.IsCenterFollowAsk(camera) || SnapRules.IsWithinAskWindow(CameraKeys.CenterPressedAt, now)) return "you pressed the center key";
 
