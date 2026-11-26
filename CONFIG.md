@@ -1,6 +1,6 @@
 # Camera settings
 
-Settings live in `BepInEx\config\com.dev.survivallog.camera.cfg`, created the first time the game starts with the mod. Change them in game on the Mod Manager's Mods screen, or edit the file while the game is closed. Settings you change on the Mods screen take effect at once. The exceptions are `Rotate` `Enabled`, `MouseButton` and every `Keys` setting except `CenterKeyResetsView`, which take effect the next time you start the game. Changing a setting doesn't move the camera from where you turned it. Delete the file to get the defaults back. A number outside its range is pulled back into it. Each setting's description in the file is written in English and in Simplified Chinese.
+Settings live in `BepInEx\config\com.dev.survivallog.camera.cfg`, created the first time the game starts with the mod. Change them in game on the Mod Manager's Mods screen, or edit the file while the game is closed. Settings you change on the Mods screen take effect at once. Changing a setting doesn't move the camera from where you turned it, except turning `Rotate` `Enabled` off, which turns it back to the game's angle. Delete the file to get the defaults back. A number outside its range is pulled back into it. Each setting's description in the file is written in English and in Simplified Chinese.
 
 ## Controls
 
@@ -83,6 +83,6 @@ The scroll wheel moves the camera itself toward or away from your character and 
 
 Keys take Unity key names, such as `F`, `Keypad8`, `PageUp` or `Mouse3` (the full list is Unity's [KeyCode](https://docs.unity3d.com/ScriptReference/KeyCode.html) page). `None` turns a key off.
 
-A key the game already uses, or one another Survival Log mod uses, is turned off at startup and the log names the setting and who has the key. Pick another key for it. The mod reads Time Control's pause and center keys from Time Control's settings file. Without that file, it keeps `Space` and `G` free for Time Control.
+A key the game already uses, or one another Survival Log mod uses, is turned off and the log names the setting and who has the key. Pick another key for it. The mod reads Time Control's pause and center keys from Time Control's settings file. Without that file, it keeps `Space` and `G` free for Time Control.
 
 If neither rotate setting ends up with a key, the game's rotate keys work the same as without the mod.

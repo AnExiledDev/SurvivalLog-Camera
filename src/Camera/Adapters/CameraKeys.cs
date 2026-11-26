@@ -100,6 +100,8 @@ internal static class CameraKeys
     {
         _settings = settings;
         GameKeys.Forget();
+        // The keys are worked out again on the next frame the game handles keys, from the new settings.
+        _isSetUp = false;
     }
 
     /// <summary>

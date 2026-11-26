@@ -53,6 +53,9 @@ internal static class ViewPatches
     private static Suspension _suspension = Suspension.Hard;
     private static CameraManager? _lastCamera;
     private static bool _isMouseRotating;
+
+    /// <summary>Where the button went down for the drag already judged, so a drag is judged once and not on every move.</summary>
+    private static Vector2? _judgedPress;
     private static float _mouseX;
     private static float _mouseY;
     private static float _scrollNotches;
@@ -79,18 +82,15 @@ internal static class ViewPatches
                 done: "the scroll wheel moves the camera in and out", consequence: "the scroll wheel keeps the game's lens zoom");
         }
 
-        if (isViewHooked && settings.IsRotateOn)
+        // Hooked whatever the settings say, so rotation and the mouse button can be changed while the game runs. With
+        // rotation off each one lets the game do its own thing. CameraTouch.OnBeginDrag is left alone: it has a short
+        // jump in its first 14 bytes, so a drag is judged on its first move instead.
+        if (isViewHooked)
         {
             hooks.Patch(typeof(ViewPatches), typeof(CameraManager), nameof(CameraManager.ReadCameraYawInput), prefix: nameof(SkipGameYawInput),
                 done: "the game's rotate keys drive this camera instead", consequence: "the game's rotate keys turn the camera twice");
-        }
-
-        if (isViewHooked && settings.IsRotateOn && settings.MouseButton != DragButton.None)
-        {
-            hooks.Patch(typeof(ViewPatches), typeof(CameraTouch), nameof(CameraTouch.OnBeginDrag), prefix: nameof(BeginMouseRotate),
-                done: $"{settings.MouseButton} mouse drag turns the camera", consequence: "the mouse cannot turn the camera");
             hooks.Patch(typeof(ViewPatches), typeof(CameraTouch), nameof(CameraTouch.OnDrag), prefix: nameof(MouseRotate),
-                done: "mouse drag hooked", consequence: "the mouse cannot turn the camera");
+                done: "mouse drag turns the camera", consequence: "the mouse cannot turn the camera");
             hooks.Patch(typeof(ViewPatches), typeof(CameraTouch), nameof(CameraTouch.OnEndDrag), prefix: nameof(EndMouseRotate),
                 done: "mouse drag end hooked", consequence: "releasing the mouse after turning may select what is under it");
         }
@@ -105,6 +105,14 @@ internal static class ViewPatches
     /// </summary>
     public static void Use(CameraSettings settings)
     {
+        if (_settings is { IsRotateOn: true } && !settings.IsRotateOn) _driver.Unturn();
+
+        if (_settings?.MouseButton != settings.MouseButton || !settings.IsRotateOn)
+        {
+            _isMouseRotating = false;
+            _judgedPress = null;
+        }
+
         _settings = settings;
         _driver.Use(settings.Limits, settings.SmoothingRate);
     }
@@ -147,6 +155,7 @@ internal static class ViewPatches
         _lastMode = null;
         _suspension = Suspension.Hard;
         _isMouseRotating = false;
+        _judgedPress = null;
         _mouseX = 0f;
         _mouseY = 0f;
         _scrollNotches = 0f;
@@ -450,37 +459,26 @@ internal static class ViewPatches
 
     /// <summary>
     /// The game's drag handler pans the camera with any button and selects on release, so a turning drag is taken
-    /// over whole. isOnDrag is set so the click that ends it selects nothing: Unity's input module sends the click
-    /// before the end of the drag, and the game's click handler reads and clears the flag (CameraTouch.c:325-327).
+    /// over whole from its first move. The game's start of the drag still runs: it only notes where the drag began
+    /// (read by its end of the drag, which a turning drag skips) and, in free mode, keeps the camera where it is.
+    /// isOnDrag is set so the click that ends it selects nothing: Unity's input module sends the click before the end
+    /// of the drag, and the game's click handler reads and clears the flag (CameraTouch.c:325-327).
     /// </summary>
-    private static bool BeginMouseRotate(CameraTouch __instance, PointerEventData __0)
+    private static bool MouseRotate(CameraTouch __instance, PointerEventData __0)
     {
         try
         {
             if (!IsRotateButton(__0)) return true;
 
-            _isMouseRotating = _hasBase && _suspension == Suspension.None && _lastCamera != null && CameraKeys.IsMouseFree(_lastCamera);
+            var press = __0.pressPosition;
+
+            if (_judgedPress != press)
+            {
+                _judgedPress = press;
+                _isMouseRotating = _hasBase && _suspension == Suspension.None && _lastCamera != null && CameraKeys.IsMouseFree(_lastCamera);
+            }
 
             if (!_isMouseRotating) return true;
-
-            __instance.isOnDrag = true;
-
-            return false;
-        }
-        catch (Exception ex)
-        {
-            _isMouseRotating = false;
-            _hooks?.Fail("starting a mouse turn", ex);
-
-            return true;
-        }
-    }
-
-    private static bool MouseRotate(CameraTouch __instance, PointerEventData __0)
-    {
-        try
-        {
-            if (!_isMouseRotating || !IsRotateButton(__0)) return true;
 
             var delta = __0.delta;
 
@@ -492,6 +490,7 @@ internal static class ViewPatches
         }
         catch (Exception ex)
         {
+            _isMouseRotating = false;
             _hooks?.Fail("turning with the mouse", ex);
 
             return true;
@@ -506,7 +505,11 @@ internal static class ViewPatches
     {
         try
         {
-            if (!_isMouseRotating || !IsRotateButton(__0)) return true;
+            if (!IsRotateButton(__0)) return true;
+
+            _judgedPress = null;
+
+            if (!_isMouseRotating) return true;
 
             _isMouseRotating = false;
             __instance.isOnDrag = false;
@@ -526,7 +529,9 @@ internal static class ViewPatches
     {
         var button = (int)eventData.button;
 
-        return _settings?.MouseButton switch
+        if (_settings is not { IsRotateOn: true } settings) return false;
+
+        return settings.MouseButton switch
         {
             DragButton.Middle => button == MiddleButton,
             DragButton.Right => button == RightButton,

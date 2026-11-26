@@ -58,6 +58,9 @@ public sealed class ViewDriver
         _smoothingRate = smoothingRate;
     }
 
+    /// <summary>Rotation was turned off: the turn and tilt ease back to the game's, and the height and zoom stay.</summary>
+    public void Unturn() => Target = Target with { Yaw = 0f, Pitch = 0f };
+
     /// <summary>A new world or chapter starts from the game's view.</summary>
     public void Forget()
     {

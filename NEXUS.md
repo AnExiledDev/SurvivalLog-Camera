@@ -40,7 +40,7 @@ Works in English and Chinese.
 
 [size=5]Requirements[/size]
 [list]
-[*]Survival Log 1.1.20719. A game update can break it until the mod is updated.[/*]
+[*]Survival Log 1.1.21671. A game update can break it until the mod is updated.[/*]
 [*][url=https://www.nexusmods.com/survivallog/mods/12]BepInEx for Survival Log[/url] (BepInEx 6.0.0-be.788, IL2CPP). Install it first.[/*]
 [*][url=https://www.nexusmods.com/survivallog/mods/61]Exiled's Toolkit[/url] 0.19.0 or newer. Camera does not load without it. It applies settings changed on the Mod Manager's Mods screen without restarting the game, and keeps the camera keys quiet while you type in another mod's window.[/*]
 [*]Optional: [url=https://www.nexusmods.com/survivallog/mods/73]Mod Manager[/url]. With it, you can change every setting in game on its Mods screen and see what each one does, without opening the config file.[/*]
@@ -59,7 +59,7 @@ Works in English and Chinese.
 Delete [font=Courier New]Camera.dll[/font] from the [font=Courier New]BepInEx\plugins[/font] folder.
 
 [size=5]Configuration[/size]
-To change keys, limits or speeds, or turn off any feature, use the Mod Manager's Mods screen in game, or edit [font=Courier New]BepInEx\config\com.dev.survivallog.camera.cfg[/font] while the game is closed. Changes on the Mods screen take effect at once, except [font=Courier New]Rotate[/font] [font=Courier New]Enabled[/font], [font=Courier New]MouseButton[/font] and the [font=Courier New]Keys[/font] settings other than [font=Courier New]CenterKeyResetsView[/font], which take effect the next time you start the game. The cfg file explains each setting in English and Chinese, and [url=https://github.com/AnExiledDev/SurvivalLog-Camera/blob/main/CONFIG.md]CONFIG.md[/url] lists every setting.
+To change keys, limits or speeds, or turn off any feature, use the Mod Manager's Mods screen in game, or edit [font=Courier New]BepInEx\config\com.dev.survivallog.camera.cfg[/font] while the game is closed. Changes on the Mods screen take effect at once. The cfg file explains each setting in English and Chinese, and [url=https://github.com/AnExiledDev/SurvivalLog-Camera/blob/main/CONFIG.md]CONFIG.md[/url] lists every setting.
 
 [size=5]Feedback[/size]
 Found a bug or have an idea? Come say hi in the [url=https://discord.gg/pDrQtqbZgb]unofficial modding Discord for Survival Log[/url], or post in this page's Posts tab. For bugs, please include [font=Courier New]BepInEx\LogOutput.log[/font] and [font=Courier New]BepInEx\camera.log[/font].
@@ -106,7 +106,7 @@ Camera 不会往存档里写入数据，也不会修改游戏文件。你可以�
 
 [size=5]前置要求[/size]
 [list]
-[*]Survival Log 1.1.20719。游戏更新后模组可能暂时失效，直到模组更新为止。[/*]
+[*]Survival Log 1.1.21671。游戏更新后模组可能暂时失效，直到模组更新为止。[/*]
 [*][url=https://www.nexusmods.com/survivallog/mods/12]BepInEx for Survival Log[/url]（BepInEx 6.0.0-be.788，IL2CPP），请先安装。[/*]
 [*][url=https://www.nexusmods.com/survivallog/mods/61]Exiled's Toolkit[/url] 0.19.0 或更新版本。没有它本模组不会加载。有了它，在 Mod Manager 的「模组」界面改的设置不用重启游戏就能生效，在其他模组的窗口里打字时，镜头按键也不会起作用。[/*]
 [*]可选：[url=https://www.nexusmods.com/survivallog/mods/73]Mod Manager[/url]。装了它，可以在游戏里它的「模组」界面修改每项设置，并看到每项的说明，不用打开配置文件。[/*]
@@ -125,7 +125,7 @@ Camera 不会往存档里写入数据，也不会修改游戏文件。你可以�
 从 [font=Courier New]BepInEx\plugins[/font] 文件夹中删除 [font=Courier New]Camera.dll[/font]。
 
 [size=5]配置[/size]
-如需修改按键、限制或速度，或关闭任何一项功能，可以在游戏内 Mod Manager 的「模组」界面修改，也可以在游戏关闭时编辑 [font=Courier New]BepInEx\config\com.dev.survivallog.camera.cfg[/font]。在「模组」界面的改动立即生效，只有 [font=Courier New]Rotate[/font] 中的 [font=Courier New]Enabled[/font] 和 [font=Courier New]MouseButton[/font]，以及 [font=Courier New]Keys[/font] 中除 [font=Courier New]CenterKeyResetsView[/font] 以外的设置，要等下次启动游戏才生效。配置文件中每项设置都有中文说明，完整说明见 [url=https://github.com/AnExiledDev/SurvivalLog-Camera/blob/main/CONFIG.md]CONFIG.md[/url]（英文）。
+如需修改按键、限制或速度，或关闭任何一项功能，可以在游戏内 Mod Manager 的「模组」界面修改，也可以在游戏关闭时编辑 [font=Courier New]BepInEx\config\com.dev.survivallog.camera.cfg[/font]。在「模组」界面的改动立即生效。配置文件中每项设置都有中文说明，完整说明见 [url=https://github.com/AnExiledDev/SurvivalLog-Camera/blob/main/CONFIG.md]CONFIG.md[/url]（英文）。
 
 [size=5]反馈[/size]
 发现 bug 或有好点子？欢迎来 [url=https://discord.gg/pDrQtqbZgb]Survival Log 非官方模组 Discord[/url] 打个招呼，或在本页的「Posts」标签里发帖。报告 bug 时，请附上 [font=Courier New]BepInEx\LogOutput.log[/font] 和 [font=Courier New]BepInEx\camera.log[/font]。

@@ -16,7 +16,7 @@ namespace Camera;
 public sealed class Plugin : BasePlugin
 {
     private const string Guid = "com.dev.survivallog.camera";
-    private const string Version = "0.4.5";
+    private const string Version = "0.4.6";
     private const string ToolkitGuid = "com.dev.survivallog.exiledtoolkit";
 
     /// <summary>Held-back snaps add up over a long session, so past 1 MB the file is moved to camera.log.1 and started again.</summary>
@@ -42,14 +42,14 @@ public sealed class Plugin : BasePlugin
 
         var isRotateOn = Config.Bind("Rotate", "Enabled", true,
             new ConfigDescription(
-                "Turn the camera all the way around your character and tilt it up and down. To turn, hold the middle mouse button and drag, or hold the game's rotate keys, Period (.) and Comma (,). To tilt, drag up and down, or hold Insert or Delete. When this is off, only the game's rotate keys turn the camera, the same as without the mod, and you can't tilt it. Raising and lowering still work. Takes effect at the next game start.\n" +
-                "让镜头绕着角色转一整圈，并可上下倾斜。转动：按住鼠标中键拖动，或按住游戏的镜头转向键 Period（.）和 Comma（,）。倾斜：上下拖动，或按住 Insert 或 Delete。关闭后，只有游戏的镜头转向键能转动镜头，和没装模组时一样，也不能倾斜。升高和降低仍然可用。下次启动游戏时生效。",
-                null, "ModManager.Restart")).Value;
+                "Turn the camera all the way around your character and tilt it up and down. To turn, hold the middle mouse button and drag, or hold the game's rotate keys, Period (.) and Comma (,). To tilt, drag up and down, or hold Insert or Delete. When this is off, only the game's rotate keys turn the camera, the same as without the mod, and you can't tilt it. Raising and lowering still work.\n" +
+                "让镜头绕着角色转一整圈，并可上下倾斜。转动：按住鼠标中键拖动，或按住游戏的镜头转向键 Period（.）和 Comma（,）。倾斜：上下拖动，或按住 Insert 或 Delete。关闭后，只有游戏的镜头转向键能转动镜头，和没装模组时一样，也不能倾斜。升高和降低仍然可用。",
+                null));
         var mouseButtonText = Config.Bind("Rotate", "MouseButton", "Middle",
             new ConfigDescription(
-                "The mouse button you hold and drag to turn and tilt the camera: Middle, Right or None. Drag left and right to turn, up and down to tilt. Dragging with this button no longer moves the camera across the map. Takes effect at the next game start.\n" +
-                "按住并拖动来转动和倾斜镜头的鼠标键：Middle（中键）、Right（右键）或 None（不用鼠标）。左右拖动转向，上下拖动倾斜。用这个键拖动时，不再平移镜头。下次启动游戏时生效。",
-                null, "ModManager.Restart", "ModManager.ShowWhen=Enabled")).Value;
+                "The mouse button you hold and drag to turn and tilt the camera: Middle, Right or None. Drag left and right to turn, up and down to tilt. Dragging with this button no longer moves the camera across the map.\n" +
+                "按住并拖动来转动和倾斜镜头的鼠标键：Middle（中键）、Right（右键）或 None（不用鼠标）。左右拖动转向，上下拖动倾斜。用这个键拖动时，不再平移镜头。",
+                null, "ModManager.ShowWhen=Enabled"));
         var mouseSensitivity = Config.Bind("Rotate", "MouseSensitivity", 0.25f,
             new ConfigDescription("How many degrees the camera turns for each pixel you drag, from 0.01 to 5. Higher turns faster.\n" +
             "每拖动一个像素，镜头转动多少度，范围 0.01 到 5。数值越大，转得越快。", null, "ModManager.ShowWhen=Enabled"));
@@ -104,49 +104,49 @@ public sealed class Plugin : BasePlugin
 
         var rotateLeftText = Config.Bind("Keys", "RotateLeftKey", "Game",
             new ConfigDescription(
-                "The key that turns the camera left. It does nothing while [Rotate] Enabled is off. Game means the game's rotate-left key, which is Period (.) unless you changed it in the game's key settings. A key the game or another mod already uses is turned off. You can also write a Unity key name such as F, Keypad8 or Mouse3, or None to turn it off. Takes effect at the next game start.\n" +
-                "让镜头向左转的键。[Rotate] 中的 Enabled 关闭时不起作用。Game 表示使用游戏的镜头左转键，默认是 Period（.），除非你在游戏设置的按键页改过。游戏或其他模组已经在用的键会被关闭。也可以填 Unity 按键名，例如 F、Keypad8 或 Mouse3，填 None 则关闭。下次启动游戏时生效。",
-                null, "ModManager.Restart", "ModManager.ShowWhen=Rotate.Enabled")).Value;
+                "The key that turns the camera left. It does nothing while [Rotate] Enabled is off. Game means the game's rotate-left key, which is Period (.) unless you changed it in the game's key settings. A key the game or another mod already uses is turned off. You can also write a Unity key name such as F, Keypad8 or Mouse3, or None to turn it off.\n" +
+                "让镜头向左转的键。[Rotate] 中的 Enabled 关闭时不起作用。Game 表示使用游戏的镜头左转键，默认是 Period（.），除非你在游戏设置的按键页改过。游戏或其他模组已经在用的键会被关闭。也可以填 Unity 按键名，例如 F、Keypad8 或 Mouse3，填 None 则关闭。",
+                null, "ModManager.ShowWhen=Rotate.Enabled"));
         var rotateRightText = Config.Bind("Keys", "RotateRightKey", "Game",
             new ConfigDescription(
-                "The key that turns the camera right. It does nothing while [Rotate] Enabled is off. Game means the game's rotate-right key, which is Comma (,) unless you changed it in the game's key settings. A key the game or another mod already uses is turned off. None turns it off. Takes effect at the next game start.\n" +
-                "让镜头向右转的键。[Rotate] 中的 Enabled 关闭时不起作用。Game 表示使用游戏的镜头右转键，默认是 Comma（,），除非你在游戏设置的按键页改过。游戏或其他模组已经在用的键会被关闭。填 None 则关闭。下次启动游戏时生效。",
-                null, "ModManager.Restart", "ModManager.ShowWhen=Rotate.Enabled")).Value;
+                "The key that turns the camera right. It does nothing while [Rotate] Enabled is off. Game means the game's rotate-right key, which is Comma (,) unless you changed it in the game's key settings. A key the game or another mod already uses is turned off. None turns it off.\n" +
+                "让镜头向右转的键。[Rotate] 中的 Enabled 关闭时不起作用。Game 表示使用游戏的镜头右转键，默认是 Comma（,），除非你在游戏设置的按键页改过。游戏或其他模组已经在用的键会被关闭。填 None 则关闭。",
+                null, "ModManager.ShowWhen=Rotate.Enabled"));
         var tiltUpText = Config.Bind("Keys", "TiltUpKey", "Insert",
             new ConfigDescription(
-                "The key that tilts the camera steeper, toward looking straight down. It does nothing while [Rotate] Enabled is off. A key the game or another mod already uses is turned off. None turns it off. Takes effect at the next game start.\n" +
-                "让镜头变陡（更接近垂直向下看）的键。[Rotate] 中的 Enabled 关闭时不起作用。游戏或其他模组已经在用的键会被关闭。填 None 则关闭。下次启动游戏时生效。",
-                null, "ModManager.Restart", "ModManager.ShowWhen=Rotate.Enabled")).Value;
+                "The key that tilts the camera steeper, toward looking straight down. It does nothing while [Rotate] Enabled is off. A key the game or another mod already uses is turned off. None turns it off.\n" +
+                "让镜头变陡（更接近垂直向下看）的键。[Rotate] 中的 Enabled 关闭时不起作用。游戏或其他模组已经在用的键会被关闭。填 None 则关闭。",
+                null, "ModManager.ShowWhen=Rotate.Enabled"));
         var tiltDownText = Config.Bind("Keys", "TiltDownKey", "Delete",
             new ConfigDescription(
-                "The key that tilts the camera flatter, toward the horizon. It does nothing while [Rotate] Enabled is off. A key the game or another mod already uses is turned off. None turns it off. Takes effect at the next game start.\n" +
-                "让镜头变平（更接近水平线）的键。[Rotate] 中的 Enabled 关闭时不起作用。游戏或其他模组已经在用的键会被关闭。填 None 则关闭。下次启动游戏时生效。",
-                null, "ModManager.Restart", "ModManager.ShowWhen=Rotate.Enabled")).Value;
+                "The key that tilts the camera flatter, toward the horizon. It does nothing while [Rotate] Enabled is off. A key the game or another mod already uses is turned off. None turns it off.\n" +
+                "让镜头变平（更接近水平线）的键。[Rotate] 中的 Enabled 关闭时不起作用。游戏或其他模组已经在用的键会被关闭。填 None 则关闭。",
+                null, "ModManager.ShowWhen=Rotate.Enabled"));
         var raiseText = Config.Bind("Keys", "RaiseKey", "PageUp",
             new ConfigDescription(
-                "The key that lifts the camera. A key the game or another mod already uses is turned off. None turns it off. Takes effect at the next game start.\n" +
-                "升高镜头的键。游戏或其他模组已经在用的键会被关闭。填 None 则关闭。下次启动游戏时生效。",
-                null, "ModManager.Restart")).Value;
+                "The key that lifts the camera. A key the game or another mod already uses is turned off. None turns it off.\n" +
+                "升高镜头的键。游戏或其他模组已经在用的键会被关闭。填 None 则关闭。",
+                null));
         var lowerText = Config.Bind("Keys", "LowerKey", "PageDown",
             new ConfigDescription(
-                "The key that lowers the camera. A key the game or another mod already uses is turned off. None turns it off. Takes effect at the next game start.\n" +
-                "降低镜头的键。游戏或其他模组已经在用的键会被关闭。填 None 则关闭。下次启动游戏时生效。",
-                null, "ModManager.Restart")).Value;
+                "The key that lowers the camera. A key the game or another mod already uses is turned off. None turns it off.\n" +
+                "降低镜头的键。游戏或其他模组已经在用的键会被关闭。填 None 则关闭。",
+                null));
         var resetText = Config.Bind("Keys", "ResetKey", "Home",
             new ConfigDescription(
-                "The key that resets the camera's angle, height and zoom to default. A key the game or another mod already uses is turned off. None turns it off. Takes effect at the next game start.\n" +
-                "把镜头的角度、高度和缩放恢复默认的键。游戏或其他模组已经在用的键会被关闭。填 None 则关闭。下次启动游戏时生效。",
-                null, "ModManager.Restart")).Value;
+                "The key that resets the camera's angle, height and zoom to default. A key the game or another mod already uses is turned off. None turns it off.\n" +
+                "把镜头的角度、高度和缩放恢复默认的键。游戏或其他模组已经在用的键会被关闭。填 None 则关闭。",
+                null));
         var doesCenterKeyReset = Config.Bind("Keys", "CenterKeyResetsView", false,
             "When you press the game's center camera key (Space by default, or G with Time Control), also reset the camera's angle, height and zoom to default.\n" +
             "按下游戏的镜头跟随键（默认 Space，装了 Time Control 时为 G）时，同时把镜头的角度、高度和缩放恢复默认。");
 
         var log = new ModLog(Log, "camera.log") { MaxFileBytes = MaxLogBytes };
-        var mouseButton = DragButtons.Parse(mouseButtonText) ?? Fallback(DragButton.Middle, $"Rotate.MouseButton '{mouseButtonText}' is not Middle, Right or None, using Middle", log.Write);
+        DragButton MouseButton() => DragButtons.Parse(mouseButtonText.Value) ?? Fallback(DragButton.Middle, $"Rotate.MouseButton '{mouseButtonText.Value}' is not Middle, Right or None, using Middle", log.Write);
         CameraSettings Read() => new(
             new SnapToggles(isStayOnStairsOn.Value, isStayAfterMenuCloseOn.Value, isStayAfterBuildModeOn.Value, isOnlyCenterKeyFollowsOn.Value),
-            isRotateOn,
-            mouseButton,
+            isRotateOn.Value,
+            MouseButton(),
             Clamp(mouseSensitivity.Value, 0.01f, 5f, 0.25f),
             isMouseXInverted.Value,
             isMouseYInverted.Value,
@@ -155,19 +155,19 @@ public sealed class Plugin : BasePlugin
             new KeySpeeds(Clamp(keyRotateSpeed.Value, 1f, 720f, 90f), Clamp(keyTiltSpeed.Value, 1f, 720f, 45f), Clamp(heightSpeed.Value, 0.1f, 100f, 6f)),
             Clamp(smoothingRate.Value, 0f, 60f, 12f),
             Clamp(scrollSpeed.Value, 0.1f, 5f, 1f),
-            KeyChoice.Parse(rotateLeftText, canUseGameKey: true),
-            KeyChoice.Parse(rotateRightText, canUseGameKey: true),
-            KeyChoice.Parse(tiltUpText, canUseGameKey: false),
-            KeyChoice.Parse(tiltDownText, canUseGameKey: false),
-            KeyChoice.Parse(raiseText, canUseGameKey: false),
-            KeyChoice.Parse(lowerText, canUseGameKey: false),
-            KeyChoice.Parse(resetText, canUseGameKey: false),
+            KeyChoice.Parse(rotateLeftText.Value, canUseGameKey: true),
+            KeyChoice.Parse(rotateRightText.Value, canUseGameKey: true),
+            KeyChoice.Parse(tiltUpText.Value, canUseGameKey: false),
+            KeyChoice.Parse(tiltDownText.Value, canUseGameKey: false),
+            KeyChoice.Parse(raiseText.Value, canUseGameKey: false),
+            KeyChoice.Parse(lowerText.Value, canUseGameKey: false),
+            KeyChoice.Parse(resetText.Value, canUseGameKey: false),
             doesCenterKeyReset.Value);
 
         var hooks = new PatchKit(new Harmony(Guid), log.Write, MaxLoggedFailures);
         var startSettings = Read();
 
-        log.Write($"===== Camera {Version} started: rotate {OnOff(isRotateOn)} (mouse {mouseButton})");
+        log.Write($"===== Camera {Version} started: rotate {OnOff(startSettings.IsRotateOn)} (mouse {startSettings.MouseButton})");
         CameraKeys.Apply(hooks, startSettings, log.Write);
         ViewPatches.Apply(hooks, startSettings, log.Write);
 
@@ -176,7 +176,7 @@ public sealed class Plugin : BasePlugin
             var settings = Read();
             var limits = settings.Limits;
 
-            log.Write($"only the center key follows {OnOff(settings.Snap.OnlyCenterKeyFollows)}, stay on stairs {OnOff(settings.Snap.StayOnStairs)}, after menus {OnOff(settings.Snap.StayAfterMenuClose)}, after build mode {OnOff(settings.Snap.StayAfterBuildMode)}, " +
+            log.Write($"rotate {OnOff(settings.IsRotateOn)} (mouse {settings.MouseButton}), only the center key follows {OnOff(settings.Snap.OnlyCenterKeyFollows)}, stay on stairs {OnOff(settings.Snap.StayOnStairs)}, after menus {OnOff(settings.Snap.StayAfterMenuClose)}, after build mode {OnOff(settings.Snap.StayAfterBuildMode)}, " +
                 $"yaw {(limits.IsYawLimited ? $"within {limits.YawLimit:0.#}" : "all round")}, pitch {limits.PitchMin:0.#} to {limits.PitchMax:0.#}, in build mode {OnOff(settings.IsRotateAllowedInBuildMode)}, " +
                 $"height {limits.HeightMin:0.#} to {limits.HeightMax:0.#} m, zoom {MathF.Exp(limits.ZoomOutMin):0.##} to {MathF.Exp(limits.ZoomOutMax):0.##} times the game's distance, " +
                 $"smoothing {settings.SmoothingRate:0.#}, scroll speed x{settings.ScrollSpeed:0.##}");
@@ -184,7 +184,8 @@ public sealed class Plugin : BasePlugin
             ViewPatches.Use(settings);
             SnapPatches.Use(hooks, settings.Snap, log.Write, log.WriteFileOnly);
         }, isOnlyCenterKeyFollowsOn, isStayOnStairsOn, isStayAfterMenuCloseOn, isStayAfterBuildModeOn, mouseSensitivity, isMouseXInverted, isMouseYInverted, yawLimit, pitchMin, pitchMax,
-            keyRotateSpeed, keyTiltSpeed, isAllowedInBuildMode, heightMin, heightMax, heightSpeed, zoomClosest, zoomFarthest, scrollSpeed, smoothingRate, doesCenterKeyReset);
+            keyRotateSpeed, keyTiltSpeed, isAllowedInBuildMode, heightMin, heightMax, heightSpeed, zoomClosest, zoomFarthest, scrollSpeed, smoothingRate, doesCenterKeyReset,
+            isRotateOn, mouseButtonText, rotateLeftText, rotateRightText, tiltUpText, tiltDownText, raiseText, lowerText, resetText);
 
         WarmUpInBackground(log);
     }

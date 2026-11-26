@@ -172,6 +172,20 @@ public class ViewDriverTests
         Assert.Equal(new View(30f, 0f, 2f), view);
     }
 
+    // Turning rotation off must undo the turn and tilt it allowed, but height and zoom are not part of rotation.
+    [Fact]
+    public void Turning_rotation_off_eases_the_turn_and_tilt_back_and_keeps_the_height()
+    {
+        var driver = new ViewDriver(AllRound, 0f);
+
+        driver.Step(new ViewPush(90f, 10f, 5f), false, Suspension.None, 40f, 0.016f);
+        driver.Unturn();
+
+        var view = driver.Step(ViewPush.None, false, Suspension.None, 40f, 0.016f);
+
+        Assert.Equal((0f, 0f, 5f), (view.Yaw, view.Pitch, view.Height));
+    }
+
     [Fact]
     public void The_reset_key_brings_back_the_games_own_view()
     {
